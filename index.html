@@ -3,17 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>北海道夏日大冒險 - 終極個人準備與互動自駕系統</title>
+    <title>🎮 北海道冒險作戰中心 - Summer RPG 2.0 盛夏晴空版</title>
     <style>
         :root {
-            --primary: #FF7052;
-            --secondary: #36D7B7;
-            --accent: #FFD200;
-            --bg: #F0F4F8;
-            --dark: #2C3E50;
-            --card-bg: #FFFFFF;
-            --gray: #8A99AD;
-            --light-gray: #E2E8F0;
+            --primary: #FF6B6B;
+            --switch-blue: #4FC3F7;
+            --switch-dark: #F8FAFC;
+            --switch-panel: #FFFFFF;
+            --secondary: #4ECDC4;
+            --accent: #FFD93D;
+
+            --text-light: #1E293B;
+            --gray: #64748B;
+
+            --route-done: #22C55E;
+            --route-future: #CBD5E1;
+            
             --edit-color: #A855F7;
             --pack-color: #0284C7;
         }
@@ -25,593 +30,727 @@
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--dark);
+            background: linear-gradient(180deg, #87CEEB 0%, #BFE9FF 40%, #F0F9FF 100%);
+            color: var(--text-light);
             margin: 0;
             padding: 8px;
             display: flex;
             justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
+        a {
+            text-decoration: none;
+        }
+
+        /* 北海道天空雲朵漂移動畫 */
+        .sky-cloud {
+            position: fixed;
+            font-size: 32px;
+            opacity: .35;
+            animation: cloudMove 30s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .cloud2 { top: 120px; animation-duration: 40s; }
+        .cloud3 { top: 260px; animation-duration: 50s; }
+        @keyframes cloudMove {
+            from { transform: translateX(-120px); }
+            to { transform: translateX(120vw); }
+        }
+
+        /* 手機主外殼容器 */
         .phone-container {
             width: 100%;
             max-width: 420px;
-            background: var(--card-bg);
-            border-radius: 36px;
-            box-shadow: 0 15px 45px rgba(44,62,80,0.18);
+            background: var(--switch-dark);
+            border-radius: 40px;
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            min-height: 96vh;
+            border: 4px solid #FFFFFF;
+            position: relative;
+            z-index: 1;
         }
 
-        .app-header {
-            background: linear-gradient(135deg, #FFF6E5 0%, #FFDEE9 100%);
-            padding: 14px;
+        /* 頂部回憶錄條幅 */
+        .memoir-mode-banner {
+            display: none;
+            background: linear-gradient(90deg, #F59E0B, #D97706);
+            color: white;
             text-align: center;
-            border-bottom: 1px solid var(--light-gray);
+            padding: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            letter-spacing: 1px;
         }
 
-        .app-header h1 { margin: 0; font-size: 1.25rem; color: #2C3E50; }
-        .app-header p { margin: 4px 0 0 0; font-size: 0.75rem; color: #7F8C8D; font-weight: 500; }
+        /* Hero Header 輕量夏日漸變調 */
+        .rpg-header {
+            background: linear-gradient(135deg, #4FC3F7, #81D4FA, #B3E5FC);
+            border-bottom: none;
+            color: #0F172A;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .rpg-header h1 { margin: 0; font-size: 1.1rem; color: #0F172A; letter-spacing: 0.5px; }
+        .progress-wrapper { margin-top: 4px; font-size: 0.7rem; color: #334155; font-weight: bold; }
+        .progress { height: 8px; background: rgba(255,255,255,0.4); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+        .progress-bar { width: 7%; height: 100%; background: var(--primary); transition: width 0.4s ease; }
+        .day-badge { background: var(--primary); color: white; padding: 6px 12px; border-radius: 999px; font-weight: bold; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(255,107,107,0.3); text-align: center; }
+        .location { text-align: center; margin-top: 4px; font-weight: bold; font-size: 0.95rem; color: #0F172A; }
 
-        /* 實時計分板 */
-        .scoreboard {
-            background: #FFF;
-            padding: 10px;
-            border-bottom: 2px dashed var(--light-gray);
-        }
-
-        .players-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-        }
-
-        .player-card {
-            background: #F8FAFC;
-            border-radius: 12px;
-            padding: 6px 2px;
-            text-align: center;
-            border: 1px solid #F1F5F9;
-        }
-
-        .player-avatar { font-size: 1.2rem; }
-        .player-name { font-size: 0.65rem; font-weight: bold; color: #64748B; }
-        .player-score { font-size: 1.1rem; font-weight: 900; color: var(--primary); margin: 2px 0; }
-        
-        .score-btns { display: flex; justify-content: space-around; }
-        .score-btn {
-            border: none; background: white; border-radius: 50%;
-            width: 20px; height: 20px; font-size: 0.75rem; font-weight: bold;
-            cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        /* 導覽標籤 (升級為橫向滑動防擠壓) */
-        .tab-nav { 
-            display: flex; 
-            background: #F1F5F9; 
-            padding: 4px; 
-            gap: 4px; 
-            overflow-x: auto; 
-            scrollbar-width: none;
-        }
-        .tab-nav::-webkit-scrollbar { display: none; }
-        .tab-btn {
-            flex: 0 0 auto; padding: 10px 12px; border: none; background: transparent;
-            font-size: 0.75rem; font-weight: bold; color: #64748B;
-            cursor: pointer; border-radius: 10px; text-align: center;
-        }
-        .tab-btn.active {
-            background: var(--card-bg); color: var(--primary);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-
-        /* 內文分頁 */
-        .tab-content { display: none; padding: 12px; flex: 1; overflow-y: auto; max-height: 64vh; }
+        /* 分頁切換基礎排版 */
+        .tab-content { display: none; padding: 14px; flex: 1; overflow-y: auto; max-height: 76vh; }
         .tab-content.active { display: block; }
 
-        /* 🎮 任務卡 */
-        .mission-box {
-            background: linear-gradient(135deg, #FFFEFC 0%, #FFF7F5 100%);
-            border: 2px solid #FFE4DE;
-            border-radius: 20px; padding: 16px; margin-bottom: 12px;
-            position: relative;
-        }
-        .mission-tag {
-            background: var(--secondary); color: #fff; font-size: 0.65rem;
-            font-weight: bold; padding: 3px 10px; border-radius: 20px; position: absolute; right: 16px; top: 16px;
-        }
-        .mission-title { font-size: 1.1rem; font-weight: bold; margin: 0 0 10px 0; padding-right: 80px; color: #1E293B; }
-        .mission-desc { font-size: 0.82rem; color: #475569; line-height: 1.45; }
-
-        /* 🗺️ 地圖面板 */
-        .map-timeline {
-            display: flex; overflow-x: auto; gap: 6px; padding-bottom: 8px;
-            margin-bottom: 8px; scrollbar-width: none;
-        }
-        .map-timeline::-webkit-scrollbar { display: none; }
-        .day-node {
-            flex: 0 0 48px; height: 38px; background: #F1F5F9; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.75rem; font-weight: bold; color: #64748B; cursor: pointer;
-            border: 1px solid #E2E8F0;
-        }
-        .day-node.active {
-            background: var(--primary); color: white; border-color: var(--primary);
+        /* 經典動態天氣卡片組件 */
+        .weather-card {
+            background: linear-gradient(135deg, #FFD93D, #FFE066);
+            padding: 14px;
+            border-radius: 18px;
+            font-weight: bold;
+            color: #7C2D12;
+            box-shadow: 0 10px 20px rgba(255,217,61,.3);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .canvas-container {
-            width: 100%; background: #EBF4FA; border-radius: 20px;
-            overflow: hidden; border: 2px solid #D1E3F0;
+        /* Nintendo Switch 遊戲風九宮格選單 */
+        .switch-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 8px; }
+        .switch-item {
+            background: var(--switch-panel); border: 3px solid #E2E8F0; border-radius: 20px;
+            padding: 16px 8px; text-align: center; cursor: pointer; transition: all 0.2s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.04); position: relative;
         }
-        canvas { display: block; width: 100%; height: auto; }
+        .switch-item::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: var(--gray); border-top-left-radius: 20px; border-bottom-left-radius: 20px; }
+        .switch-item.active-tab::before { background: var(--primary); }
+        .switch-item.active-tab { border-color: var(--primary); background: #FFF; transform: scale(1.02); }
+        .switch-item:active { transform: scale(0.96); }
+        .switch-icon { font-size: 1.6rem; margin-bottom: 2px; display: block; }
+        .switch-label { font-size: 0.82rem; font-weight: bold; color: var(--text-light); display: block; }
 
-        /* 資訊卡片樣式 */
-        .info-card {
-            background: #FFF; border: 1px solid #E2E8F0; border-radius: 16px;
-            padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.01);
-        }
-        .info-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #F1F5F9; padding-bottom: 6px;}
-        .info-title { font-weight: bold; color: #1E293B; font-size: 0.95rem; }
-        .info-meta { font-size: 0.75rem; color: var(--primary); font-weight: bold; }
+        /* RPG 角色卡模組升級 */
+        .player-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
+        .player-card { background: white; border: none; box-shadow: 0 10px 25px rgba(0,0,0,.08); border-radius: 20px; overflow: hidden; padding: 12px 10px; text-align: center; cursor: pointer; }
+        .player-card:active { transform: scale(0.97); }
+        .player-avatar { font-size: 1.8rem; }
+        .player-card strong { display: block; font-size: 0.85rem; color: var(--text-light); margin-top: 2px; }
+        .player-lv { font-size: 0.65rem; background: var(--switch-blue); color: white; padding: 1px 6px; border-radius: 10px; display: inline-block; font-weight: bold; margin-top: 2px; }
         
-        .detail-section { margin-top: 8px; font-size: 0.8rem; line-height: 1.5; }
-        .detail-row { display: flex; margin-bottom: 6px; align-items: flex-start; }
-        .detail-label { font-weight: bold; color: #1E293B; min-width: 75px; background: #EDF2F7; padding: 2px 6px; border-radius: 6px; text-align: center; font-size: 0.7rem; margin-right: 8px; margin-top: 2px; }
-        .detail-text { flex: 1; color: #475569; }
+        .player-exp-bar { height: 8px; background: #E5E7EB; border-radius: 99px; overflow: hidden; margin-top: 6px; }
+        .player-exp-fill { height: 100%; background: linear-gradient(90deg, #FFD93D, #FF8A00); width: 70%; transition: width 0.3s ease; }
 
-        /* 修改行程面板 */
-        .edit-panel {
-            display: none; background: #F8FAFC; border: 2px solid var(--edit-color);
-            border-radius: 16px; padding: 12px; margin-bottom: 12px;
+        /* 實時動態家族排行榜 */
+        .info-card h3 { margin-top: 0; font-size: 0.95rem; display: flex; align-items: center; gap: 4px; }
+
+        /* ================= 🗺️ 寶可夢風夏天概念地圖 ================= */
+        .map-box {
+            width: 100%; height: 280px;
+            background: linear-gradient(180deg, #74C0FC 0%, #C5F6FA 50%, #D3F9D8 100%);
+            border: 3px solid #A5D8FF; border-radius: 22px; position: relative; overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.05);
         }
-        .edit-panel h4 { margin: 0 0 10px 0; color: var(--edit-color); font-size: 0.9rem; }
-        .edit-label-text { font-size: 0.75rem; font-weight: bold; color: #475569; margin-bottom: 2px; display: block; }
-        .edit-textarea { width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #CBD5E0; border-radius: 8px; font-size: 0.8rem; resize: none; }
-
-        /* 📋 互動勾選樣式 (通用於留意事項、個人行李) */
-        .check-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 0.8rem; color: #475569; line-height: 1.4; }
-        .check-item input { margin-top: 3px; width: 15px; height: 15px; cursor: pointer; }
-        .check-item input:checked + span { text-decoration: line-through; color: #94A3B8; }
-
-        /* 按鈕 */
-        .btn {
-            width: 100%; padding: 12px; border: none; border-radius: 12px;
-            font-size: 0.9rem; font-weight: bold; cursor: pointer;
-            margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px;
+        .map-svg-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        
+        @keyframes pokemonFloat {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
         }
-        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(255,112,82,0.2); }
-        .btn-outline { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E0; }
-        .btn-edit { background: var(--edit-color); color: white; box-shadow: 0 4px 12px rgba(168,85,247,0.2); }
-        .custom-form { display: none; margin-top: 8px; background: #F8FAFC; padding: 10px; border-radius: 12px; }
-        .custom-input { width: 100%; padding: 8px; margin-bottom: 6px; border: 1px solid #CBD5E0; border-radius: 8px; font-size: 0.8rem; }
+        .map-hub { position: absolute; z-index: 2; cursor: pointer; text-align: center; animation: pokemonFloat 2.4s ease-in-out infinite; }
+        .map-hub:nth-child(even) { animation-delay: 0.5s; animation-duration: 2.7s; }
+        .hub-emoji { font-size: 1.4rem; display: block; transition: transform 0.2s; }
+        .hub-name { background: white; color: #0F172A; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; font-weight: bold; white-space: nowrap; display: block; margin-top: 1px; border: 1px solid #E2E8F0; }
+        
+        /* 地圖高亮霓虹光學特效 */
+        .map-hub.focused .hub-emoji {
+            transform: scale(1.4);
+            filter: drop-shadow(0 0 8px #00BFFF) drop-shadow(0 0 15px #00BFFF);
+        }
+        .map-car-emoji { position: absolute; z-index: 5; font-size: 1.3rem; transition: left 0.5s cubic-bezier(0.25, 1, 0.5, 1), top 0.5s cubic-bezier(0.25, 1, 0.5, 1); pointer-events: none; }
+        .map-timeline { display: flex; overflow-x: auto; gap: 6px; padding-bottom: 6px; margin-bottom: 8px; scrollbar-width: none; }
+        .map-timeline::-webkit-scrollbar { display: none; }
+        .day-node { flex: 0 0 46px; height: 35px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; color: var(--gray); cursor: pointer; border: 1px solid #E2E8F0; }
+        .day-node.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* 行程細節排版 */
+        .detail-section { display: flex; flex-direction: column; gap: 6px; }
+        .detail-row { display: flex; flex-direction: column; padding: 4px 0; border-bottom: 1px dashed #F1F5F9; font-size: 0.82rem; }
+        .detail-label { font-weight: bold; color: var(--gray); margin-bottom: 2px; }
+        .detail-text { color: var(--text-light); line-height: 1.4; }
+
+        /* 修改面板與輸入框 */
+        .edit-panel { display: none; margin-top: 10px; background: #F8FAFC; padding: 12px; border-radius: 14px; border: 1px dashed var(--edit-color); }
+        .edit-panel h4 { margin: 0 0 8px 0; font-size: 0.85rem; color: var(--edit-color); }
+        .custom-input, .edit-textarea { width: 100%; margin-bottom: 6px; padding: 8px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.8rem; }
+        .edit-textarea { resize: none; }
+
+        /* 📋 拍立得旅行相簿牆 */
+        .photo-upload-zone { background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: 16px; padding: 20px 14px; text-align: center; margin-top: 12px; position: relative; }
+        .photo-input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+        .photo-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; }
+        .btn-quest-done { width: 100%; padding: 13px; border: none; background: var(--secondary); color: white; border-radius: 12px; font-weight: bold; cursor: pointer; display: none; font-size: 0.9rem; margin-top: 12px; }
+        
+        .album-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 4px; }
+        .album-card {
+            background: white; border: none; padding: 6px 6px 24px 6px;
+            box-shadow: 0 10px 20px rgba(0,0,0,.08); transform: rotate(-1.5deg);
+            border-radius: 4px; transition: transform 0.2s;
+        }
+        .album-card:nth-child(even) { transform: rotate(1.5deg); }
+        .album-img { width: 100%; height: 100px; object-fit: cover; display: block; background: #F1F5F9; border-radius: 2px; }
+        .album-meta { padding: 6px 2px 0 2px; font-size: 0.65rem; color: var(--gray); font-weight: bold; text-align: center; }
+
+        /* 基礎卡片格式 */
+        .info-card { background: white; border-radius: 18px; padding: 14px; margin-bottom: 12px; border: 1px solid #E2E8F0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .info-header { display: flex; justify-content: space-between; border-bottom: 1px solid #F1F5F9; padding-bottom: 6px; margin-bottom: 8px; }
+        .info-title { font-weight: bold; font-size: 0.9rem; color: var(--text-light); }
+        .info-meta { font-size: 0.75rem; color: var(--primary); font-weight: bold; }
+        .metric-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 5px; font-size: 0.82rem; margin-bottom: 4px; }
+        .lb-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.85rem; font-weight: 500; border-bottom: 1px dashed #F1F5F9; }
+
+        /* 大結局結算面板層 */
+        .end-game-overlay {
+            display: none; position: absolute; top:0; left:0; width:100%; height:100%;
+            background: #FFFFFF; z-index: 999; padding: 24px; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center; overflow-y: auto;
+        }
+        .end-title-banner { font-size: 1.35rem; font-weight: bold; color: #B45309; border-top: 2px solid #B45309; border-bottom: 2px solid #B45309; padding: 12px 0; margin: 18px 0; width: 100%; letter-spacing: 1px; }
+        .stat-row { display: flex; justify-content: space-between; width: 85%; margin-bottom: 10px; font-size: 0.88rem; border-bottom: 1px dashed #E2E8F0; padding-bottom: 5px; color: var(--text-light); }
+        .champion-box { background: linear-gradient(135deg, #FFD93D, #FF8A00); color: #7C2D12; padding: 10px 20px; border-radius: 14px; font-weight: bold; font-size: 1rem; box-shadow: 0 4px 15px rgba(255,138,0,0.3); margin-top: 8px; }
+
+        /* 外掛工具專用樣式 */
+        .tool-btn {
+            margin-bottom: 0 !important;
+            font-size: 0.78rem !important;
+            padding: 10px 4px !important;
+            flex-direction: column !important;
+            gap: 4px !important;
+            border-radius: 14px !important;
+            transition: all 0.2s ease;
+        }
+        .tool-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 基礎工具排版 */
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: white; color: var(--text-light); border: 1px solid #CBD5E1; }
+        .custom-form { display: none; margin-top: 8px; padding: 10px; background: #F8FAFC; border-radius: 12px; border: 1px dashed #CBD5E1; }
+        .check-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 0.8rem; text-align: left; }
+        .check-item input:checked + span { text-decoration: line-through; color: var(--gray); }
     </style>
 </head>
 <body>
 
+<!-- 動態背景漂移雲朵 -->
+<div class="sky-cloud">☁️</div>
+<div class="sky-cloud cloud2">☁️</div>
+<div class="sky-cloud cloud3">☁️</div>
+
 <div class="phone-container">
-    <div class="app-header">
-        <h1>🍦 北海道夏日深度冒險</h1>
-        <p>14天微觀吃喝玩樂與動態自駕地圖</p>
-    </div>
+    <div class="memoir-mode-banner" id="memoir-banner">📖 珍貴紀錄：北海道家庭冒險回憶錄 📖</div>
 
-    <!-- 實時計分板 -->
-    <div class="scoreboard">
-        <div class="players-grid">
-            <div class="player-card">
-                <div class="player-avatar">👨</div>
-                <div class="player-name">爸爸</div>
-                <div class="player-score" id="score-dad">0</div>
-                <div class="score-btns">
-                    <button class="score-btn" onclick="changeScore('dad', -1)">-</button>
-                    <button class="score-btn" onclick="changeScore('dad', 1)">+</button>
-                </div>
+    <!-- 頂部組件 -->
+    <div class="rpg-header">
+        <div>
+            <h1 id="top-title">🎮 北海道冒險作戰中心</h1>
+            <div class="progress-wrapper">
+                <span id="top-progress-text">旅程進度 7%</span>
+                <div class="progress"><div class="progress-bar" id="top-progress-bar"></div></div>
             </div>
-            <div class="player-card">
-                <div class="player-avatar">👩</div>
-                <div class="player-name">媽媽</div>
-                <div class="player-score" id="score-mom">0</div>
-                <div class="score-btns">
-                    <button class="score-btn" onclick="changeScore('mom', -1)">-</button>
-                    <button class="score-btn" onclick="changeScore('mom', 1)">+</button>
-                </div>
-            </div>
-            <div class="player-card">
-                <div class="player-avatar">👧</div>
-                <div class="player-name">大囡(15)</div>
-                <div class="player-score" id="score-sis1">0</div>
-                <div class="score-btns">
-                    <button class="score-btn" onclick="changeScore('sis1', -1)">-</button>
-                    <button class="score-btn" onclick="changeScore('sis1', 1)">+</button>
-                </div>
-            </div>
-            <div class="player-card">
-                <div class="player-avatar">👶</div>
-                <div class="player-name">細囡(13)</div>
-                <div class="player-score" id="score-sis2">0</div>
-                <div class="score-btns">
-                    <button class="score-btn" onclick="changeScore('sis2', -1)">-</button>
-                    <button class="score-btn" onclick="changeScore('sis2', 1)">+</button>
-                </div>
-            </div>
+        </div>
+        <div>
+            <div class="day-badge" id="top-day-badge">DAY 1</div>
+            <div class="location" id="top-location">📍 新千歲</div>
         </div>
     </div>
 
-    <!-- 頂部六大分頁導覽列 (自動滑動支援) -->
-    <div class="tab-nav">
-        <button class="tab-btn active" id="btn-map" onclick="switchTab('map')">🗺️ 互動地圖</button>
-        <button class="tab-btn" id="btn-game" onclick="switchTab('game')">🎮 任務卡面</button>
-        <button class="tab-btn" id="btn-packing" onclick="switchTab('packing')">🎒 個人準備</button>
-        <button class="tab-btn" id="btn-mustknow" onclick="switchTab('mustknow')">📋 必留事項</button>
-        <button class="tab-btn" id="btn-budget" onclick="switchTab('budget')">💰 租車預算</button>
-        <button class="tab-btn" id="btn-notice" onclick="switchTab('notice')">⚠️ 魔鬼細節</button>
+    <!-- ================= 分頁 1: 九宮格主選單主面板 ================= -->
+    <div id="tab-home" class="tab-content active" style="max-height:81vh;">
+        <!-- 夏日極光天氣卡 -->
+        <div class="weather-card">
+            <span style="font-size: 1.1rem;">☀️ 24°C</span>
+            <span id="weather-city">函館晴天</span>
+        </div>
+
+        <!-- 角色戰力 EXP 卡片 -->
+        <div class="player-grid">
+            <div class="player-card" onclick="addIndividualExp('dad')">
+                <div>👨</div><strong>爸爸</strong>
+                <div class="player-lv" id="lv-dad">LV.7</div>
+                <div class="player-exp-bar"><div class="player-exp-fill" id="bar-dad" style="width:70%"></div></div>
+            </div>
+            <div class="player-card" onclick="addIndividualExp('mom')">
+                <div>👩</div><strong>媽媽</strong>
+                <div class="player-lv" id="lv-mom">LV.6</div>
+                <div class="player-exp-bar"><div class="player-exp-fill" id="bar-mom" style="width:70%"></div></div>
+            </div>
+            <div class="player-card" onclick="addIndividualExp('sis1')">
+                <div>👧</div><strong>大囡 (15)</strong>
+                <div class="player-lv" id="lv-sis1">LV.8</div>
+                <div class="player-exp-bar"><div class="player-exp-fill" id="bar-sis1" style="width:70%"></div></div>
+            </div>
+            <div class="player-card" onclick="addIndividualExp('sis2')">
+                <div>👶</div><strong>細囡 (13)</strong>
+                <div class="player-lv" id="lv-sis2">LV.9</div>
+                <div class="player-exp-bar"><div class="player-exp-fill" id="bar-sis2" style="width:70%"></div></div>
+            </div>
+        </div>
+
+        <!-- 實時動態家族排行榜 -->
+        <div class="info-card">
+            <h3>🏆 家族排行榜</h3>
+            <div id="leaderboard-zone">
+                <!-- 由 JavaScript 動態渲染 -->
+            </div>
+        </div>
+
+        <!-- 九宮格選單 -->
+        <div class="switch-grid">
+            <div class="switch-item" id="menu-map" onclick="navigateTo('map')"><span class="switch-icon">🗺️</span><span class="switch-label">動態地圖</span></div>
+            <div class="switch-item" id="menu-quest" onclick="navigateTo('quest')"><span class="switch-icon">🎯</span><span class="switch-label">主線任務</span></div>
+            <div class="switch-item" id="menu-album" onclick="navigateTo('album')"><span class="switch-icon">📸</span><span class="switch-label">回憶相簿</span></div>
+            <div class="switch-item" id="menu-drive" onclick="navigateTo('drive')"><span class="switch-icon">🚗</span><span class="switch-label">自駕儀表</span></div>
+            <div class="switch-item" id="menu-packing" onclick="navigateTo('packing')"><span class="switch-icon">🎒</span><span class="switch-label">隨身物資</span></div>
+            <div class="switch-item" id="menu-mustknow" onclick="navigateTo('mustknow')"><span class="switch-icon">📋</span><span class="switch-label">必留安全</span></div>
+        </div>
+
+        <!-- ================= 🧰 新增外掛工具箱 ================= -->
+        <div class="info-card" style="margin-top: 12px; border-left: 4px solid var(--switch-blue); background: #F0F9FF;">
+            <h3 style="margin-top: 0; font-size: 0.9rem; color: #0369A1;">🧰 冒險外掛工具箱</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                <a href="https://gemini.google.com" target="_blank" class="btn btn-outline tool-btn" style="border-color: #BAE6FD;">
+                    <span style="font-size:1.4rem;">✨</span>
+                    <strong style="color:#0284C7;">Gemini AI</strong>
+                </a>
+                <a href="https://www.google.com/maps/place/Hokkaido" target="_blank" class="btn btn-outline tool-btn" style="border-color: #BAE6FD;">
+                    <span style="font-size:1.4rem;">📍</span>
+                    <strong style="color:#0284C7;">Google Map</strong>
+                </a>
+                <a href="https://translate.google.com/?sl=zh-TW&tl=ja&op=translate" target="_blank" class="btn btn-outline tool-btn" style="border-color: #BAE6FD;">
+                    <span style="font-size:1.4rem;">🗣️</span>
+                    <strong style="color:#0284C7;">Google 翻譯</strong>
+                </a>
+            </div>
+        </div>
+
+        <button class="btn btn-outline" style="margin-top:12px; border-radius:14px;" onclick="navigateTo('budget')">💰 查看租車與過路費預算</button>
     </div>
 
-    <!-- ================= TAB 1: 互動地圖 + 動態修改面版 ================= -->
-    <div id="tab-map" class="tab-content active">
+    <!-- ================= 分頁 2: 🗺️ 寶可夢風夏天發光地圖 ================= -->
+    <div id="tab-map" class="tab-content">
         <div class="map-timeline" id="map-timeline-bar"></div>
-
-        <div class="canvas-container">
-            <canvas id="hokkaidoCanvas" width="380" height="260"></canvas>
+        <div class="map-box" id="mapContainer">
+            <svg class="map-svg-overlay" id="mapSvg"></svg>
+            <div class="map-car-emoji" id="mapCar">🚗</div>
         </div>
 
-        <div class="info-card" id="display-itinerary-card" style="margin-top: 12px; border-left: 4px solid var(--primary);">
-            <div class="info-header">
-                <span class="info-title" id="map-card-day">Day 1</span>
-                <span class="info-meta" id="map-card-km">~50km</span>
-            </div>
+        <div class="info-card" id="display-itinerary-card" style="margin-top: 10px; border-left: 4px solid var(--primary);">
+            <div class="info-header"><span class="info-title" id="map-card-day">Day 1</span><span class="info-meta" id="map-card-km">~50km</span></div>
             <div class="detail-section">
                 <div class="detail-row"><div class="detail-label">🗺️ 行程路線</div><div class="detail-text" id="det-route">-</div></div>
-                <div class="detail-row"><div class="detail-label">🎯 景點深度遊</div><div class="detail-text" id="det-spots">-</div></div>
-                <div class="detail-row"><div class="detail-label">🌅 晨光早餐</div><div class="detail-text" id="det-b">-</div></div>
-                <div class="detail-row"><div class="detail-label">🍱 元氣午餐</div><div class="detail-text" id="det-l">-</div></div>
-                <div class="detail-row"><div class="detail-label">🌌 肥美晚餐</div><div class="detail-text" id="det-d">-</div></div>
+                <div class="detail-row"><div class="detail-label">🎯 景點深度</div><div class="detail-text" id="det-spots">-</div></div>
+                <div class="detail-row"><div class="detail-label">🌅 早餐提案</div><div class="detail-text" id="det-b">-</div></div>
+                <div class="detail-row"><div class="detail-label">🍱 午餐提案</div><div class="detail-text" id="det-l">-</div></div>
+                <div class="detail-row"><div class="detail-label">🌌 晚餐提案</div><div class="detail-text" id="det-d">-</div></div>
             </div>
         </div>
 
         <div class="edit-panel" id="edit-itinerary-panel">
-            <h4 id="edit-panel-title">⚙️ 修改 Day 1 內置資料</h4>
-            <span class="edit-label-text">🗺️ 行程路線</span><input type="text" id="edit-route" class="custom-input">
-            <span class="edit-label-text">🎯 景點深度遊</span><textarea id="edit-spots" class="edit-textarea" rows="2"></textarea>
-            <span class="edit-label-text">🌅 晨光早餐</span><input type="text" id="edit-b" class="custom-input">
-            <span class="edit-label-text">🍱 元氣午餐</span><input type="text" id="edit-l" class="custom-input">
-            <span class="edit-label-text">🌌 肥美晚餐</span><input type="text" id="edit-d" class="custom-input">
-            <div style="display:flex; gap:6px;">
-                <button class="btn btn-primary" style="background:var(--secondary); margin:0;" onclick="saveDayEdits()">💾 儲存修改</button>
-                <button class="btn btn-outline" style="margin:0;" onclick="toggleEditMode(false)">取消</button>
+            <h4>⚙️ 修改內置旅行資料</h4>
+            <input type="text" id="edit-route" class="custom-input" placeholder="路線">
+            <textarea id="edit-spots" class="edit-textarea" rows="2" placeholder="景點介紹"></textarea>
+            <input type="text" id="edit-b" class="custom-input" placeholder="早餐">
+            <input type="text" id="edit-l" class="custom-input" placeholder="午餐">
+            <input type="text" id="edit-d" class="custom-input" placeholder="晚餐">
+            <button class="btn btn-primary" style="background:var(--secondary);" onclick="saveDayEdits()">💾 儲存修改</button>
+        </div>
+        <button class="btn btn-outline" id="btn-trigger-edit" style="margin-top:8px;" onclick="toggleEditMode(true)">⚙️ 修改此日行程細節</button>
+        <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:6px;" onclick="switchTab('home')">🎮 返回主選單</button>
+    </div>
+
+    <!-- ================= 分頁 3: 🎯 主線任務與相片提交 ================= -->
+    <div id="tab-quest" class="tab-content">
+        <div class="info-card" style="background: #FAFAFA; border-color: var(--primary);">
+            <h2>🎯 今日冒險任務提交中心</h2>
+            <h3 id="q-title" style="color:var(--primary); margin:6px 0;">-</h3>
+            <p id="q-desc" style="font-size:0.85rem; line-height:1.4; color:var(--gray);">-</p>
+
+            <div class="photo-upload-zone">
+                <span style="font-size:0.82rem; font-weight:bold; color:var(--pack-color);">📷 點擊此處上傳現場打卡照片</span>
+                <input type="file" accept="image/*" class="photo-input" onchange="handlePhotoUpload(this)">
+                <img class="photo-preview" id="photo-preview-img" src="" alt="預覽">
+            </div>
+            <button class="btn-quest-done" id="btn-submit-quest" onclick="validateQuestCompletion()">✅ 任務達成 +200 EXP</button>
+            <button class="btn btn-outline" style="margin-top:12px; font-size:0.75rem;" onclick="toggleCustomForm()">✍️ 建立突發卡 (覆蓋今日主線)</button>
+            <div class="custom-form" id="custom-form">
+                <input type="text" id="ins-title" class="custom-input" placeholder="任務名稱">
+                <textarea id="ins-desc" class="custom-input" placeholder="任務細節與懲罰" rows="2"></textarea>
+                <button class="btn btn-primary" style="background:var(--edit-color);" onclick="injectCustomMission()">📌 覆蓋任務插槽</button>
             </div>
         </div>
-
-        <button class="btn btn-edit" id="btn-trigger-edit" onclick="toggleEditMode(true)">⚙️ 修改今日行程資料</button>
-        <button class="btn btn-primary" onclick="syncToMission()">🎯 啟動今日生鬼遊戲任務</button>
+        <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= TAB 2: 遊戲挑戰面版 ================= -->
-    <div id="tab-game" class="tab-content">
-        <div class="mission-box">
-            <span class="mission-tag" id="current-tag">SAPPORO</span>
-            <div class="mission-title" id="current-title">🍺 啤酒與玉米限時大賽</div>
-            <div class="mission-desc" id="current-desc">在大通公園啤酒節...</div>
-            <p style="font-size: 0.72rem; color: var(--primary); margin: 8px 0 0 0; font-style: italic;" id="current-punish">失敗懲罰：當眾表演扮烤玉米。</p>
-        </div>
-        <button class="btn btn-primary" onclick="alert('🎉 完美通關！快啲幫功臣加分啦！')">🎉 挑戰成功！去加分</button>
-        <button class="btn btn-outline" onclick="randomMission()">🔄 隨時放飛（隨機抽卡）</button>
-        <button class="btn btn-outline" onclick="toggleForm()">✍️ 自訂突發任務卡</button>
-        <div class="custom-form" id="custom-form">
-            <input type="text" id="ins-tag" class="custom-input" placeholder="區域標籤">
-            <input type="text" id="ins-title" class="custom-input" placeholder="突發任務名稱">
-            <textarea id="ins-desc" class="custom-input" placeholder="任務細節" rows="2"></textarea>
-            <button class="btn btn-primary" style="background:var(--secondary);" onclick="addCustomMission()">📌 塞入活動插槽</button>
-        </div>
+    <!-- ================= 分頁 4: 📸 拍立得旅行牆相簿 ================= -->
+    <div id="tab-album" class="tab-content">
+        <h3 style="margin:0 0 12px 0; font-size:0.95rem; border-left:4px solid var(--primary); padding-left:8px;">📸 盛夏拼貼相片牆</h3>
+        <div class="album-grid" id="albumGridZone"></div>
+        <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:14px;" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= TAB 3: 🎒 個人準備 (全新功能頁面) ================= -->
+    <!-- ================= 分頁 5: 🚗 自駕儀表板 ================= -->
+    <div id="tab-drive" class="tab-content">
+        <div class="info-card">
+            <h3>🚗 夏日行車自駕數據</h3>
+            <div class="drive-metrics">
+                <div class="metric-row"><span>今日行車里程：</span><strong id="dr-day-km">-</strong></div>
+                <div class="metric-row"><span>累積行駛里程：</span><strong id="dr-total-km">-</strong></div>
+                <div class="metric-row"><span>預計剩餘油量：</span><strong id="dr-gas">-</strong></div>
+                <div class="metric-row"><span>ETC 累計估算：</span><strong id="dr-etc">-</strong></div>
+                <div class="metric-row"><span>預估停車費：</span><strong>¥1,000</strong></div>
+            </div>
+        </div>
+        <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('home')">🎮 返回主選單</button>
+    </div>
+
+    <!-- ================= 分頁 6: 🎒 隨身準備行李 ================= -->
     <div id="tab-packing" class="tab-content">
         <div class="info-card" style="border-left: 4px solid var(--pack-color);">
-            <div class="info-title" style="color:var(--pack-color); font-size:1rem; margin-bottom:6px;">👗 夏日衣物（防曬與大溫差）</div>
-            <div class="detail-section">
-                <div class="check-item"><input type="checkbox"><span>短袖、短褲、夏日吸汗衣物（主穿著）</span></div>
-                <div class="check-item"><input type="checkbox"><span><b>全家防風薄外套/連帽防風褸</b>（函館山夜景、積丹海邊風大兼跌到18°C，極重要！）</span></div>
-                <div class="check-item"><input type="checkbox"><span>耐磨好行波鞋（行神威岬步道、向日葵迷宮、花田極耗腳力）</span></div>
-                <div class="check-item"><input type="checkbox"><span>防曬遮、太陽眼鏡、防曬漁夫帽</span></div>
-                <div class="check-item"><input type="checkbox"><span>泳衣/泳褲（部分溫泉酒店若有水上樂園或特定設施可用）</span></div>
+            <div class="info-title" style="color:var(--pack-color);">👗 衣物與防護</div>
+            <div class="detail-section" style="margin-top: 8px;">
+                <div class="check-item"><input type="checkbox"><span>短袖短褲、夏日防曬漁夫帽</span></div>
+                <div class="check-item"><input type="checkbox"><span><b>連帽防風薄外套</b>（函館夜景、積丹海邊風大跌到18°C防寒用！）</span></div>
+                <div class="check-item"><input type="checkbox"><span>高系數防曬乳、防曬傘</span></div>
             </div>
         </div>
-
         <div class="info-card" style="border-left: 4px solid var(--pack-color);">
-            <div class="info-title" style="color:var(--pack-color); font-size:1rem; margin-bottom:6px;">🔌 必備數碼與車載電器</div>
-            <div class="detail-section">
-                <div class="check-item"><input type="checkbox"><span>日本上網 SIM 卡 / WiFi 蛋（長途車導航生死線）</span></div>
-                <div class="check-item"><input type="checkbox"><span><b>高容量隨身充電寶 (尿袋)</b>（囡囡喺後座狂玩呢個遊戲App同打卡必備！）</span></div>
-                <div class="check-item"><input type="checkbox"><span>手機車載支架（雖然車有內置導航，用手機睇 Google Map 雙保險）</span></div>
-                <div class="check-item"><input type="checkbox"><span>多孔 USB 車載充電頭、四人份長充電線</span></div>
-                <div class="check-item"><input type="checkbox"><span>日本兩腳插頭、相機充電器</span></div>
+            <div class="info-title" style="color:var(--pack-color);">🔌 數碼與自駕備忘</div>
+            <div class="detail-section" style="margin-top: 8px;">
+                <div class="check-item"><input type="checkbox"><span><b>高容量行動電源 (尿袋)</b>（隨時上傳照片計分必備）</span></div>
+                <div class="check-item"><input type="checkbox"><span>點煙器多孔車載充電頭、車載手機架</span></div>
             </div>
         </div>
-
-        <div class="info-card" style="border-left: 4px solid var(--pack-color);">
-            <div class="info-title" style="color:var(--pack-color); font-size:1rem; margin-bottom:6px;">🧴 護膚防蟲與全家常備藥</div>
-            <div class="detail-section">
-                <div class="check-item"><input type="checkbox"><span><b>強力防蚊噴霧 / 無比滴</b>（美瑛富良野大片花田草叢，盛夏蚊蟲超毒）</span></div>
-                <div class="check-item"><input type="checkbox"><span>高系數防曬乳（花田正午毫無遮擋，好容易曬傷）</span></div>
-                <div class="check-item"><input type="checkbox"><span><b>特效暈浪丸</b>（去積丹半島同富良野桂澤湖山路迂迴，容易暈車浪）</span></div>
-                <div class="check-item"><input type="checkbox"><span>個人常用藥（感冒素、止痛藥、囡囡腸胃藥、旅行繃帶）</span></div>
-                <div class="check-item"><input type="checkbox"><span>保濕面膜/潤唇膏（溫泉酒店冷氣房同冷氣車廂通常非常乾燥）</span></div>
-            </div>
-        </div>
-
-        <div class="info-card" style="border-left: 4px solid var(--pack-color); background: #F0F9FF;">
-            <div class="info-title" style="color:var(--pack-color); font-size:1rem; margin-bottom:6px;">👧 15歲大囡 & 13歲細囡專屬清單</div>
-            <div class="detail-section">
-                <div class="check-item"><input type="checkbox"><span>手提迷你電風扇 / 降溫冰巾</span></div>
-                <div class="check-item"><input type="checkbox"><span>自拍長棍 / Instax 即影即有相機連充足菲林</span></div>
-                <div class="check-item"><input type="checkbox"><span>個人潔膚梳洗好物、定型髮夾</span></div>
-                <div class="check-item"><input type="checkbox"><span>後座專用睡眠頸枕（D8 函館拉車到旭川要坐 5 粒鐘）</span></div>
-            </div>
-        </div>
+        <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= TAB 4: 旅行必須留意事項 ================= -->
+    <!-- ================= 分頁 7: 📋 必留事項 ================= -->
     <div id="tab-mustknow" class="tab-content">
         <div class="info-card" style="border-left: 4px solid #EF4444;">
-            <div class="info-title">🛄 出發前終極文件 CheckList</div>
-            <div class="detail-section">
-                <div class="check-item"><input type="checkbox"><span><b>特區護照/BNO</b>（有效期需長於 6 個月，檢查兩位囡囡嘅期）</span></div>
-                <div class="check-item"><input type="checkbox"><span><b>香港駕駛執照正本</b> + <b>有效國際駕駛許可證 (IDP)</b>（無帶無得拎車！）</span></div>
-                <div class="check-item"><input type="checkbox"><span><b>租車確認信 (Voucher)</b>（列印出來或儲存 PDF 喺手機）</span></div>
-                <div class="check-item"><input type="checkbox"><span><b>實體信用卡</b>（登記取車時授權用，個名必須同司機一樣）</span></div>
-                <div class="check-item"><input type="checkbox"><span><b>旅遊保險單據保單號碼</b>（全家都要買齊醫保連自駕免責包）</span></div>
+            <div class="info-title" style="color:#EF4444;">🛄 出發文件與意外處理</div>
+            <div class="detail-section" style="font-size:0.8rem; line-height:1.45; margin-top:8px;">
+                1. <b>香港駕照正本 + 國際駕駛許可證 (IDP)</b> 缺一不可！<br><br>
+                2. 任何刮擦或擦撞，<b>必須即時致電 110 報警</b>取得事故證明書，保險方可生效。
             </div>
         </div>
-        <div class="info-card" style="border-left: 4px solid var(--accent);">
-            <div class="info-title">🚗 盛夏自駕與應急安全機制</div>
-            <div class="detail-section">
-                <div class="detail-row">
-                    <div class="detail-label" style="background:#FEE2E2; color:#EF4444;">🚨 發生意外</div>
-                    <div class="detail-text">不論刮花定大撞，<b>必須即時致電 110 報警</b>取得「事故證明」，並聯絡租車公司。無報警保險一律失效！</div>
-                </div>
-                <div class="detail-row"><div class="detail-label">📞 救護車</div><div class="detail-text">若有人受傷，直接撥打 <b>119</b>。</div></div>
-                <div class="detail-row"><div class="detail-label">⛽ 加油注意</div><div class="detail-text">普通汽油日文係 <b>レギュラー (Regular)</b>，油槍通常係<b>紅色</b>。千祈唔好入錯柴油（輕油）！</div></div>
-            </div>
-        </div>
+        <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= TAB 5: 租車與預算清算 ================= -->
+    <!-- ================= 分頁 8: 💰 預算費用 ================= -->
     <div id="tab-budget" class="tab-content">
-        <div class="info-card" style="border-left: 4px solid var(--secondary);">
-            <div class="info-title">🚗 唯一黃金推薦車款</div>
-            <div class="info-body" style="margin-top:4px;">
-                <strong>Toyota Sienta / Honda Freed (中小型 MPV)</strong><br>
-                2大2小完美神車！摺起第三排後車廂可橫放 4 個 28-29吋大行李箱。
-            </div>
+        <div class="info-card">
+            <h3>💰 租車與過路費預算估算</h3>
+            <div class="metric-row"><span>14天車輛租金連全險：</span><strong>¥180,000 - ¥220,000</strong></div>
+            <div class="metric-row"><span>HEP 高速路電子卡費：</span><strong>~¥12,000</strong></div>
+            <div class="metric-row"><span>油資與停車費總計：</span><strong>~¥28,000</strong></div>
         </div>
-        <h3>💰 盛夏旺季 14 天全包預算估算</h3>
-        <div class="info-card"><div class="info-header"><span class="info-title">租金連豪華全險 (NOC免責安心包)</span><span class="info-meta">¥180k - ¥220k</span></div></div>
-        <div class="info-card"><div class="info-header"><span class="info-title">HEP 高速公路電子通行證</span><span class="info-meta">~¥12,000</span></div></div>
-        <div class="info-card"><div class="info-header"><span class="info-title">14天預估油資 (大環線 1400km)</span><span class="info-meta">~¥18,000</span></div></div>
-        <div class="info-card" style="background: #FFF9E6; border: 1px solid #FFE4A0;">
-            <div class="info-title">📊 預估自駕總花費</div>
-            <div class="info-body" style="font-size: 0.95rem; color: var(--primary); font-weight: bold; margin-top: 4px;">
-                約 ¥220,000 - ¥260,000 (折合約 HKD 11,000 - 13,000)
-            </div>
-        </div>
+        <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= TAB 6: 魔鬼注意事項 ================= -->
-    <div id="tab-notice" class="tab-content">
-        <div class="info-card" style="border-left: 4px solid var(--primary); background: #FFF5F5;">
-            <div class="info-title">🚨 日本盆節大連假 (8/13 - 8/16)</div>
-            <div class="info-body">撞正日本全國返鄉大潮。你哋呢幾日啱啱好在<b>函館與拉車去旭川</b>。酒店必須提早預訂，出發時間要鬆動 30 分鐘防止塞車。</div>
+    <!-- ================= 🏆 終結大結局與結算大面板 ================= -->
+    <div class="end-game-overlay" id="endGameScreen">
+        <h2 style="color: #64748B; font-size: 1rem; margin:0;">🎮 GAME COMPLETE</h2>
+        <div class="end-title-banner">━━━━━━━━━━<br>北海道冒險完成<br>━━━━━━━━━━</div>
+        <div style="width:100%; display:flex; flex-direction:column; align-items:center; margin-bottom:14px;">
+            <div class="stat-row"><span>總行駛里程</span><strong style="color:var(--secondary);">1385 km</strong></div>
+            <div class="stat-row"><span>家族獵影相片</span><strong style="color:var(--switch-blue);" id="end-photo-count">683 張</strong></div>
+            <div class="stat-row"><span>大啖拉麵碗數</span><strong style="color:var(--primary);">11 碗</strong></div>
+            <div class="stat-row"><span>爆食雪糕杯數</span><strong style="color:var(--accent);">23 杯</strong></div>
+            <div class="stat-row"><span>肥美海膽大餐</span><strong style="color:#FB923C;">4 次</strong></div>
         </div>
-        <div class="info-card">
-            <div class="info-title">🗺️ 導航必備 MapCode</div>
-            <div class="info-body">日本內置車機輸入地址極度痛苦。出發前一定要先查好美瑛青池、富良野花田、積丹神威岬等景點的 MapCode。</div>
-        </div>
+        <h3 style="color:var(--gray); font-size:0.85rem; margin:6px 0 0 0;">👑 本次旅程總冠軍誕生 👑</h3>
+        <div class="champion-box">🏆 北海道王者：細囡</div>
+        <button class="btn btn-primary" style="margin-top:28px; background:var(--primary); width:85%; padding:14px; border-radius:14px;" onclick="enterMemoirMode()">📖 開啟家庭回憶錄模式</button>
     </div>
 </div>
 
 <script>
-    // 數據庫
     const masterData = [
-        { 
-            day: 1, route: "新千歲機場 ➔ 札幌市區", km: "~50km", tag: "SAPPORO", hub: "sapporo", 
-            spots: "大通公園夏祭現場。全個公園變身巨型露天花園，佈滿限定美食攤位與高聳嘅生啤機，氣氛拉滿！",
-            b: "飛機餐或落機在機場便利店（Seicomart）快閃買生乳卷頂肚。",
-            l: "新千歲機場「拉麵道場」一幻蝦湯拉麵（濃厚甜蝦頭熬製，囡囡實鍾意）。",
-            d: "大通公園啤酒節露天屋台：必點烤北海道甜玉米（刷醬油爆甜）、炸雞塊配爸媽極凍生啤酒！",
-            title: "🍺 啤酒與玉米限時大賽", desc: "在大通公園啤酒節，爸爸媽媽挑戰喝下一公升生啤，兩位囡囡挑戰3分鐘內啃完一支烤玉米！", punish: "失敗者要在公園當眾表演扮烤玉米。" 
-        },
-        { 
-            day: 2, route: "札幌 ➔ 小樽 ➔ 積丹半島 ➔ 札幌", km: "~210km", tag: "SHAKOTAN", hub: "shakotan", 
-            spots: "神威岬：沿住「女人禁制之門」行入海脊步道，兩邊係蔚藍震撼嘅積丹藍海景。小樽運河：黃昏時懷舊煤氣燈亮起，浪漫度爆表。",
-            b: "札幌酒店豪華極鮮牛乳配烘焙麵包。",
-            l: "積丹「中村屋」：爆食夏季限定極品純馬糞海膽丼（甘甜入口即化，8月產季最後高潮）。",
-            d: "小樽「政壽司」：品嚐極上握壽司（當地小樽港新鮮直送大牡丹蝦、鯡魚）。",
-            title: "🌊 積丹藍・海膽尋寶", desc: "在神威岬步道拍出最飽和的「積丹藍」海景，並要在積丹朝市找出最巨大的馬糞海膽同佢合照！", punish: "最輸個個負責幫全家剝開現剖海膽。" 
-        },
-        { 
-            day: 3, route: "札幌市區休整與採購預熱", km: "~20km", tag: "SAPPORO", hub: "sapporo", 
-            spots: "白色戀人觀光工廠：歐洲城堡風嘅朱古力庭園，打卡一流。莫埃來沼公園：由大師野口勇設計，有巨型幾何金字塔建築。",
-            b: "二條市場「どんぶり茶屋」：海鮮丼飯，配一碗滿滿鮮甜蜆湯。",
-            l: "札幌 Stellar Place「根室花丸」：超人氣排隊迴轉壽司（大推炙燒焦糖三文魚、巨型干貝）。",
-            d: "札幌名物「Suage+」：湯咖哩（帶骨雞腿炸至酥脆，浸入香料濃湯，蔬菜多汁）。",
-            title: "🛍️ 狸小路古怪手信搜捕", desc: "此日司機放空改搭地鐵。全家分頭在狸小路藥妝店或驚安殿堂，找出一樣最莫名其妙的古怪商品！", punish: "最無創意個個要請全家食夕張哈密瓜雪糕。" 
-        },
-        { 
-            day: 4, route: "札幌 ➔ 登別地獄谷", km: "~110km", tag: "NOBORIBETSU", hub: "noboribetsu", 
-            spots: "登別地獄谷：火山爆發後形成嘅奇特谷地，周圍有源源不絕嘅白煙同濃烈硫磺味。大湯沼川天然足湯：喺森林入面享受足湯。",
-            b: "札幌 Morning Market 或隨意購買精緻和菓子。",
-            l: "登別溫泉街「味之大王」：地獄拉麵（可以自選辣度，湯頭濃郁辛辣，極度開胃）。",
-            d: "溫泉酒店內傳統「手作懷石料理」：享用頂級前菜、毛蟹解體盛宴、十勝和牛陶板燒。",
-            title: "👹 地獄谷硫磺鬼臉模仿", desc: "在煙霧繚繞的登別地獄谷找到小鬼雕像，全家挑戰擺出同雕像一模一樣的生鬼顏藝大合照！", punish: "邊個唔夠醜就要負責入溫泉酒店幫大家拎行李。" 
-        },
-        { 
-            day: 5, route: "登別 ➔ 洞爺湖溫泉鄉", km: "~40km", tag: "TOYA", hub: "toya", 
-            spots: "洞爺湖畔：可以租架天鵝船踩入湖心，或者坐大型遊覽船。昭和新山：依然在冒煙嘅活火山，近距離感受地球心跳。",
-            b: "溫泉酒店精緻日式 Buffet（烤鮭魚配北海道產夢之美人米）。",
-            l: "「Lake Hill Farm」：大草原風景餐廳，必食手工 Gelato 意式雪糕與起司披薩。",
-            d: "洞爺湖乃之風「湖畔展望餐廳」：一邊食精緻長腳蟹自助餐，一邊望住落地玻璃窗外的湖景與花火。",
-            title: "🎆 洞爺花火房內攝影大賽", desc: "晚上 20:45 煙花準時由湖面發射！全家在溫泉房陽台一邊浸溫泉一邊攝影。由兩位囡囡選出最爆笑與最美相片。", punish: "最後一名的回港後要負責洗碗一星期。" 
-        },
-        { 
-            day: 6, route: "洞爺湖 ➔ 大沼公園 ➔ 函館", km: "~160km", tag: "HAKODATE", hub: "hakodate", 
-            spots: "大沼國定公園：擁有大小島嶼嘅優美湖泊。函館山頂：傍晚搭纜車登頂，等候黑夜降臨那一刻嘅萬家燈火（百萬夜景）。",
-            b: "洞爺湖畔烘焙坊咖啡與熱辣辣牛角包。",
-            l: "大沼公園名物「沼之家」：大沼糰子（醬油與紅豆雙拼，煙韌過癮）配山川牧場極濃特製牛乳。",
-            d: "函館「大門橫丁」屋台村：體驗地道居酒屋氣氛，串燒、烤扇貝、鹽味拉麵輪流食。",
-            title: "🚴 大沼公園單車追逐賽", desc: "在風景如畫的大沼國定公園租單車，兩位囡囡挑戰一邊踩單車一邊捕捉到爸爸或媽媽的爆笑動態表情！", punish: "沒拍成功的人負責買大沼名物糰子給大家吃。" 
-        },
-        { 
-            day: 7, route: "函館市區浪漫一日遊", km: "~15km", tag: "HAKODATE", hub: "hakodate", 
-            spots: "五稜郭塔：登頂俯瞰巨大嘅星形歷史堡壘。金森紅磚倉庫：古老倉庫改裝嘅文青購物街。八幡坂：直通大海嘅視覺斜坡。",
-            b: "函館朝市「きくよ食堂」：經典三色海鮮丼（海膽、鮭魚卵、干貝），鮮甜到爆！",
-            l: "傳奇傳說「幸運小丑漢堡」：全日本僅函館限定！必點「中華炸雞漢堡」同肉醬薯條。",
-            d: "「うに むらかみ」函館本店：無添加明礬嘅純天然海膽燒、海膽玉子燒，極致奢華。",
-            title: " Squid 函館朝市・釣烏賊爭霸戰", desc: "一大早直奔函館朝市體驗現場釣活烏賊！挑戰誰能用最快速度將活生生的烏賊釣上岸並讓主廚切刺身！", punish: "釣最慢的要挑戰現場吞下還在動的烏賊觸手！" 
-        },
-        { 
-            day: 8, route: "函館 ➔ 一路北上 ➔ 旭川", km: "~380km", tag: "ROADTRIP", hub: "asahikawa", 
-            spots: "道央高速公路拉力日。沿途欣賞內浦灣海景與羊蹄山（蝦夷富士）嘅宏偉雄姿。中途停靠超大型服務區買限定手信。",
-            b: "函館元町法式麵包與熱鮮奶。",
-            l: "「砂川服務區 (SA)」限定：北海道特厚切黑豚炸豬排丼飯（外脆內嫩，多汁飽腹）。",
-            d: "旭川拉麵村：「青葉拉麵」點招牌醬油拉麵，表面有一層焦香豬油防散熱，麵身掛湯。",
-            title: "🚗 長途拉車！後座提神演唱會", desc: "挑戰全行程最硬的5小時公路拉力賽！兩位囡囡在後座要輪流唱歌、播歌、說笑話，絕對不可以讓開車的司機睡著！", punish: "如果全車陷入死寂超過10分鐘，後座要倒扣遊戲積分10分！" 
-        },
-        { 
-            day: 9, route: "旭川 ➔ 北龍町向日葵之里 ➔ 旭川", km: "~120km", tag: "HOKURYU", hub: "hokuryu", 
-            spots: "北龍町向日葵之里：全日本規模最大！200 萬株金色向日葵滿開迎日，壯觀震撼。旭山動物園：透過透明圓筒睇企鵝潛水、北極熊跳水。",
-            b: "旭川市內連鎖咖啡廳鬆軟鬆餅配黑咖啡。",
-            l: "北龍町觀光中心：享用限定向日葵主題定食（配向日葵籽蕎麥麵）。",
-            d: "旭川排隊神店「成吉思汗 大黑屋」：炭火烤小羔羊肉（毫無羊羶味，肉質鮮嫩）。",
-            title: "🌻 向日葵迷宮極速逃脫", desc: "闖入北龍町 200 萬株向日葵鋪滿的金色巨型迷宮！全家分散計時，挑戰誰能用最短時間找到出口逃脫！", punish: "最後一名的要請全家吃北龍町限定的向日葵種子雪糕。" 
-        },
-        { 
-            day: 10, route: "旭川 ➔ 美瑛拼布之路 ➔ 富良野", km: "~50km", tag: "BIEI", hub: "biei", 
-            spots: "美瑛白金青池：池水因礦物質呈現夢幻嘅蒂芬妮藍，枯木林立如仙境。拼布之路：Ken & Mary 之樹，大地如色彩畫布。",
-            b: "旭川買限定男山清酒酒粕麵包。",
-            l: "美瑛超級名店「純平 (Junpei)」：必點招牌「海老丼」（巨型炸大蝦炸衣酥脆，秘製醬汁神級好食）。",
-            d: "「富良野 Wine House」：食瑞士芝士火鍋配頂級富良野和牛排。",
-            title: "🎨 四季彩之丘色彩獵人", desc: "在四季彩之丘的彩色拼布花田前，兩位囡囡要挑戰在 5 分鐘內，找出紅、黃、紫三種顏色的植物，並拍下全家疊羅漢照片！", punish: "沒拍好照片的晚上不准吃富良野哈密瓜。" 
-        },
-        { 
-            day: 11, route: "富良野 ➔ 隨景觀公路 ➔ 返回札幌", km: "~120km", tag: "FURANO", hub: "furano", 
-            spots: "富田農場：雖然薰衣草尾聲，但繽紛嘅彩色花田此時正值最豔麗嘅全盛期。富良野高地景觀公路：一路上都係廣闊嘅丘陵風光。",
-            b: "「Furano Marche」在地農產市集：享用現烤流心起司撻同富良野男爵馬鈴薯可樂餅。",
-            l: "富田農場園內：食咖哩蛋包飯，甜點係現切爆汁夕張哈密瓜連埋原隻哈密瓜鮮奶霜淇淋！",
-            d: "札幌拉麵神店「麵屋 彩未」：極致濃郁嘅味噌拉麵（湯頭微甜，帶有淡淡生薑香氣）。",
-            title: "🍈 哈密瓜終極爆食挑戰", desc: "在富田農場購買切片夕張哈密瓜或哈密瓜霜淇淋，全家挑戰吃完後嘴唇和手完全不黏糊的優雅吃法！", punish: "吃得滿嘴都是的邋遢鬼負責一路上處理全車的垃圾垃圾袋。" 
-        },
-        { 
-            day: 12, route: "札幌 ➔ 三井 Outlet ➔ 狸小路", km: "~35km", tag: "SHOPPING", hub: "sapporo", 
-            spots: "三井 Outlet Park 北廣島：全室內型 Outlet 唔驚曬，各大戶外裝備、日系服飾。狸小路商店街：有巨型藥妝店同各種古怪手信店。",
-            b: "酒店豐盛自助餐或路過松屋食熱辣辣牛肉飯飯。",
-            l: "Outlet 美食廣場：十勝名物「豚丼之豬太」（現烤炭火燒肉，醬汁焦香，肥美送飯）。",
-            d: "「燒肉 德壽」：大啖北海道頂級白老牛燒肉拼盤，油花分布完美。",
-            title: "💸 Outlet 限時盲盒穿搭賽", desc: "在北廣島三井 Outlet，兩位囡囡拿限定預算幫爸爸媽媽挑選一套最有「日系盛夏感」的穿搭衣服，並在現場走秀！", punish: "被評為最土味穿搭的那組要當場在店門口擺出搞笑名模 Pose。" 
-        },
-        { 
-            day: 13, route: "札幌 ➔ 支笏湖散策 ➔ 千歲", km: "~60km", tag: "CHITOSE", hub: "chitose", 
-            spots: "支笏湖：日本透明度第一嘅火山湖。可以租隻獨木舟或者玻璃底觀光船，直接望穿幾十米深嘅清澈湖底。",
-            b: "札幌特色手沖珈琲與法式吐司。",
-            l: "支笏湖畔餐廳：享用當地名物「姬鱒魚 (Chip)」鹽烤定食或炸鱒魚漢堡，魚肉呈粉紅色，超鮮美。",
-            d: "千歲市區當地人愛店「旬之味 鶴」：享用低調居酒屋嘅鹽烤章魚、炸雞唐揚與鮮魚火鍋。",
-            title: "🚣 支笏湖超透明清澈鑑定", desc: "開往全日本清澈度頂級的支笏湖，全家要挑戰利用視覺錯位，拍出一張彷彿漂浮在半空中的透明感湖面奇蹟照片！", punish: "拍得像普通水坑照片的人，晚上負責整理回港的四大箱行李。" 
-        },
-        { 
-            day: 14, route: "千歲市區 ➔ 機場還車 ➔ 快樂返港", km: "~15km", tag: "AIRPORT", hub: "airport", 
-            spots: "新千歲機場國內線大樓：內嵌叮噹 WAKUWAKU 天空樂園、Hello Kitty 機場樂園與 Royce 朱古力實體生產工廠！",
-            b: "千歲飯店早餐或直奔機場烘焙坊食限定起司巨塔麵包。",
-            l: "機場內「白樺山莊」：最後拉車大進補。甜點直攻 LeTAO 雙層起司蛋糕與 Kinotoya 極濃極致牛乳霜淇淋！",
-            d: "飛機餐或返港享用港式大餐結算總積分！",
-            title: "✈️ 空港免稅品最後大搜捕", desc: "回港前最後一戰！在30分鐘內完美買齊所有親友手信（Royce、薯條三兄弟），並成功找到隱藏的叮噹樂園！", punish: "最終結算：14天分數總和最低的倒楣鬼，回港後要請全家吃一頓港式大餐！" 
-        }
+        { day: 1, route: "新千歲機場 ➔ 札幌市區", km: 50, tag: "SAPPORO", hub: "airport", targetHub: "sapporo", weather: "札幌晴天", spots: "大通公園夏祭現場。全個公園變身巨型露天花園，佈滿限定美食攤位與高聳嘅生啤機！", b: "飛機餐或落機在機場便利店快閃買生乳卷頂肚。", l: "新千歲機場「拉麵道場」一幻蝦湯拉麵（濃厚甜蝦頭熬製）。", d: "大通公園啤酒節屋台：必點烤北海道甜玉米、炸雞塊配爸媽生啤酒！", title: "拉麵道場極限進補", desc: "在新千歲機場拉麵道場成功挑戰一幻蝦湯拉麵，拍下第一張美食相片提交！" },
+        { day: 2, route: "札幌 ➔ 小樽 ➔ 積丹半島 ➔ 札幌", km: 210, tag: "SHAKOTAN", hub: "sapporo", targetHub: "shakotan", weather: "積丹晴天", spots: "神威岬：沿住步道行入海脊，兩邊係蔚藍震撼嘅積丹藍海景。小樽運河：黃昏時懷舊煤氣燈亮起。", b: "札幌酒店豪華極鮮牛乳配烘焙麵包。", l: "積丹「中村屋」：爆食夏季限定極品純馬糞海膽丼（甘甜入口即化）。", d: "小樽「政壽司」：品嚐極上握壽司（當地小樽港新鮮直送大牡丹蝦）。", title: "🌊 積丹藍・海膽尋寶", desc: "在神威岬步道拍出最夢幻、最純粹嘅「積丹藍」海景相片並提交打卡！" },
+        { day: 3, route: "札幌市區休整與採購預熱", km: 20, tag: "SAPPORO", hub: "shakotan", targetHub: "sapporo", weather: "札幌多雲", spots: "白色戀人觀光工廠：歐洲城堡風嘅朱古力庭園。莫埃來沼公園：由大師野口勇設計，有幾何金字塔。", b: "二條市場海鮮丼飯配一碗滿滿鮮甜蟯湯。", l: "札幌「根室花丸」：超人氣排隊迴轉壽司。", d: "札幌名物「Suage+」：湯咖哩（帶骨雞腿炸至酥脆，浸入香料濃湯）。", title: "🛍️ 狸小路古怪手信搜捕", desc: "全家分頭在狸小路藥妝店，找出一樣最莫名其妙的古怪商品照片並上傳！" },
+        { day: 4, route: "札幌 ➔ 登別地獄谷", km: 110, tag: "NOBORIBETSU", hub: "sapporo", targetHub: "noboribetsu", weather: "登別晴天", spots: "登別地獄谷：火山爆發後形成嘅奇特谷地，白煙裊裊。大湯沼川天然足湯：森林享天然腳溫泉。", b: "札幌烘焙坊精緻麵包。", l: "登別溫泉街「味之大王」：地獄拉麵（湯頭濃郁辛辣，極度開胃）。", d: "溫泉酒店內傳統「手作懷石料理」：享用頂級前菜、毛蟹解體盛宴、十勝和牛陶板燒。", title: "👹 地獄谷硫磺鬼臉模仿", desc: "在煙霧繚繞的登別地獄谷找到赤鬼雕像，拍下全家一起模仿鬼臉嘅高能量照片上傳！" },
+        { day: 5, route: "登別 ➔ 洞爺湖溫泉鄉", km: 40, tag: "TOYA", hub: "noboribetsu", targetHub: "toya", weather: "洞爺湖晴天", spots: "洞爺湖畔：可以租架天鵝船踩入湖心。昭和新山：依然在冒煙嘅活火山，近距離感受地球心跳。", b: "溫泉酒店精跡日式 Buffet。", l: "「Lake Hill Farm」：大草原風景餐廳，必食手工 Gelato 意式雪糕與起司披薩。", d: "洞爺湖乃之風「湖畔餐廳」：一邊食精緻長腳蟹自助餐，一邊望住玻璃窗外的湖景與花火。", title: "🎆 洞爺花火房內攝影大賽", desc: "晚上 20:45 煙花準時由湖面發射！拍下喺房間陽台睇煙花最夢幻嘅一幕並提交！" },
+        { day: 6, route: "洞爺湖 ➔ 大沼公園 ➔ 函館", km: 160, tag: "HAKODATE", hub: "toya", targetHub: "hakodate", weather: "函館晴天", spots: "大沼國定公園：擁有大小島嶼嘅優美湖泊。函館山頂：傍晚搭纜車登頂，等候百萬夜景降臨那一刻。", b: "洞爺湖畔烘焙坊咖啡與熱辣辣牛角包。", l: "大沼公園名物「沼之家」：大沼糰子（醬油與紅豆雙拼）。", d: "函館「大門橫丁」屋台村：體驗地道居酒屋氣氛，串燒、烤扇貝、鹽味拉麵輪流食。", title: "🚴 大沼公園單車追逐賽", desc: "喺大沼公園踩單車時，拍下爸爸或媽媽迎風踩單車橫衝直撞嘅爆笑表情相片上傳！" },
+        { day: 7, route: "函館市區浪漫一日遊", km: 15, tag: "HAKODATE", hub: "hakodate", targetHub: "hakodate", weather: "函館大晴天", spots: "五稜郭塔：俯瞰巨大星形歷史堡壘。金森紅磚倉庫：文青購物街。八幡坂：直通大海嘅視覺斜坡。", b: "函館朝市「きくよ食堂」：經典三色海鮮丼（海膽、鮭魚卵、干貝），鮮甜到爆！", l: "傳奇傳說「幸運小丑漢堡」：必點「中華炸雞漢堡」。", d: "「うに むらかみ」函館本店：無添加明礬嘅純天然海膽盛宴。", title: "Squid 函館朝市挑戰", desc: "在函館朝市成功釣起生猛活烏賊，拍下烏賊噴水或切片刺身透明相片並提交！" },
+        { day: 8, route: "函館 ➔ 一路北上 ➔ 旭川", km: 380, tag: "ROADTRIP", hub: "hakodate", targetHub: "asahikawa", weather: "旭川晴天", spots: "道央高速公路拉力日。沿途欣賞內浦灣海景與羊蹄山（蝦夷富士）嘅宏偉雄姿。", b: "函館元町法式麵包與熱鮮奶。", l: "「砂川服務區」限定：北海道特厚切黑豚炸豬排丼飯（外脆內嫩，多汁飽腹）。", d: "旭川拉麵村：「青葉拉麵」點招牌醬油拉麵，表面有一層焦香豬油防散熱。", title: "🚗 長途拉車！後座提神演唱會", desc: "5小時公路長途自駕，拍下兩位囡囡喺後座戴住睡眠頸枕、張開大口瞓覺嘅生鬼相片！" },
+        { day: 9, route: "旭川 ➔ 北龍町向日葵之里 ➔ 旭川", km: 120, tag: "HOKURYU", hub: "asahikawa", targetHub: "hokuryu", weather: "北龍町大晴天", spots: "北龍町向日葵之里：全日本規模最大！200 萬株金色向日葵滿開。旭山動物園：透過透明圓筒睇企鵝潛水。", b: "旭川市內連鎖咖啡廳鬆軟鬆餅。", l: "北龍町觀光中心：享用限定向向日葵主題定食。", d: "旭川排隊神店「成吉思汗 大黑屋」：炭火烤小羔羊肉（毫無羊羶味，肉質鮮嫩）。", title: "🌻 向日葵迷宮極速逃脫", desc: "闖入 200 萬株金色向日葵迷宮，拍下兩姊妹喺花海深處迷路、搞笑求救嘅打卡相！" },
+        { day: 10, route: "旭川 ➔ 美瑛拼布之路 ➔ 富良野", km: 50, tag: "BIEI", hub: "hokuryu", targetHub: "biei", weather: "美瑛晴天", spots: "美瑛白金青池：池水因礦物質呈現夢幻嘅蒂芬妮藍。拼布之路：Ken & Mary 之樹，大地如色彩畫布。", b: "旭川買限定男山清酒酒粕麵包。", l: "美瑛超級名店「純平 (Junpei)」：必點招牌「海老丼」（巨型炸大蝦炸衣酥脆）。", d: "「富良野 Wine House」：食瑞士芝士火鍋配頂級富良野和牛排。", title: "🎨 四季彩之丘色彩獵人", desc: "喺四季彩之丘七彩花田前面，拍下一張一家四口高難度「千手觀音」或「疊羅漢」相片提交！" },
+        { day: 11, route: "富良野 ➔ 隨景觀公路 ➔ 返回札幌", km: 120, tag: "FURANO", hub: "biei", targetHub: "furano", weather: "富良野晴天", spots: "富田農場：雖然薰衣草尾聲，但繽紛嘅彩色花田此時正值最豔麗嘅全盛期。富良野高地景觀公路。", b: "「Furano Marche」在地農產市集：享用現烤流心起司撻。", l: "富田農場園內：食咖哩蛋包飯，甜點係現切爆汁夕張哈密瓜連埋原隻哈密瓜鮮奶霜淇淋！", d: "札幌拉麵神店「麵屋 彩未」：極致濃郁嘅味噌拉麵（湯頭微甜，帶有淡淡生薑香氣）。", title: "🍈 哈密瓜終極爆食挑戰", desc: "拍下兩位囡囡手捧原隻哈密瓜霜淇淋、食到滿嘴都係雪糕嘅極致吃貨吃相相片！" },
+        { day: 12, route: "札幌 ➔ 三井 Outlet ➔ 狸小路", km: 35, tag: "SHOPPING", hub: "furano", targetHub: "sapporo", weather: "札幌晴天", spots: "三井 Outlet Park 北廣島：全室內型 Outlet 唔驚曬。狸小路商店街：有巨型藥妝店同各種古怪手信店。", b: "酒店豐盛自助餐或路過松屋食熱辣辣牛肉飯飯。", l: "Outlet 美食廣場：十勝名物「豚丼之豬太」（現烤炭火燒肉，醬汁焦香）。", d: "「燒肉 德壽」：大啖北海道頂級白老牛燒肉拼盤，油花分布完美。", title: "💸 Outlet 限時盲盒穿搭賽", desc: "在三井 Outlet 現場，拍下爸爸換上兩位囡囡親自挑選嘅「爆笑日系潮流感」穿搭照！" },
+        { day: 13, route: "札幌 ➔ 支笏湖散策 ➔ 千歲", km: 60, tag: "CHITOSE", hub: "sapporo", targetHub: "chitose", weather: "支笏湖多雲", spots: "支笏湖：日本透明度第一嘅火山湖。可以租隻獨木舟或者玻璃底觀光船，直接望穿幾十米深嘅清澈湖底。", b: "札幌特色手沖珈琲與法式吐司。", l: "支笏湖畔餐廳：享用當地名物「姬鱒魚 (Chip)」鹽烤定食或炸鱒魚漢堡，超鮮美。", d: "千歲市區當地人愛店「旬之味 鶴」：享用低調居酒屋嘅鹽烤章魚、炸雞唐揚。", title: "🚣 支笏湖超透明清澈鑑定", desc: "利用湖水透視錯位，拍下一張小船漂浮在虛空中、全家凌空盤坐嘅「魔幻奇蹟照」上傳！" },
+        { day: 14, route: "千歲市區 ➔ 機場還車 ➔ 快樂返港", km: 15, tag: "AIRPORT", hub: "chitose", targetHub: "airport", weather: "千歲晴天", spots: "新千歲機場國內線大樓：內嵌叮噹 WAKUWAKU 天空樂園、Hello Kitty 機場樂園與 Royce 朱古力實體生產工廠！", b: "千歲飯店早餐或直奔機場烘焙坊食限定起司巨塔麵包。", l: "機場內「白樺山莊」：最後拉車大進補。甜點直攻 LeTAO 雙層起司蛋糕！", d: "飛機餐或返港享用港式大餐結算總積分！", title: "✈️ 空港免稅品最後大搜捕", desc: "【最終戰】在新千歲機場叮噹天空樂園前面，拍下一張全家大團圓、手拎滿滿戰利品嘅大結局合照！" }
     ];
 
     const mapHubs = {
-        hakodate:   { name: "函館", x: 60,  y: 240, emoji: "🦑" },
-        toya:       { name: "洞爺湖", x: 110, y: 195, emoji: "🎆" },
-        noboribetsu:{ name: "登別", x: 145, y: 185, emoji: "👹" },
-        chitose:    { name: "支笏湖", x: 185, y: 165, emoji: "🚣" },
-        airport:    { name: "新千歲", x: 205, y: 155, emoji: "✈️" },
-        sapporo:    { name: "札幌", x: 165, y: 130, emoji: "🗼" },
+        airport:    { name: "新千歲", x: 210, y: 160, emoji: "✈️" },
+        sapporo:    { name: "札幌", x: 175, y: 130, emoji: "🗼" },
         shakotan:   { name: "積丹半島", x: 90,  y: 100, emoji: "🌊" },
-        hokuryu:    { name: "北龍町", x: 230, y: 85,  emoji: "🌻" },
-        asahikawa:  { name: "旭川", x: 265, y: 70,  emoji: "🐯" },
-        biei:       { name: "美瑛", x: 275, y: 105, emoji: "🥦" },
-        furano:     { name: "富良野", x: 250, y: 125, emoji: "🍈" }
+        noboribetsu:{ name: "登別", x: 145, y: 190, emoji: "👹" },
+        toya:       { name: "洞爺湖", x: 105, y: 205, emoji: "🎆" },
+        hakodate:   { name: "函館", x: 50,  y: 245, emoji: "🦑" },
+        asahikawa:  { name: "旭川", x: 275, y: 70,  emoji: "🐯" },
+        hokuryu:    { name: "北龍町", x: 240, y: 88,  emoji: "🌻" },
+        biei:       { name: "美瑛", x: 285, y: 110, emoji: "🥦" },
+        furano:     { name: "富良野", x: 260, y: 135, emoji: "🍈" },
+        chitose:    { name: "支笏湖", x: 195, y: 175, emoji: "🚣" }
     };
 
-    let activeDay = 1;
-    let scores = { dad: 0, mom: 0, sis1: 0, sis2: 0 };
-    let gameMissions = [...masterData];
-    let car = { x: mapHubs.airport.x, y: mapHubs.airport.y };
-    let target = { x: mapHubs.airport.x, y: mapHubs.airport.y };
+    const routeOrder = ['airport','sapporo','shakotan','sapporo','noboribetsu','toya','hakodate','asahikawa','hokuryu','biei','furano','sapporo','chitose','airport'];
 
-    window.onload = function() {
-        buildTimeline();
-        updateMapCard();
-        initCanvasLoop();
+    let activeDay = 1;
+    let isMemoirMode = false;
+    let uploadedPhotosCount = 0;
+    let currentUploadedPhotoUrl = "";
+
+    let rpgPlayers = {
+        dad: { name: "爸爸", exp: 830 },
+        mom: { name: "媽媽", exp: 720 },
+        sis1: { name: "大囡", exp: 980 },
+        sis2: { name: "細囡", exp: 1200 }
     };
 
     function buildTimeline() {
         const bar = document.getElementById('map-timeline-bar');
+        bar.innerHTML = "";
         masterData.forEach(d => {
             const node = document.createElement('div');
-            node.className = `day-node ${d.day === 1 ? 'active' : ''}`;
+            node.className = `day-node ${d.day === activeDay ? 'active' : ''}`;
             node.id = `timeline-d${d.day}`;
             node.innerText = `D${d.day}`;
             node.onclick = () => selectDay(d.day);
             bar.appendChild(node);
         });
+
+        const mapBox = document.getElementById('mapContainer');
+        document.querySelectorAll('.map-hub').forEach(e => e.remove());
+        
+        for (let key in mapHubs) {
+            let h = mapHubs[key];
+            const hubDiv = document.createElement('div');
+            hubDiv.className = `map-hub ${key === masterData[activeDay-1].targetHub ? 'focused' : ''}`;
+            hubDiv.id = `hub-node-${key}`;
+            hubDiv.style.left = `${h.x - 15}px`;
+            hubDiv.style.top = `${h.y - 25}px`;
+            hubDiv.onclick = () => jumpToHubDay(key);
+            hubDiv.innerHTML = `<span class="hub-emoji">${h.emoji}</span><span class="hub-name">${h.name}</span>`;
+            mapBox.appendChild(hubDiv);
+        }
+    }
+
+    function jumpToHubDay(hubKey) {
+        let found = masterData.find(d => d.targetHub === hubKey || d.hub === hubKey);
+        if(found) selectDay(found.day);
     }
 
     function selectDay(dayNum) {
         activeDay = dayNum;
         document.querySelectorAll('.day-node').forEach(n => n.classList.remove('active'));
-        document.getElementById(`timeline-d${dayNum}`).classList.add('active');
+        const activeNode = document.getElementById(`timeline-d${dayNum}`);
+        if(activeNode) activeNode.classList.add('active');
         
-        const currentHub = masterData[dayNum - 1].hub;
-        target.x = mapHubs[currentHub].x;
-        target.y = mapHubs[currentHub].y;
+        const currentTargetHub = masterData[dayNum - 1].targetHub;
+        document.querySelectorAll('.map-hub').forEach(h => h.classList.remove('focused'));
+        const focusedHubDom = document.getElementById(`hub-node-${currentTargetHub}`);
+        if(focusedHubDom) focusedHubDom.classList.add('focused');
 
         toggleEditMode(false);
-        updateMapCard();
+        updateAllInterfaces();
+        drawRouteLines();
     }
 
-    function updateMapCard() {
-        const data = masterData[activeDay - 1];
-        document.getElementById('map-card-day').innerText = `📅 Day ${data.day} - ${data.tag}`;
-        document.getElementById('map-card-km').innerText = data.km;
+    function drawRouteLines() {
+        const svg = document.getElementById('mapSvg');
+        svg.innerHTML = ""; 
         
+        for(let i = 0; i < routeOrder.length - 1; i++) {
+            const p1 = mapHubs[routeOrder[i]];
+            const p2 = mapHubs[routeOrder[i+1]];
+            let isPassed = isMemoirMode || (i < activeDay);
+
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", p1.x); line.setAttribute("y1", p1.y);
+            line.setAttribute("x2", p2.x); line.setAttribute("y2", p2.y);
+            
+            if (isPassed) {
+                line.setAttribute("stroke", "var(--route-done)");
+                line.setAttribute("stroke-width", "4");
+                line.style.filter = "drop-shadow(0 0 5px #22C55E)"; 
+            } else {
+                line.setAttribute("stroke", "var(--route-future)");
+                line.setAttribute("stroke-width", "2");
+            }
+            svg.appendChild(line);
+        }
+
+        const currentTargetHub = masterData[activeDay - 1].targetHub;
+        const carDom = document.getElementById('mapCar');
+        if(carDom && mapHubs[currentTargetHub]) {
+            carDom.style.left = `${mapHubs[currentTargetHub].x - 8}px`;
+            carDom.style.top = `${mapHubs[currentTargetHub].y - 12}px`;
+        }
+    }
+
+    function updateAllInterfaces() {
+        const data = masterData[activeDay - 1];
+        
+        document.getElementById('top-day-badge').innerText = `DAY ${data.day}`;
+        document.getElementById('top-location').innerText = `📍 ${mapHubs[data.targetHub].name}`;
+        document.getElementById('weather-city').innerText = `${data.weather}`;
+        
+        let progressPercent = Math.round((data.day / 14) * 100);
+        document.getElementById('top-progress-text').innerText = `旅程進度 ${progressPercent}%`;
+        document.getElementById('top-progress-bar').style.width = `${progressPercent}%`;
+
+        document.getElementById('map-card-day').innerText = `📅 Day ${data.day} - ${data.tag}`;
+        document.getElementById('map-card-km').innerText = `~${data.km}km`;
         document.getElementById('det-route').innerText = data.route;
         document.getElementById('det-spots').innerText = data.spots;
         document.getElementById('det-b').innerText = data.b;
         document.getElementById('det-l').innerText = data.l;
         document.getElementById('det-d').innerText = data.d;
 
-        document.getElementById('edit-panel-title').innerText = `⚙️ 修改 Day ${data.day} 內置資料`;
+        document.getElementById('q-title').innerText = data.title;
+        document.getElementById('q-desc').innerText = data.desc;
+        
+        document.getElementById('photo-preview-img').style.display = 'none';
+        document.getElementById('btn-submit-quest').style.display = 'none';
+        currentUploadedPhotoUrl = "";
+
+        let totalKm = 0;
+        for(let i=0; i<data.day; i++) { totalKm += masterData[i].km; }
+        document.getElementById('dr-day-km').innerText = `${data.km} km`;
+        document.getElementById('dr-total-km').innerText = `${totalKm} km`;
+        document.getElementById('dr-gas').innerText = `${480 - (totalKm % 410)} km`;
+        document.getElementById('dr-etc').innerText = `¥${(1200 + (data.day * 1050)).toLocaleString()}`;
+
         document.getElementById('edit-route').value = data.route;
         document.getElementById('edit-spots').value = data.spots;
         document.getElementById('edit-b').value = data.b;
         document.getElementById('edit-l').value = data.l;
         document.getElementById('edit-d').value = data.d;
+
+        renderPlayerStats();
+    }
+
+    function handlePhotoUpload(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('photo-preview-img');
+                preview.src = e.target.result; preview.style.display = 'block';
+                currentUploadedPhotoUrl = e.target.result;
+                document.getElementById('btn-submit-quest').style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function validateQuestCompletion() {
+        const data = masterData[activeDay - 1];
+        for (let key in rpgPlayers) { rpgPlayers[key].exp += 200; }
+        uploadedPhotosCount += 1;
+        renderPlayerStats();
+
+        const grid = document.getElementById('albumGridZone');
+        const card = document.createElement('div');
+        card.className = 'album-card';
+        card.innerHTML = `<img class="album-img" src="${currentUploadedPhotoUrl}"><div class="album-meta">Day ${data.day} · ${mapHubs[data.targetHub].name}</div>`;
+        grid.appendChild(card);
+
+        alert(`✅ 任務達成！全家獲得 +200 EXP 大進補！相片已成功掛上旅行拍立得牆。`);
+
+        if (activeDay === 14) {
+            document.getElementById('end-photo-count').innerText = `${683 + uploadedPhotosCount} 張`;
+            document.getElementById('endGameScreen').style.display = 'flex';
+        } else {
+            selectDay(activeDay + 1);
+            switchTab('home');
+        }
+    }
+
+    function enterMemoirMode() {
+        isMemoirMode = true;
+        document.getElementById('endGameScreen').style.display = 'none';
+        document.getElementById('memoir-banner').style.display = 'block';
+        drawRouteLines();
+        
+        document.getElementById('top-title').innerText = "📖 北海道家庭回憶錄 (已通關)";
+        document.getElementById('top-progress-text').innerText = "旅程進度 100% COMPLETE!";
+        document.getElementById('top-progress-bar').style.width = "100%";
+        
+        for (let key in rpgPlayers) { rpgPlayers[key].exp += 1500; }
+        renderPlayerStats();
+        switchTab('home');
+    }
+
+    function renderPlayerStats() {
+        let sortable = [];
+        for (let key in rpgPlayers) {
+            let player = rpgPlayers[key];
+            let calculatedLv = Math.floor(player.exp / 100) + 1;
+            let barFillPercent = player.exp % 100; 
+            
+            document.getElementById(`lv-${key}`).innerText = `LV.${calculatedLv} (${player.exp} XP)`;
+            document.getElementById(`bar-${key}`).style.width = `${barFillPercent}%`;
+            
+            sortable.push({ key: key, name: player.name, exp: player.exp });
+        }
+
+        sortable.sort((a, b) => b.exp - a.exp);
+        const medals = ["🥇", "🥈", "🥉", "4️⃣"];
+        let lbHtml = "";
+        sortable.forEach((item, index) => {
+            lbHtml += `<div class="lb-row"><span>${medals[index]} ${item.name}</span><strong>${item.exp} EXP</strong></div>`;
+        });
+        document.getElementById('leaderboard-zone').innerHTML = lbHtml;
+    }
+
+    function addIndividualExp(playerKey) {
+        rpgPlayers[playerKey].exp += 25;
+        renderPlayerStats();
+    }
+
+    function navigateTo(targetTab) { switchTab(targetTab); }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        const targetDom = document.getElementById(`tab-${tabId}`);
+        if(targetDom) targetDom.classList.add('active');
+        
+        document.querySelectorAll('.switch-item').forEach(item => item.classList.remove('active-tab'));
+        const menuBtn = document.getElementById(`menu-${tabId}`);
+        if(menuBtn) menuBtn.classList.add('active-tab');
+        if (tabId === 'map') { setTimeout(drawRouteLines, 50); }
     }
 
     function toggleEditMode(isEdit) {
         const displayCard = document.getElementById('display-itinerary-card');
         const editPanel = document.getElementById('edit-itinerary-panel');
         const triggerBtn = document.getElementById('btn-trigger-edit');
-
         if(isEdit) {
-            displayCard.style.display = 'none';
-            editPanel.style.display = 'block';
-            triggerBtn.style.display = 'none';
+            displayCard.style.display = 'none'; editPanel.style.display = 'block'; triggerBtn.style.display = 'none';
         } else {
-            displayCard.style.display = 'block';
-            editPanel.style.display = 'none';
-            triggerBtn.style.display = 'flex';
+            displayCard.style.display = 'block'; editPanel.style.display = 'none'; triggerBtn.style.display = 'flex';
         }
     }
 
@@ -623,100 +762,38 @@
         data.l = document.getElementById('edit-l').value;
         data.d = document.getElementById('edit-d').value;
 
-        alert(`🎉 Day ${activeDay} 資料已即時更新同步！`);
+        alert(`💾 資料已即時更新同步！`);
         toggleEditMode(false);
-        updateMapCard();
+        updateAllInterfaces();
     }
 
-    function syncToMission() {
-        const data = masterData[activeDay - 1];
-        document.getElementById('current-tag').innerText = data.tag;
-        document.getElementById('current-title').innerText = data.title;
-        document.getElementById('current-desc').innerText = data.desc;
-        document.getElementById('current-punish').innerText = "失敗懲罰：" + data.punish;
-        switchTab('game');
-    }
-
-    function changeScore(player, amount) {
-        scores[player] = Math.max(0, scores[player] + amount);
-        document.getElementById(`score-${player}`).innerText = scores[player];
-    }
-
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.getElementById(`btn-${tabId}`).classList.add('active');
-        document.getElementById(`tab-${tabId}`).classList.add('active');
-    }
-
-    function randomMission() {
-        const rand = gameMissions[Math.floor(Math.random() * gameMissions.length)];
-        document.getElementById('current-tag').innerText = rand.tag;
-        document.getElementById('current-title').innerText = rand.title;
-        document.getElementById('current-desc').innerText = rand.desc;
-        document.getElementById('current-punish').innerText = "失敗懲罰：" + (rand.punish || "無");
-    }
-
-    function toggleForm() {
+    function toggleCustomForm() {
         const form = document.getElementById('custom-form');
         form.style.display = form.style.display === 'block' ? 'none' : 'block';
     }
 
-    function addCustomMission() {
-        const tag = document.getElementById('ins-tag').value || "CUSTOM";
+    function injectCustomMission() {
         const title = document.getElementById('ins-title').value;
         const desc = document.getElementById('ins-desc').value;
         if(!title || !desc) { alert("請輸入完整資料！"); return; }
         
-        const newM = { tag: tag, title: "✨ " + title, desc: desc, punish: "輸家幫全家夾餸！" };
-        gameMissions.push(newM);
-        document.getElementById('current-tag').innerText = newM.tag;
-        document.getElementById('current-title').innerText = newM.title;
-        document.getElementById('current-desc').innerText = newM.desc;
-        document.getElementById('current-punish').innerText = "失敗懲罰：" + newM.punish;
-        toggleForm();
+        const data = masterData[activeDay - 1];
+        data.title = "✨ [突發卡] " + title; data.desc = desc;
+        
+        alert("📌 突發卡已成功覆蓋今日主線插槽！");
+        toggleCustomForm();
+        updateAllInterfaces();
     }
 
-    // Canvas 地圖繪製
-    function initCanvasLoop() {
-        const canvas = document.getElementById('hokkaidoCanvas');
-        const ctx = canvas.getContext('2d');
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#EBF4FA"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#D4EDDA";
-            ctx.beginPath();
-            ctx.moveTo(30, 260); ctx.lineTo(100, 220); ctx.lineTo(130, 190); ctx.lineTo(160, 150);
-            ctx.lineTo(120, 130); ctx.lineTo(70, 110); ctx.lineTo(100, 80); ctx.lineTo(180, 100); 
-            ctx.lineTo(240, 50); ctx.lineTo(340, 70); ctx.lineTo(360, 120); ctx.lineTo(290, 160); 
-            ctx.lineTo(220, 180); ctx.closePath(); ctx.fill();
-
-            ctx.strokeStyle = "rgba(255, 112, 82, 0.35)"; ctx.lineWidth = 3; ctx.setLineDash([4, 4]);
-            ctx.beginPath();
-            const routeOrder = ['airport','sapporo','shakotan','sapporo','noboribetsu','toya','hakodate','asahikawa','hokuryu','biei','furano','sapporo','chitose','airport'];
-            routeOrder.forEach((nodeKey, idx) => {
-                if(idx === 0) ctx.moveTo(mapHubs[nodeKey].x, mapHubs[nodeKey].y);
-                else ctx.lineTo(mapHubs[nodeKey].x, mapHubs[nodeKey].y);
-            });
-            ctx.stroke(); ctx.setLineDash([]);
-
-            for (let key in mapHubs) {
-                let h = mapHubs[key];
-                if (key === masterData[activeDay - 1].hub) {
-                    ctx.fillStyle = "rgba(54, 215, 183, 0.4)"; ctx.beginPath(); ctx.arc(h.x, h.y, 14, 0, Math.PI * 2); ctx.fill();
-                }
-                ctx.fillStyle = "#2C3E50"; ctx.beginPath(); ctx.arc(h.x, h.y, 4, 0, Math.PI * 2); ctx.fill();
-                ctx.font = "13px sans-serif"; ctx.fillText(h.emoji, h.x - 6, h.y - 8);
-                ctx.font = "bold 9px sans-serif"; ctx.fillStyle = "#4A5568"; ctx.fillText(h.name, h.x - 12, h.y + 13);
-            }
-
-            car.x += (target.x - car.x) * 0.08; car.y += (target.y - car.y) * 0.08;
-            ctx.font = "18px sans-serif"; ctx.fillText("🚗", car.x - 9, car.y + 6);
-            requestAnimationFrame(draw);
-        }
-        draw();
+    function initCanvasLoop() { 
+        buildTimeline(); 
+        updateAllInterfaces();
+        drawRouteLines();
     }
+
+    window.onload = function() {
+        initCanvasLoop();
+    };
 </script>
 
 </body>
