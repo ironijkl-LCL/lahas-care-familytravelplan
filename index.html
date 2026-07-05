@@ -88,7 +88,7 @@
             letter-spacing: 1px;
         }
 
-        /* ⚔         * ⚔️ 手遊風關卡冒險任務大螢幕 */
+        /* ⚔️ 手遊風關卡冒險任務大螢幕 */
         .adventure-screen {
             background: linear-gradient(135deg, #0EA5E9, #38BDF8);
             padding: 24px;
@@ -194,7 +194,7 @@
         .switch-item.active-tab::before { background: var(--primary); }
         .switch-item.active-tab { border-color: var(--primary); background: #FFF; transform: scale(1.02); }
         .switch-item:active { transform: scale(0.96); }
-        .switch-icon { font-size: 1.6rem; margin-bottom: 2px; display: block; }
+        .switch-icon { font-size: 1.6rem; margin-bottom: 2px; display: block; margin-right: 0; }
         .switch-label { font-size: 0.82rem; font-weight: bold; color: var(--text-light); display: block; }
 
         /* RPG 角色卡 */
@@ -239,7 +239,7 @@
             color: #334155; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
         }
 
-        /* ================= 🗺️ 【Leaflet 世界級真實地理開拓地圖核心 CSS】 ================= */
+        /* ================= 🗺️ 【Leaflet 真實地理開拓地圖核心 CSS】 ================= */
         .map-box {
             width: 100%; height: 280px;
             border: 3px solid #7dd3fc; border-radius: 22px; position: relative; overflow: hidden;
@@ -306,6 +306,7 @@
 
         /* 📋 拍立得相簿牆 */
         .photo-upload-zone { background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: 16px; padding: 20px 14px; text-align: center; margin-top: 12px; position: relative; }
+        .photo-upload-zone span { display: block; }
         .photo-input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
         .photo-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; }
         .btn-quest-done { width: 100%; padding: 13px; border: none; background: var(--secondary); color: white; border-radius: 12px; font-weight: bold; cursor: pointer; display: none; font-size: 0.9rem; margin-top: 12px; }
@@ -377,7 +378,7 @@
             </div>
             <div>
                 <div class="day-badge" id="top-day-badge">DAY 1</div>
-                <div class="location" id="top-location">📍 新千歲</div>
+                <div class="location" id="top-location">📍 台北</div>
             </div>
         </div>
     </div>
@@ -385,12 +386,12 @@
     <!-- ================= 分頁 1: 九宮格主選單主面板 ================= -->
     <div id="tab-home" class="tab-content active" style="max-height:81vh;">
         
-        <!-- ⚔️ 手遊風關卡任務大螢幕（動態調色盤） -->
+        <!-- ⚔️ 手遊風關卡任務大螢幕（動態調色盤，同步對齊真實行程數據） -->
         <div class="adventure-screen" id="mainAdventureScreen">
             <div class="sun-mini">☀️</div>
-            <div class="location-big" id="hero-location-big">🗼 札幌</div>
+            <div class="location-big" id="hero-location-big">🇹🇼 台北</div>
             <div class="chapter" id="hero-chapter">CHAPTER 1</div>
-            <div class="mission-box" id="hero-mission-box">拉麵道場極限進補</div>
+            <div class="mission-box" id="hero-mission-box">入住晴美公寓酒店</div>
             <div class="exp-box">
                 <span id="hero-exploration-rate">🧭 全島總探索度 7%</span> 
                 <span style="margin: 0 4px;">•</span> 
@@ -400,8 +401,8 @@
 
         <!-- 夏日天氣卡 -->
         <div class="weather-card">
-            <span style="font-size: 1.1rem;">☀️ 24°C</span>
-            <span id="weather-city">札幌晴天</span>
+            <span style="font-size: 1.1rem;">☀️ 32°C</span>
+            <span id="weather-city">台北晴天</span>
         </div>
 
         <!-- RPG 角色卡模組 -->
@@ -442,7 +443,7 @@
             <div id="leaderboard-zone"></div>
         </div>
 
-        <!-- 📸 今日回憶快照 -->
+        <!-- 📸 今日回憶快照欄位 -->
         <div class="info-card">
             <h3>📸 今日回憶快照</h3>
             <div class="home-photo-carousel" id="homePhotoCarousel">
@@ -503,7 +504,7 @@
         <button class="btn btn-outline" style="margin-top:14px; border-radius:14px;" onclick="navigateTo('budget')">💰 查看租車與過路費預算</button>
     </div>
 
-    <!-- ================= 分頁 2: 🗺️ Real Leaflet 真實地理探索地圖 ================= -->
+    <!-- ================= 分頁 2: 🗺️ Real Leaflet 真實地理開拓地圖 ================= -->
     <div id="tab-map" class="tab-content">
         <!-- 橫向單排天數鈕不對折防走位滾動條 -->
         <div class="map-timeline" id="map-timeline-bar"></div>
@@ -514,9 +515,11 @@
         </div>
 
         <div class="info-card" id="display-itinerary-card" style="margin-top: 10px; border-left: 4px solid var(--primary);">
-            <div class="info-header"><span class="info-title" id="map-card-day">Day 1</span><span class="info-meta" id="map-card-km">~50km</span></div>
+            <div class="info-header"><span class="info-title" id="map-card-day">Day 1</span><span class="info-meta" id="map-card-km">~0km</span></div>
             <div class="detail-section">
                 <div class="detail-row"><div class="detail-label">🗺️ 行程路線</div><div class="detail-text" id="det-route">-</div></div>
+                <!-- ⏱️ 新增：預計架車時間顯示欄位 -->
+                <div class="detail-row" style="background: #F8FAFC; border-radius: 8px; padding: 6px 8px; margin: 4px 0;"><div class="detail-label" style="color: var(--pack-color);">⏱️ 預計開車車程時間</div><div class="detail-text" id="det-drivetime" style="font-weight: bold; color: var(--pack-color); font-size: 0.9rem;">-</div></div>
                 <div class="detail-row"><div class="detail-label">🎯 景點深度</div><div class="detail-text" id="det-spots">-</div></div>
                 <div class="detail-row"><div class="detail-label">🌅 早餐提案</div><div class="detail-text" id="det-b">-</div></div>
                 <div class="detail-row"><div class="detail-label">🍱 午餐提案</div><div class="detail-text" id="det-l">-</div></div>
@@ -527,6 +530,7 @@
         <div class="edit-panel" id="edit-itinerary-panel">
             <h4>⚙️ 修改內置旅行資料</h4>
             <input type="text" id="edit-route" class="custom-input" placeholder="路線">
+            <input type="text" id="edit-drivetime" class="custom-input" placeholder="預計開車時間">
             <textarea id="edit-spots" class="edit-textarea" rows="2" placeholder="景點介紹"></textarea>
             <input type="text" id="edit-b" class="custom-input" placeholder="早餐">
             <input type="text" id="edit-l" class="custom-input" placeholder="午餐">
@@ -625,16 +629,16 @@
         <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= 🏆 終結大結局結算面板 ================= -->
+    <!-- ================= 🏆 大結局結算面板 ================= -->
     <div class="end-game-overlay" id="endGameScreen">
         <h2 style="color: #64748B; font-size: 1rem; margin:0;">🎮 GAME COMPLETE</h2>
-        <div class="end-title-banner">━━━━━━━━━━<br>北海道冒險完成<br>━━━━━━━━━━</div>
+        <div class="end-title-banner">━━━━━━━━━━<br>全真章節冒險通關<br>━━━━━━━━━━</div>
         <div style="width:100%; display:flex; flex-direction:column; align-items:center; margin-bottom:14px;">
-            <div class="stat-row"><span>總行駛里程</span><strong style="color:var(--secondary);">1385 km</strong></div>
+            <div class="stat-row"><span>自駕開拓總里程</span><strong style="color:var(--secondary);">1480 km</strong></div>
             <div class="stat-row"><span>家族獵影相片</span><strong style="color:var(--switch-blue);" id="end-photo-count">683 張</strong></div>
-            <div class="stat-row"><span>大啖拉麵碗數</span><strong style="color:var(--primary);">11 碗</strong></div>
-            <div class="stat-row"><span>爆食雪糕杯數</span><strong style="color:var(--accent);">23 杯</strong></div>
-            <div class="stat-row"><span>肥美海膽大餐</span><strong style="color:#FB923C;">4 次</strong></div>
+            <div class="stat-row"><span>大啖拉麵碗數</span><strong style="color:var(--primary);">13 碗</strong></div>
+            <div class="stat-row"><span>爆食雪糕杯數</span><strong style="color:var(--accent);">26 杯</strong></div>
+            <div class="stat-row"><span>肥美海膽大餐</span><strong style="color:#FB923C;">5 次</strong></div>
         </div>
         <h3 style="color:var(--gray); font-size:0.85rem; margin:6px 0 0 0;">👑 本次旅程總冠軍誕生 👑</h3>
         <div class="champion-box">🏆 北海道王者：細囡</div>
@@ -642,41 +646,44 @@
     </div>
 </div>
 
-<!-- 引入世界級 Leaflet 地圖引擎核心 JS -->
+<!-- 引入 Leaflet 地圖引擎核心 JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    // ⚔️ 【精準機票、兩間 Airbnb 獨立屋以及預計開車時間完全對齊整合數據】
     const masterData = [
-        { day: 1, route: "新千歲機場 ➔ 札幌市區", km: 50, tag: "SAPPORO", hub: "airport", targetHub: "sapporo", weather: "札幌晴天", spots: "大通公園夏祭現場。全個公園變身巨型露天花園，佈滿限定美食攤位與高聳嘅生啤機！", b: "飛機餐或落機在機場便利店快閃買生乳卷頂肚。", l: "新千歲機場「拉麵道場」一幻蝦湯拉麵（濃厚甜蝦頭熬製）。", d: "大通公園啤酒節屋台：必點烤北海道甜玉米、炸雞塊配爸媽生啤酒！", title: "拉麵道場極限進補", desc: "在新千歲機場拉麵道場成功挑戰一幻蝦湯拉麵，拍下第一張美食相片提交！" },
-        { day: 2, route: "札幌 ➔ 小樽 ➔ 積丹半島 ➔ 札幌", km: 210, tag: "SHAKOTAN", hub: "sapporo", targetHub: "shakotan", weather: "積丹晴天", spots: "神威岬：沿住步道行入海脊，兩邊係蔚藍震撼嘅積丹藍海景。小樽運河：黃昏時懷舊煤氣燈亮起。", b: "札幌酒店豪華極鮮牛乳配烘焙麵包。", l: "積丹「中村屋」：爆食夏季限定極品純馬糞海膽丼（甘甜入口即化）。", d: "小樽「政壽司」：品嚐極上握壽司（當地小樽港新鮮直送大牡丹蝦）。", title: "🌊 積丹藍・海膽尋寶", desc: "在神威岬步道拍出最夢幻、最純粹嘅「積丹藍 club」海景相片並提交打卡！" },
-        { day: 3, route: "札幌市區休整與採購預熱", km: 20, tag: "SAPPORO", hub: "shakotan", targetHub: "sapporo", weather: "札幌多雲", spots: "白色戀人觀光工廠：歐洲城堡風嘅朱古力庭園。莫埃來沼公園：由大師野口勇設計，有幾何金字塔。", b: "二條市場海鮮丼飯配一碗滿滿鮮甜蟯湯。", l: "札幌「根室花丸」：超人氣排隊迴轉壽司。", d: "札幌名物「Suage+」：湯咖哩（帶骨雞腿炸至酥脆，浸入香料濃湯）。", title: "🛍️ 狸小路古怪手信搜捕", desc: "全家分頭在狸小路藥妝店，找出一樣最莫名其妙的古怪商品照片並上傳！" },
-        { day: 4, route: "札幌 ➔ 登別地獄谷", km: 110, tag: "NOBORIBETSU", hub: "sapporo", targetHub: "noboribetsu", weather: "登別晴天", spots: "登別地獄谷：火山爆發後形成嘅奇特谷地，白煙裊裊。大湯沼川天然足湯：森林享天然腳溫泉。", b: "札幌烘焙坊精緻麵包。", l: "登別溫泉街「味之大王」：地獄拉麵（湯頭濃郁辛辣，極度開胃）。", d: "溫泉酒店內傳統「手作懷石料理」：享用頂級前菜、毛蟹解體盛宴、十勝和牛陶板燒。", title: "👹 地獄谷硫磺鬼臉模仿", desc: "在煙霧繚繞的登別地獄谷找到赤鬼雕像，拍下全家一起模仿鬼臉嘅高能量照片上傳！" },
-        { day: 5, route: "登別 ➔ 洞爺湖溫泉鄉", km: 40, tag: "TOYA", hub: "noboribetsu", targetHub: "toya", weather: "洞爺湖晴天", spots: "洞爺湖畔：可以租架天鵝船踩入湖心。昭和新山：依然在冒煙嘅活火山，近距離感受地球心跳。", b: "溫泉酒店精跡日式 Buffet。", l: "「Lake Hill Farm」：大草原風景餐廳，必食手工 Gelato 意式雪糕與起司披薩。", d: "洞爺湖乃之風「湖畔餐廳」：一邊食精緻長腳蟹自助餐，一邊望住玻璃窗外的湖景與花火。", title: "🎆 洞爺花火房內攝影大賽", desc: "晚上 20:45 煙花準時由湖面發射！拍下喺房間陽台睇煙花最夢幻嘅一幕並提交！" },
-        { day: 6, route: "洞爺湖 ➔ 大沼公園 ➔ 函館", km: 160, tag: "HAKODATE", hub: "toya", targetHub: "hakodate", weather: "函館晴天", spots: "大沼國定公園：擁有大小島嶼嘅優美湖泊。函館山頂：傍晚搭纜車登頂，等候百萬夜景降臨那一刻。", b: "洞爺湖畔烘焙坊咖啡與熱辣刻牛角包。", l: "大沼公園名物「沼之家」：大沼糰子（醬油與紅豆雙拼）。", d: "函館「大門橫丁」屋台村：體驗地道居酒屋氣氛，串燒、烤扇貝、鹽味拉麵輪流食。", title: "🚴 大沼公園單車追逐賽", desc: "喺大沼公園踩單車時，拍下爸爸或媽媽迎風踩單車橫衝直撞嘅爆笑表情相片上傳！" },
-        { day: 7, route: "函館市區浪漫一日遊", km: 15, tag: "HAKODATE", hub: "hakodate", targetHub: "hakodate", weather: "函館大晴天", spots: "五稜郭塔：俯瞰巨大星形歷史堡壘。金森紅磚倉庫：文青購物街。八幡坂：直通大海嘅視覺斜坡。", b: "函館朝市「きくよ食堂」：經典三色海鮮丼（海膽、鮭魚卵、干貝），鮮甜到爆！", l: "傳奇傳說「幸運小丑漢堡」：必點「中華炸雞漢堡」。", d: "「うに むらかみ」函館本店：無添加明礬嘅純天然海膽盛宴。", title: "🦑 捕捉活烏賊", desc: "在函館朝市成功釣起生猛活烏賊，拍下烏賊噴水 or 切片刺身透明相片並提交！" },
-        { day: 8, route: "函館 ➔ 一路北上 ➔ 旭川", km: 380, tag: "ROADTRIP", hub: "hakodate", targetHub: "asahikawa", weather: "旭川晴天", spots: "道央高速公路拉力日。沿途欣賞內浦灣海景與羊蹄山（蝦夷富士）嘅宏偉雄姿。", b: "函館元町法式麵包與熱鮮奶。", l: "「砂川服務區」限定：北海道特厚切黑豚炸豬排丼飯（外脆內嫩，多汁飽腹）。", d: "旭川拉麵村：「青葉拉麵」點招牌醬油拉麵，表面有一層焦香豬油防散熱。", title: "🚗 長途公路拉力賽", desc: "5小時公路長途自駕，拍下兩位囡囡喺後座戴住睡眠頸枕、張開大口瞓覺嘅生鬼相片！" },
-        { day: 9, route: "旭川 ➔ 北龍町向日葵之里 ➔ 旭川", km: 120, tag: "HOKURYU", hub: "asahikawa", targetHub: "hokuryu", weather: "北龍町大晴天", spots: "北龍町向日葵之里：全日本規模最大！200 萬株金色向日葵滿開。旭山動物園：透過透明圓筒睇企鵝潛水。", b: "旭川市內連鎖咖啡廳鬆軟鬆餅。", l: "北龍町觀光中心：享用限定向日葵主題定食。", d: "旭川排隊神店「成吉思汗 大黑屋」：炭火烤小羔羊肉（毫無羊羶味，肉質鮮嫩）。", title: "🌻 向日葵迷宮極速逃脫", desc: "闖入 200 萬株金色向日葵迷宮，拍下兩姊妹喺花海深處迷路、搞笑求救嘅打卡相！" },
-        { day: 10, route: "旭川 ➔ 美瑛拼布之路 ➔ 富良野", km: 50, tag: "BIEI", hub: "hokuryu", targetHub: "biei", weather: "美瑛晴天", spots: "美瑛白金青池：池水因礦物質呈現夢幻嘅蒂芬妮藍。拼布之路：Ken & Mary 之樹，大地如色彩畫布。", b: "旭川買限定男山清酒酒粕麵包。", l: "美瑛超級名店「純平 (Junpei)」：必點招牌「海老丼」（巨型炸大蝦炸衣酥脆）。", d: "「富良野 Wine House」：食瑞士芝士火鍋配頂級富良野和牛排。", title: "🎨 四季彩之丘色彩獵人", desc: "喺四季彩之丘七彩花田前面，拍下一張一家四口高難度「千手觀音」 or 「疊羅漢」相片提交！" },
-        { day: 11, route: "富良野 ➔ 隨景觀公路 ➔ 返回札幌", km: 120, tag: "FURANO", hub: "biei", targetHub: "furano", weather: "富良野晴天", spots: "富田農場：雖然薰衣草尾聲，但繽紛嘅彩色花田此時正值最豔麗嘅全盛期。富良野高地景觀公路。", b: "「Furano Marche」在地農產市集 : 現烤流心起司撻。", l: "富田農場園內：食咖哩蛋包飯，甜點係現切爆汁夕張哈密瓜連埋原隻哈密瓜鮮奶霜淇淋！", d: "札幌拉麵神店「麵屋 彩未」：極致濃郁嘅味噌拉麵（湯頭微甜，帶有淡淡生薑香氣）。", title: "🍈 哈密瓜終極爆食挑戰", desc: "拍下兩位囡囡手捧原隻哈密瓜霜淇淋、食到滿嘴都係雪糕嘅極致吃貨吃相相片！" },
-        { day: 12, route: "札幌 ➔ 三井 Outlet ➔ 狸小路", km: 35, tag: "SHOPPING", hub: "furano", targetHub: "sapporo", weather: "札幌晴天", spots: "三井 Outlet Park 北廣島：全室內型 Outlet 唔驚曬。狸小路商店街：有巨型藥妝店同各種古怪手信店。", b: "酒店豐盛自助餐或路過松屋食熱辣辣牛肉飯飯。", l: "Outlet 美食廣場：十勝名物「豚丼之豬太」（現烤炭火燒肉，醬汁焦香）。", d: "「燒肉 德壽」：大啖北海道頂級白老牛燒肉拼盤，油花分布完美。", title: "💸 Outlet 限時手信盲盒賽", desc: "在三井 Outlet 現場，拍下爸爸換上兩位囡囡親自挑選嘅「爆笑日系潮流感」穿搭照！" },
-        { day: 13, route: "札幌 ➔ 支笏湖散策 ➔ 千歲", km: 60, tag: "CHITOSE", hub: "sapporo", targetHub: "chitose", weather: "支笏湖多雲", spots: "支笏湖：日本透明度第一嘅火山湖。可以租隻獨木舟或者玻璃底觀光船，直接望穿幾十米深嘅清澈湖底。", b: "札幌特色手沖珈琲與法式吐司。", l: "支笏湖畔餐廳：享用當地名物「姬鱒魚 (Chip)」鹽烤定食 or 炸鱒魚漢堡，超鮮美。", d: "千歲市區當地人愛店「旬之味 鶴」：享用低調居酒屋嘅鹽烤章魚、炸雞唐揚。", title: "🚣 支笏湖超透明清澈鑑定", desc: "利用湖水透視錯位，拍下一張小船漂浮在虛空中、全家凌空盤坐嘅「魔幻奇蹟照」上傳！" },
-        { day: 14, route: "千歲市區 ➔ 機場還車 ➔ 快樂返港", km: 15, tag: "AIRPORT", hub: "chitose", targetHub: "airport", weather: "千歲晴天", spots: "新千歲機場國內線大樓：內嵌叮噹 WAKUWAKU 天空樂園、Hello Kitty 機場樂園與 Royce 朱古力實體生產工廠！", b: "千歲飯店早餐 or 直奔機場烘焙坊食限定起司巨塔麵包。", l: "機場內「白樺山莊」：最後拉車大進補。甜點直攻 LeTAO 雙層起司蛋糕！", d: "飛機餐 or 返港享用港式大餐結算總積分！", title: "✈️ 空港免稅品最後大搜捕", desc: "【最終戰】在新千歲機場叮噹天空樂園前面，拍下一張全家大團圓、手拎滿滿戰利品嘅大結局合照！" }
+        { day: 1, route: "香港 (HKG) ➔ 台北 (TPE)", km: 0, driveTime: "0 小時 (乘搭飛機航程)", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "搭乘長榮航空 BR892 (10:10-11:55) 快閃空降台北！下午 15:30 後解鎖入住中山區「晴美公寓酒店」。晚上直奔林森北路條通美食或雙城街夜市爆食熱炒與珍奶！", b: "飛機餐或落機在機場便利店買手卷。", l: "台北桃園機場快閃小吃或林森北路高家莊米苔目。", d: "林森北路條通台式熱炒：必點三杯雞、鳳梨蝦球配爸媽冰啤酒！", title: "晴美公寓酒店解鎖", desc: "順利抵達台北中山區林森北路晴美公寓酒店並成功 Check-in，上傳全家第一張台式快閃大合照提交！" },
+        { day: 2, route: "台北西門町與南西商圈搜捕散策", km: 0, driveTime: "0 小時 (市區捷運步攻)", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北午後豪雨", spots: "晴美公寓酒店享用美味雙人早餐。隨後前往西門町與中山南西商圈。囡囡最愛文青小店、格子鋪，以及拍立得日系貼紙相店大獵影！", b: "酒店內包含的精緻雙人份特製早點。", l: "西門町「阿宗麵線」或老山東牛肉麵（厚切牛筋鮮美彈牙）。", d: "中山站排隊神店「肥前屋」鰻魚飯或鼎泰豐小籠包盛宴！", title: "📸 中山商圈貼紙相大賽", desc: "全家在中山站南西商圈成功拍下一張充滿台式潮流感嘅日系貼紙相，提交相片得分！" },
+        { day: 3, route: "台北 (TPE) ➔ 札幌 (CTS) ➔ 札幌獨立屋", km: 50, driveTime: "約 1 小時 15 分鐘", tag: "SAPPORO", hub: "taipei", targetHub: "sapporo", weather: "札幌微風晴天", spots: "早上從晴美公寓退房，搭乘長榮 BR116 (10:10-15:00) 直飛札幌新千歲！落機直奔還車點取車自駕。下午 15:00 後解鎖解鎖入住位於札幌市東區「北40條東17丁目1-8」的超大包棟獨立屋大本營！", b: "晴美公寓最後清晨早餐。", l: "飛機上享用高空精緻餐點。", d: "札幌大通公園夏祭啤酒節現場：搶攻限定屋台，激食烤北海道甜玉米、炸雞塊配生啤酒！", title: "🏡 札幌北40條大本營登陸", desc: "在新千歲落機順利取車，自駕開拓至札幌市東區北40條獨立屋，拍下包棟客廳第一張合照提交！" },
+        { day: 4, route: "札幌 ➔ 小樽 ➔ 積丹半島 ➔ 札幌獨立屋", km: 210, driveTime: "約 3 小時 45 分鐘 (來回大長征)", tag: "SHAKOTAN", hub: "sapporo", targetHub: "shakotan", weather: "積丹藍大晴天", spots: "自駕極限衝向神威岬！沿住步道行入海脊，兩邊係蔚藍震撼嘅積丹藍海景。黃昏時快閃回小樽運河，欣賞懷舊煤氣燈亮起的美景，夜裡回到札幌獨立屋休整。", b: "札幌北40條大本營自製極鮮牛乳烘焙麵包餐。", l: "積丹「中村屋」：爆食夏季限定極品純馬糞海膽丼（甘甜入口即化）。", d: "小樽「政壽司」：品嚐極上握壽司（當地小樽港新鮮直送大牡丹蝦）。", title: "🌊 積丹藍・海膽尋寶", desc: "在神威岬步道拍出最夢幻、最純粹嘅「積丹藍 club」海景相片並提交打卡！" },
+        { day: 5, route: "札幌市區休整與藥妝採購預熱", km: 20, driveTime: "約 45 分鐘 (市區短途行車)", tag: "SAPPORO", hub: "shakotan", targetHub: "sapporo", weather: "札幌多雲", spots: "白色戀人觀光工廠：歐洲城堡風嘅朱古力庭園。莫埃來沼公園：由大師野口勇設計，有幾何金字塔。下午全家大本營出動，狸小路免稅店大採購！", b: "二條市場海鮮丼飯配一碗滿滿鮮甜蟯湯。", l: "札幌「根室花丸」：超人氣排隊迴轉壽司。", d: "札幌名物「Suage+」：湯咖哩（帶骨雞腿炸至酥脆，浸入香料濃湯）。", title: "🎨 狸小路古怪手信搜捕", desc: "全家分頭在狸小路藥妝店，找出一樣最莫名其妙的古怪商品照片並上傳！" },
+        { day: 6, route: "札幌 ➔ 登別地獄谷 ➔ 洞爺湖", km: 150, driveTime: "約 2 小時 20 分鐘", tag: "NOBORIBETSU", hub: "sapporo", targetHub: "noboribetsu", weather: "登別火山硫磺天", spots: "告別札幌獨立屋（今日暫離大本營線）。開往登別地獄谷：白煙裊裊，震撼驚人。大湯沼川天然足湯：在火山溫泉森林享受天然腳溫泉。傍晚殺往洞爺湖畔入住溫泉飯店！", b: "大本營快閃飯糰與十勝優格。", l: "登別溫泉街「味之大王」：地獄拉麵（湯頭濃郁辛辣，極度開胃）。", d: "溫泉酒店內傳統「手作懷石料理」：享用頂級前菜、毛蟹解體盛宴、十勝和牛陶板燒。", title: "👹 地獄谷硫磺鬼臉模仿", desc: "在煙霧繚繞的登別地獄谷找到赤鬼雕像，拍下全家一起模仿鬼臉嘅高能量照片上傳！" },
+        { day: 7, route: "洞爺湖 ➔ 大沼公園 ➔ 函館獨立屋防線", km: 160, driveTime: "約 2 小時 40 分鐘", tag: "HAKODATE", hub: "noboribetsu", targetHub: "hakodate", weather: "函館百萬夜景大晴天", spots: "大沼國定公園：擁有大小島嶼嘅優美湖泊，踩架單車環湖。傍晚自駕進駐函館市區。函館山頂：傍晚搭纜車登頂，等候百萬夜景降臨那一刻。地圖上隱藏寶箱即將浮現！", b: "洞爺湖畔烘焙坊咖啡與熱辣牛角包。", l: "大沼公園名物「沼之家」：大沼糰子（醬油與紅豆雙拼）。", d: "函館「大門橫丁」屋台村：體驗地道居酒屋氣氛，串燒、烤扇貝、鹽味拉麵輪流食。", title: "🦑 捕捉活烏賊", desc: "【地圖隱藏寶箱解鎖日】在函館朝市成功釣起生猛活烏賊，拍下烏賊噴水或切片刺身透明相片並提交！" },
+        { day: 8, route: "函館 ➔ 縱貫道央超長途拉車 ➔ 旭川", km: 380, driveTime: "約 5 小時 15 分鐘 (終極長途拉車挑戰)", tag: "ROADTRIP", hub: "hakodate", targetHub: "asahikawa", weather: "道央多雲轉晴", spots: "道央高速公路拉力日！全日本最硬派拉車賽。自駕大縱走，沿途欣賞內浦灣海景與羊蹄山（蝦夷富士）嘅宏偉雄姿，直達北部重鎮旭川市區！", b: "函館朝市「きくよ食堂」：經典三色海鮮丼（海膽、鮭魚卵、干貝）。", l: "「砂川服務區」限定：北海道特厚切黑豚炸豬排丼飯（外脆內嫩）。", d: "旭川拉麵村：「青葉拉麵」點招牌醬油拉麵，表面有一層焦香豬油防散熱。", title: "🚗 長途公路後座演唱會", desc: "5小時公路長途自駕，拍下兩位囡囡喺後座戴住睡眠頸枕、張開大口瞓覺嘅生鬼相片提交！" },
+        { day: 9, route: "旭川 ➔ 北龍町向日葵 ➔ 旭山動物園 ➔ 旭川", km: 120, driveTime: "約 2 小時 10 分鐘", tag: "HOKURYU", hub: "asahikawa", targetHub: "hokuryu", weather: "北龍町黃金大晴天", spots: "北龍町向日葵之里：全日本規模最大！200 萬株金色向日葵滿開迷宮。下午殺回旭山動物園：透過透明圓筒近距離觀察企鵝與海豹潛水絕技！", b: "旭川市內連鎖咖啡廳鬆軟鬆餅。", l: "北龍町觀光中心：享用限定向日葵主題定食。", d: "旭川排隊神店「成吉思汗 大黑屋」：炭火烤小羔羊肉（外焦內嫩，毫無羊羶味）。", title: "🌻 向日葵迷宮極速逃脫", desc: "闖入 200 萬株金色向日葵迷宮，拍下兩姊妹喺花海深處迷路、搞笑求救嘅打卡相！" },
+        { day: 10, route: "旭川 ➔ 美瑛青池 ➔ 富良野彩色花田", km: 50, driveTime: "約 1 小時 10 分鐘", tag: "BIEI", hub: "hokuryu", targetHub: "biei", weather: "美瑛富良野大晴天", spots: "美瑛白金青池：池水因礦物質呈現夢幻嘅蒂芬妮藍。四季彩之丘：大地如色彩拼布畫布。黃昏進駐富良野高地景觀公路。", b: "旭川買限定男山清酒酒粕麵包。", l: "美瑛超級名店「純平 (Junpei)」：必點招牌「海老丼」（巨型炸大蝦炸衣酥脆）。", d: "「富良野 Wine House」：食瑞士芝士火鍋配頂級富良野和牛排。", title: "🎨 四季彩之丘色彩獵人", desc: "喺四季彩之丘七彩花田前面，拍下一張一家四口高難度「千手觀音」 or 「疊羅漢」相片提交！" },
+        { day: 11, route: "富良野 ➔ 景觀公路 ➔ 小樽石山町獨立屋", km: 150, driveTime: "約 2 小時 30 分鐘", tag: "FURANO", hub: "biei", targetHub: "furano", weather: "富良野晴天", spots: "富田農場：狂嗑爆汁夕張哈密瓜與原隻哈密瓜鮮奶霜淇淋！下午告別富良野，開展下半部全新防線——自駕開拓進駐位於小樽市「19-4 Ishiyamachō」的高質感包棟獨立屋！", b: "富良野在地農產市集：現烤流心起司撻。", l: "富田農場園內：現切爆汁夕張哈密瓜連埋原隻哈密瓜鮮奶霜淇淋！", d: "札幌拉麵神店「麵屋 彩未」：極致濃郁嘅味噌拉麵（湯頭微甜，帶有生薑香氣）。", title: "🏠 小樽石山町新據點解鎖", desc: "自駕橫跨道央抵達小樽石山町獨立屋新防線，拍下這個極具空間感的新客廳基地合照提交！" },
+        { day: 12, route: "小樽 ➔ 三井 Outlet ➔ 札幌市區採購尾聲", km: 85, driveTime: "約 1 小時 40 分鐘 (來回跨城車程)", tag: "SHOPPING", hub: "furano", targetHub: "sapporo", weather: "札幌晴天", spots: "從小樽獨立屋出發，突擊三井 Outlet Park 北廣島：全室內型 Outlet 瘋狂掃貨血拼！傍晚快閃回狸小路，進行免稅手信最後大規模搜捕！", b: "小樽獨立屋自製海鮮吐司餐。", l: "Outlet 美食廣場：十勝名物「豚丼之豬太」（現烤炭火燒肉，醬汁焦香）。", d: "「燒肉 德壽」：大啖北海道頂級白老牛燒肉拼盤，油花分布完美。", title: "💸 Outlet 限時手信盲盒賽", desc: "在三井 Outlet 現場，拍下爸爸換上兩位囡囡親自挑選嘅「爆笑日系潮流感」穿搭照！" },
+        { day: 13, route: "小樽 ➔ 支笏湖火山湖散策 ➔ 小樽獨立屋", km: 160, driveTime: "約 2 小時 50 分鐘", tag: "CHITOSE", hub: "sapporo", targetHub: "chitose", weather: "支笏湖多雲", spots: "支笏湖：日本透明度第一嘅火山湖。租隻透明底觀光船，直接望穿幾十米深嘅清澈湖底。黃昏返回小樽獨立屋大本營，收拾行囊，準備迎接最終戰結算！", b: "小樽在地咖啡與歐式軟麵包。", l: "支笏湖畔餐廳：享用當地名物「姬鱒魚 (Chip)」鹽烤定食 or 炸鱒魚漢堡，超鮮美。", d: "千歲市區當地人愛店「旬之味 鶴」：低調居酒屋嘅鹽烤章魚、炸雞唐揚。", title: "🚣 支笏湖超透明清澈鑑定", desc: "利用湖水透視錯位，拍下一張小船漂浮在虛空中、全家凌空盤坐嘅「魔幻奇蹟照」上傳！" },
+        { day: 14, route: "小樽獨立屋退房 ➔ 還車 ➔ 機場返港", km: 60, driveTime: "約 1 小時 10 分鐘", tag: "AIRPORT", hub: "chitose", targetHub: "airport", weather: "千歲晴天", spots: "早上 10:00 前從小樽獨立屋辦理退房。自駕回千歲機場還車。衝入新千歲機場國內線大樓最後血拼：Royce朱古力工廠、LeTAO、多啦A夢天空樂園！搭乘長榮 BR165 (13:00) 飛台北轉 BR857 (18:10) 快樂返港！", b: "直奔機場烘焙坊食限定起司巨塔麵包。", l: "機場內「白樺山莊」最後拉車大進補，甜點直攻 LeTAO 雙層起司蛋糕！", d: "台北轉機快閃牛肉麵或返港享用港式大餐，開啟終結面板結算總積分！", title: "✈️ 空港免稅品最後大搜捕", desc: "【最終戰】在新千歲機場多啦A夢天空樂園前，拍下一張全家大團圓、手拎滿滿戰利品嘅大結局合照提交！" }
     ];
 
     const mapHubs = {
-        airport:    { name: "新千歲", lat: 42.775, lng: 141.692, emoji: "✈️" },
-        sapporo:    { name: "札幌", lat: 43.062, lng: 141.354, emoji: "🗼" },
+        taipei:     { name: "台北晴美", lat: 25.064, lng: 121.526, emoji: "🇹🇼" },
+        airport:    { name: "新千歲機場", lat: 42.775, lng: 141.692, emoji: "✈️" },
+        sapporo:    { name: "札幌獨立屋", lat: 43.102, lng: 141.372, emoji: "🏡" },
         shakotan:   { name: "積丹半島", lat: 43.328, lng: 140.355, emoji: "🌊" },
-        noboribetsu:{ name: "登別", lat: 42.492, lng: 141.143, emoji: "👹" },
+        noboribetsu:{ name: "登別地獄谷", lat: 42.492, lng: 141.143, emoji: "👹" },
         toya:       { name: "洞爺湖", lat: 42.545, lng: 140.842, emoji: "🎆" },
-        hakodate:   { name: "函館", lat: 41.768, lng: 140.728, emoji: "🦑" },
-        asahikawa:  { name: "旭川", lat: 43.770, lng: 142.364, emoji: "🐯" },
-        hokuryu:    { name: "北龍町", lat: 43.738, lng: 141.872, emoji: "🌻" },
-        biei:       { name: "美瑛", lat: 43.590, lng: 142.459, emoji: "🥦" },
-        furano:     { name: "富良野", lat: 43.342, lng: 142.383, emoji: "🍈" },
+        hakodate:   { name: "函館朝市", lat: 41.768, lng: 140.728, emoji: "🦑" },
+        asahikawa:  { name: "旭川拉麵村", lat: 43.770, lng: 142.364, emoji: "🐯" },
+        hokuryu:    { name: "北龍町向日葵", lat: 43.738, lng: 141.872, emoji: "🌻" },
+        biei:       { name: "美瑛青池", lat: 43.590, lng: 142.459, emoji: "🥦" },
+        furano:     { name: "富良野花田", lat: 43.342, lng: 142.383, emoji: "🍈" },
         chitose:    { name: "支笏湖", lat: 42.759, lng: 141.332, emoji: "🚣" }
     };
 
     const biomeGradients = {
+        TAIPEI: "linear-gradient(135deg, #059669, #34D399)",
         SAPPORO: "linear-gradient(135deg, #0EA5E9, #38BDF8)",
         SHAKOTAN: "linear-gradient(135deg, #0284C7, #06B6D4)",
         NOBORIBETSU: "linear-gradient(135deg, #E11D48, #F97316)",
@@ -691,7 +698,7 @@
         AIRPORT: "linear-gradient(135deg, #0EA5E9, #64748B)"
     };
 
-    const routeOrder = ['airport','sapporo','shakotan','sapporo','noboribetsu','toya','hakodate','asahikawa','hokuryu','biei','furano','sapporo','chitose','airport'];
+    const routeOrder = ['taipei','taipei','airport','shakotan','sapporo','noboribetsu','toya','hakodate','asahikawa','hokuryu','biei','furano','sapporo','chitose','airport'];
 
     let activeDay = 1;
     let isMemoirMode = false;
@@ -710,7 +717,6 @@
     let lfMarkersGroup = {};
     let lfPolylinesArray = [];
 
-    // 初始化真實地圖
     function initLeafletMapSystem() {
         lfMap = L.map('leafletMap', {
             zoomControl: false,
@@ -719,11 +725,11 @@
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(lfMap);
 
-        lfCarMarker = L.marker([mapHubs.airport.lat, mapHubs.airport.lng], {
+        lfCarMarker = L.marker([mapHubs.taipei.lat, mapHubs.taipei.lng], {
             icon: L.divIcon({ html: '<div style="font-size:1.5rem; text-align:center;">🚗</div>', iconSize: [30, 30] })
         }).addTo(lfMap);
 
-        lfRadarMarker = L.marker([mapHubs.airport.lat, mapHubs.airport.lng], {
+        lfRadarMarker = L.marker([mapHubs.taipei.lat, mapHubs.taipei.lng], {
             icon: L.divIcon({ className: 'radar-ping-icon', html: '<div class="radar-wave-glow"></div>', iconSize: [0, 0] })
         }).addTo(lfMap);
 
@@ -744,7 +750,6 @@
         drawLeafletRoutes();
     }
 
-    // 地圖迷霧解鎖算法
     function buildTimeline() {
         const bar = document.getElementById('map-timeline-bar');
         bar.innerHTML = "";
@@ -757,7 +762,7 @@
             bar.appendChild(node);
         });
 
-        let unlockedHubs = new Set(['airport']);
+        let unlockedHubs = new Set(['taipei']);
         for(let i = 0; i < activeDay; i++) {
             unlockedHubs.add(masterData[i].targetHub);
             unlockedHubs.add(masterData[i].hub);
@@ -824,12 +829,14 @@
         if (currentHubPos) {
             lfCarMarker.setLatLng([currentHubPos.lat, currentHubPos.lng]);
             lfRadarMarker.setLatLng([currentHubPos.lat, currentHubPos.lng]);
-            lfMap.flyTo([currentHubPos.lat, currentHubPos.lng], 8, { animate: true, duration: 0.6 });
+            
+            let targetZoom = (currentTargetHub === 'taipei') ? 13 : 8;
+            lfMap.flyTo([currentHubPos.lat, currentHubPos.lng], targetZoom, { animate: true, duration: 0.6 });
         }
 
         if (lfTreasureMarker) { lfMap.removeLayer(lfTreasureMarker); lfTreasureMarker = null; }
         if (activeDay === 7) {
-            lfTreasureMarker = L.marker([mapHubs.hakodate.lat + 0.05, mapHubs.hakodate.lng + 0.06], {
+            lfTreasureMarker = L.marker([mapHubs.hakodate.lat + 0.03, mapHubs.hakodate.lng + 0.03], {
                 icon: L.divIcon({ className: 'map-treasure-icon', html: '🎁', iconSize: [35, 35] })
             }).addTo(lfMap);
             
@@ -841,7 +848,7 @@
         for (let key in rpgPlayers) { rpgPlayers[key].exp += 150; }
         renderPlayerStats();
         if (lfTreasureMarker) { lfMap.removeLayer(lfTreasureMarker); lfTreasureMarker = null; }
-        alert("🎁 哇！成功解鎖【函館隱藏大寶箱】！\n全家人同步獲得 +150 EXP 超激進補！戰力大飆升！");
+        alert("🎁 哇！成功解鎖【函館朝市隱藏大寶箱】！\n全家人同步獲得 +150 EXP 超激進補！戰力大飆升！");
     }
 
     function updateAllInterfaces() {
@@ -852,7 +859,6 @@
         document.getElementById('top-location').innerText = `📍 ${targetHubObj.name}`;
         document.getElementById('weather-city').innerText = `${data.weather}`;
         
-        // ⚔️ 動態對齊與更新關卡大螢幕數據
         const screenDom = document.getElementById('mainAdventureScreen');
         if (screenDom && biomeGradients[data.tag]) {
             screenDom.style.background = biomeGradients[data.tag];
@@ -872,6 +878,10 @@
         document.getElementById('map-card-day').innerText = `📅 Day ${data.day} - ${data.tag}`;
         document.getElementById('map-card-km').innerText = `~${data.km}km`;
         document.getElementById('det-route').innerText = data.route;
+        
+        // ⏱️ 同步動態更新預計架車車程時間
+        document.getElementById('det-drivetime').innerText = data.driveTime;
+        
         document.getElementById('det-spots').innerText = data.spots;
         document.getElementById('det-b').innerText = data.b;
         document.getElementById('det-l').innerText = data.l;
@@ -892,6 +902,7 @@
         document.getElementById('dr-etc').innerText = `¥${(1200 + (data.day * 1050)).toLocaleString()}`;
 
         document.getElementById('edit-route').value = data.route;
+        document.getElementById('edit-drivetime').value = data.driveTime;
         document.getElementById('edit-spots').value = data.spots;
         document.getElementById('edit-b').value = data.b;
         document.getElementById('edit-l').value = data.l;
@@ -1029,7 +1040,6 @@
         const menuBtn = document.getElementById(`menu-${tabId}`);
         if(menuBtn) menuBtn.classList.add('active-tab');
         
-        // 解決 Leaflet 地圖在隱藏分頁切換時，造成的容器大小失效、折線消失問題
         if (tabId === 'map' && lfMap) { 
             setTimeout(() => {
                 lfMap.invalidateSize();
@@ -1052,6 +1062,7 @@
     function saveDayEdits() {
         const data = masterData[activeDay - 1];
         data.route = document.getElementById('edit-route').value;
+        data.driveTime = document.getElementById('edit-drivetime').value;
         data.spots = document.getElementById('edit-spots').value;
         data.b = document.getElementById('edit-b').value;
         data.l = document.getElementById('edit-l').value;
