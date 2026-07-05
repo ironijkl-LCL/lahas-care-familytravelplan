@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 北海道冒險作戰中心 - Summer RPG 3.0 荒野奇遇版</title>
+    <title>🎮 北海道冒險作戰中心 - Summer RPG 5.0 終極拓荒版</title>
     
     <!-- ================= 📱 PWA Manifest 內嵌配置文件 ================= -->
-    <link rel="manifest" href='data:application/json,{"name":"Hokkaido Summer RPG 3.0","short_name":"北海道冒險","start_url":".","display":"standalone","background_color":"#87CEEB","theme_color":"#4FC3F7","orientation":"portrait","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
+    <link rel="manifest" href='data:application/json,{"name":"Hokkaido Summer RPG 5.0","short_name":"北海道冒險","start_url":".","display":"standalone","background_color":"#87CEEB","theme_color":"#4FC3F7","orientation":"portrait","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="北海道冒險">
 
-    <!-- 引入世界級 Leaflet 地圖引擎核心 CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #FF6B6B;
@@ -122,7 +122,7 @@
             margin-bottom: 4px;
         }
         .apple-location {
-            font-size: 2.5rem;
+            font-size: 2.3rem;
             font-weight: 900;
             color: #0F172A;
             letter-spacing: -1px;
@@ -184,7 +184,6 @@
         
         .player-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
         .player-card { background: white; border: 1px solid #E2E8F0; box-shadow: 0 6px 20px rgba(0,0,0,.04); border-radius: 20px; padding: 12px 10px; text-align: center; cursor: pointer; }
-        .player-avatar { font-size: 1.8rem; display: block; margin-bottom: 2px; }
         .player-title-tag { display: block; font-size: 0.68rem; color: var(--gray); font-weight: bold; margin: 1px 0 4px 0; }
         .player-lv { font-size: 0.65rem; background: var(--switch-blue); color: white; padding: 1px 6px; border-radius: 10px; display: inline-block; font-weight: bold; }
         .player-exp-bar { height: 6px; background: #E5E7EB; border-radius: 99px; overflow: hidden; margin-top: 6px; }
@@ -212,12 +211,17 @@
 
         .achievement-scroll { display: flex; overflow-x: auto; gap: 8px; padding: 4px 0; scrollbar-width: none; }
         .ach-badge {
-            background: #F1F5F9; border: 1px solid #E2E8F0; padding: 6px 12px;
+            background: #E2E8F0; border: 1px solid #CBD5E1; padding: 6px 12px;
             border-radius: 999px; font-size: 0.75rem; font-weight: bold; white-space: nowrap;
-            color: #334155;
+            color: #64748B; transition: all 0.3s ease;
+        }
+        .ach-badge.unlocked {
+            background: linear-gradient(135deg, #FBBF24, #F59E0B);
+            border-color: #D97706;
+            color: #7C2D12;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
         }
 
-        /* ================= 🗺️ 地圖系統核心 CSS ================= */
         .map-box {
             width: 100%; height: 280px;
             border: 3px solid #7dd3fc; border-radius: 22px; position: relative; overflow: hidden;
@@ -239,11 +243,6 @@
             padding: 2px 6px; border-radius: 4px; border: 1px solid #CBD5E1;
             white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.12);
             text-align: center; display: inline-block;
-        }
-        .map-treasure-icon { font-size: 1.8rem; text-align: center; animation: treasureBounce 1s infinite ease-in-out; cursor: pointer; }
-        @keyframes treasureBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
         }
 
         .map-timeline { 
@@ -269,23 +268,21 @@
 
         .edit-panel { display: none; margin-top: 10px; background: #F8FAFC; padding: 12px; border-radius: 14px; border: 1px dashed var(--edit-color); }
         .custom-input, .edit-textarea { width: 100%; margin-bottom: 6px; padding: 8px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.8rem; }
+        .edit-textarea { resize: none; }
         
         .info-card { background: white; border-radius: 18px; padding: 14px; margin-bottom: 12px; border: 1px solid #E2E8F0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .info-header { display: flex; justify-content: space-between; border-bottom: 1px solid #F1F5F9; padding-bottom: 6px; margin-bottom: 8px; }
         .info-title { font-weight: bold; font-size: 0.9rem; color: var(--text-light); }
         .info-meta { font-size: 0.75rem; color: var(--primary); font-weight: bold; }
-        .metric-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 5px; font-size: 0.82rem; margin-bottom: 4px; }
         
         .btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: white; color: var(--text-light); border: 1px solid #CBD5E1; }
-        .custom-form { display: none; margin-top: 8px; padding: 10px; background: #F8FAFC; border-radius: 12px; border: 1px dashed #CBD5E1; }
         .check-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 0.8rem; text-align: left; }
         .check-item input:checked + span { text-decoration: line-through; color: var(--gray); }
 
-        .end-game-overlay { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: #FFFFFF; z-index: 999; padding: 24px; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .end-game-overlay { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: #FFFFFF; z-index: 999; padding: 24px; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow-y: auto;}
         .end-title-banner { font-size: 1.35rem; font-weight: bold; color: #B45309; border-top: 2px solid #B45309; border-bottom: 2px solid #B45309; padding: 12px 0; margin: 18px 0; width: 100%; }
-        .stat-row { display: flex; justify-content: space-between; width: 85%; margin-bottom: 10px; font-size: 0.88rem; border-bottom: 1px dashed #E2E8F0; padding-bottom: 5px; }
         
         .album-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 4px; }
         .album-card { background: white; padding: 6px 6px 24px 6px; box-shadow: 0 10px 20px rgba(0,0,0,.08); transform: rotate(-1.5deg); border-radius: 4px; }
@@ -297,11 +294,21 @@
         .photo-input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
         .photo-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; }
         .btn-quest-done { width: 100%; padding: 13px; border: none; background: var(--secondary); color: white; border-radius: 12px; font-weight: bold; cursor: pointer; display: none; font-size: 0.9rem; margin-top: 12px; }
+        .chart-container { width: 100%; height: 160px; margin-top: 10px; }
+
+        @media print {
+            body { background: white !important; color: black !important; padding: 0 !important; }
+            .phone-container { width: 100% !important; max-width: 100% !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; display: block !important; }
+            .sky-cloud, .rpg-header, .switch-grid, .map-timeline, .map-box, #btn-trigger-edit, .photo-upload-zone, .btn, .end-game-overlay { display: none !important; }
+            .tab-content { display: block !important; max-height: none !important; overflow: visible !important; padding: 0 !important; page-break-after: always; }
+            .info-card { border: 1px solid #CCC !important; box-shadow: none !important; page-break-inside: avoid; margin-bottom: 20px !important; }
+            .album-grid { grid-template-columns: repeat(3, 1fr) !important; page-break-inside: auto; }
+            .album-card { page-break-inside: avoid; transform: none !important; border: 1px solid #EEE !important; }
+            .chart-container { page-break-inside: avoid; height: 250px !important; }
+        }
     </style>
 </head>
 <body>
-
-<audio id="bgm" loop autoplay src="summer.mp3"></audio>
 
 <div class="sky-cloud">☁️</div>
 <div class="sky-cloud cloud2">☁️</div>
@@ -317,6 +324,7 @@
             <div class="progress"><div class="progress-bar" id="top-progress-bar"></div></div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
+            <div id="gps-status-pill" style="background: rgba(0,0,0,0.15); color: white; padding: 3px 8px; border-radius: 8px; font-size: 0.62rem; font-weight: bold; display: none;">📡 GPS 監測中</div>
             <div onclick="toggleAudioMute()" style="cursor: pointer; background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold;">
                 <span id="audio-wave">🎵 PLAY</span>
             </div>
@@ -361,6 +369,10 @@
         <div class="map-timeline" id="map-timeline-bar"></div>
         <div class="map-box"><div id="leafletMap"></div></div>
 
+        <div id="gps-proximity-alert" style="display: none; background: linear-gradient(90deg, #22C55E, #10B981); color: white; padding: 10px; border-radius: 12px; margin-top: 8px; font-size: 0.8rem; font-weight: bold; text-align: center; box-shadow: 0 4px 12px rgba(34,197,94,0.3);">
+            🎉 偵測到真實 GPS 坐標定位！已成功到達冒險任務指定區域！
+        </div>
+
         <div class="info-card" id="display-itinerary-card" style="margin-top: 10px; border-left: 4px solid var(--primary);">
             <div class="info-header"><span class="info-title" id="map-card-day">Day 1</span><span class="info-meta" id="map-card-km">~0km</span></div>
             <div class="detail-section">
@@ -388,7 +400,7 @@
             <h4>⚙️ 修改內置資料</h4>
             <input type="text" id="edit-route" class="custom-input">
             <input type="text" id="edit-drivetime" class="custom-input">
-            <textarea id="edit-spots" class="edit-textarea" rows="2"></textarea>
+            <textarea id="edit-spots" class="edit-textarea" rows="3"></textarea>
             <input type="text" id="edit-b" class="custom-input">
             <input type="text" id="edit-l" class="custom-input">
             <input type="text" id="edit-d" class="custom-input">
@@ -420,24 +432,27 @@
         <div class="player-grid">
             <div class="player-card" onclick="addIndividualExp('dad')"><span>👨</span><strong>爸爸</strong><span class="player-title-tag">🚗 北海道車神</span><div class="player-lv" id="lv-dad">LV.7</div><div class="player-exp-bar"><div class="player-exp-fill" id="bar-dad"></div></div></div>
             <div class="player-card" onclick="addIndividualExp('mom')"><span>👩</span><strong>媽媽</strong><span class="player-title-tag">🍜 拉麵獵人</span><div class="player-lv" id="lv-mom">LV.6</div><div class="player-exp-bar"><div class="player-exp-fill" id="bar-mom"></div></div></div>
-            <div class="player-card" onclick="addIndividualExp('sis1')"><span>👧</span><strong>大囡</strong><span class="player-title-tag">🐎 馴馬大師</span><div class="player-lv" id="lv-sis1">LV.8</div><div class="player-exp-bar"><div class="player-exp-fill" id="bar-sis1"></div></div></div>
+            <div class="player-card" onclick="addIndividualExp('sis1')"><span>👧</span><strong>大囡</strong><span class="player-title-tag">🐎 森林騎士</span><div class="player-lv" id="lv-sis1">LV.8</div><div class="player-exp-bar"><div class="player-exp-fill" id="bar-sis1"></div></div></div>
             <div class="player-card" onclick="addIndividualExp('sis2')"><span>👶</span><strong>細囡</strong><span class="player-title-tag">🐋 殺人鯨觀測員</span><div class="player-lv" id="lv-sis2">LV.9</div><div class="player-exp-bar"><div class="player-exp-fill" id="bar-sis2"></div></div></div>
         </div>
 
         <div class="info-card">
-            <h3>🏆 家族排行榜</h3>
+            <h3>📈 家族戰力成長圖表</h3>
+            <div class="chart-container">
+                <canvas id="rpgChart"></canvas>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <h3>🏆 家族動態排行榜</h3>
             <div id="leaderboard-zone"></div>
         </div>
 
         <div class="info-card">
-            <h3>🏅 家族里程碑成就</h3>
-            <div class="achievement-scroll">
-                <span class="ach-badge">🐋 殺人鯨獵影者</span>
-                <span class="ach-badge">🦊 狐狸密使</span>
-                <span class="ach-badge">🐴 森林騎士</span>
-                <span class="ach-badge">🐻 棕熊飼育員</span>
-            </div>
+            <h3>🏅 任務成就解鎖系統</h3>
+            <div class="achievement-scroll" id="achievement-scroll-zone"></div>
         </div>
+        <button class="btn btn-outline" style="border-color:#EF4444; color:#EF4444;" onclick="resetLocalStorageData()">🔄 重置全體存檔資料</button>
         <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:10px;" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
@@ -451,8 +466,8 @@
         <div class="info-card" style="border-left: 4px solid var(--pack-color);">
             <div class="info-title" style="color:var(--pack-color);">👗 衣物與防護</div>
             <div class="detail-section" style="margin-top:8px;">
-                <div class="check-item"><input type="checkbox"><span>防曬用品、帽子、短袖短褲</span></div>
-                <div class="check-item"><input type="checkbox"><span><b>保暖防風防潑水外套</b>（出海睇殺人鯨海風極凍！）</span></div>
+                <div class="check-item"><input type="checkbox"><span>防曬用品、遮陽帽、輕便短袖衣物</span></div>
+                <div class="check-item"><input type="checkbox"><span><b>保暖防風防潑水外套</b>（出海睇野生鯨魚海風體感極寒！）</span></div>
             </div>
         </div>
         <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:10px;" onclick="switchTab('home')">🎮 返回主選單</button>
@@ -460,29 +475,30 @@
 
     <!-- 大結尾面板 -->
     <div class="end-game-overlay" id="endGameScreen">
-        <div class="end-title-banner">━━━━━━━━━━<br>全真章節冒險通關<br>━━━━━━━━━━</div>
-        <div class="champion-box">🏆 北海道荒野王者通關！</div>
-        <button class="btn btn-primary" style="margin-top:28px; background:var(--primary); width:85%; padding:14px;" onclick="enterMemoirMode()">📖 開啟家庭回憶錄模式</button>
+        <div class="end-title-banner">━━━━━━━━━━<br>全真章節冒節通關<br>━━━━━━━━━━</div>
+        <div class="champion-box" style="background: linear-gradient(135deg, #FFD93D, #FF8A00); color: #7C2D12; padding: 10px 20px; border-radius: 14px; font-weight: bold; font-size: 1rem; margin-bottom:15px;">🏆 北海道荒野王者通關！</div>
+        <button class="btn btn-primary" style="background:var(--secondary); width:85%;" onclick="exportTravelMemoir()">📄 一鍵匯出全家回憶錄 (PDF)</button>
+        <button class="btn btn-primary" style="margin-top:14px; background:var(--primary); width:85%; padding:14px;" onclick="enterMemoirMode()">📖 開啟家庭回憶錄模式</button>
     </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     const masterData = [
-        { day: 1, route: "抵達台北 ➔ 晴光商圈 ➔ 寧夏夜市", km: 15, driveTime: "約 30 分鐘", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "下午抵達台北，解鎖入住中山區「晴美公寓酒店」。下樓即是晴光市場商圈，必吃紅豆餅與脆皮鮮奶甜甜圈！晚上直奔寧夏夜市爆食蚵仔煎、地瓜球、大腸包小腸！", b: "自理", l: "自理", d: "寧夏夜市在地小吃大激食", title: "晴美公寓酒店解鎖", desc: "順利抵達台北並成功 Check-in，上傳全家第一張台式快閃合照！", addr: "10491台灣臺北市中山區林森北路568號", url: "https://www.thealofthotel.com" },
+        { day: 1, route: "抵達台北 ➔ 晴光商圈 ➔ 寧夏夜市", km: 15, driveTime: "約 30 分鐘", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "下午抵達台北，解鎖入住中山區「晴美公寓酒店」。下樓即是晴光市場商圈，必吃紅豆餅與脆皮鮮奶甜甜圈！晚上直奔寧夏夜市爆食蚵仔煎、地瓜球、大腸包小腸！", b: "自理", l: "自理", d: "寧夏夜市在地小吃大激食", title: "晴美公寓酒店解鎖", desc: "順利抵達台北並成功 Check-in，上傳全家第一張台式快閃合照！", addr: "10491台灣臺北市中山區林森北路568號", url: "http://www.jolleyhotel.com" },
         { day: 2, route: "西門町潮流購物 ➔ 鼎泰豐晚餐", km: 10, driveTime: "約 20 分鐘", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "帶領兩位青少年狂掃西門町商圈！潮流服飾、萬年大樓潮玩極合孩子口味。晚上前往鼎泰豐（新生店）享用世界級小籠包與排骨炒飯大餐。", b: "酒店內享用", l: "西門町在地美食", d: "鼎泰豐 新生店頂級麵點", title: "西門町潮流捕獲", desc: "拍下青少年在西門町萬年大樓買到心儀潮玩的開心合照提交！", addr: "106台灣臺北市大安區信義路二段277號 (鼎泰豐)", url: "https://www.dintaifung.com.tw" },
         { day: 3, route: "台北 ➔ 新千歲機場 ➔ 北國優駿公園 ➔ 札幌獨立屋", km: 65, driveTime: "約 1 小時 30 分鐘", tag: "SAPPORO", hub: "taipei", targetHub: "sapporo", weather: "札幌微風", spots: "機票 10:10 起飛，清晨 07:00 前辦理退房前往桃園機場！抵達新千歲取車後，15分鐘直奔【北國優駿公園】！體驗專為家庭設計的「觀光牽馬」或深入森林的騎馬健行，欣賞小馬搞笑表演。晚上回札幌獨立屋並爆食湯咖哩！", b: "自理", l: "飛機餐", d: "湯咖哩 Suage+ (中央區南4條西5丁目)", title: "🐴 森林初試近距離騎馬", desc: "拍下全家或青少年跨上馬背、在森林步道漫步的帥氣瞬間上傳！", addr: "114-7 Misawa, Tomakomai, Hokkaido 059-1361日本", url: "https://www.northern-horse-park.jp" },
         { day: 4, route: "白色戀人公園 ➔ 狸小路爆買 ➔ 藻岩山百萬夜景", km: 30, driveTime: "約 1 小時", tag: "SAPPORO", hub: "sapporo", targetHub: "sapporo", weather: "札幌晴朗", spots: "上午造訪夢幻的白色戀人公園歐洲城堡。下午突擊狸小路商店街 MEGA Don Quijote 瘋狂採購。傍晚搭乘纜車登上藻岩山頂，俯瞰全日本新三大夜景的震撼璀璨燈海！", b: "大本營自製", l: "狸小路在地拉麵", d: "札幌特色居酒屋", title: "✨ 藻岩山百萬夜景降臨", desc: "在藻岩山觀景台以百萬燈海為背景，拍下全家高能量大合照提交！", addr: "日本北海道札幌市西區宮之澤2條2丁目11-36 (白色戀人)", url: "https://www.shiroikoibitopark.jp" },
         { day: 5, route: "美瑛青池 ➔ 北狐牧場 ➔ 知床（宿知床/羅臼）", km: 410, driveTime: "約 5 小時 30 分鐘 (跨區遠征 Day 1)", tag: "WILDLIFE", hub: "sapporo", targetHub: "rausu", weather: "美瑛東海道晴天", spots: "今日開啟野生大自然遠征！先到美瑛白金青池賞夢幻蒂芬妮藍。隨後順路經北見市進入【北狐牧場】！全家走在自然放養步道上，幾厘米極近距離看著毛茸茸的北極狐散步、追逐！夜宿知床/羅臼一帶。", b: "大本營快閃", l: "美瑛在地洋食", d: "東北海道海鮮大餐", title: "🦊 零距離接觸毛茸茸北狐", desc: "成功捕捉狐狸在身邊散步、睡覺或互相追逐的超萌近鏡照片！", addr: "52-1 Rubeshibechō Hanaoka, Kitami, Hokkaido 091-0157", url: "https://kitakitsune-farm.com" },
         { day: 6, route: "羅臼賞鯨船（震撼睇殺人鯨） ➔ 旭川拉麵村 ➔ 返札幌", km: 430, driveTime: "約 5 小時 45 分鐘 (跨區遠征 Day 2)", tag: "WILDLIFE", hub: "rausu", targetHub: "sapporo", weather: "羅臼出海大晴天", spots: "【全旅程最高價值觀光亮點】！早上 08:30 登上【知床羅臼賞鯨船】出海。8月是觀賞野生殺人鯨（Orca）家族的黃金季節！看巨型黑白殺人鯨破浪而出甚至躍出海面，震撼力舉世無雙！回程順路爆食旭川拉麵村，深夜返札幌獨立屋。", b: "知床自理", l: "羅臼在地漁夫料理", d: "旭川拉麵村 (旭川市永山11條4丁目119-48)", title: "🐋 霸氣解鎖！夏日限定野生殺人鯨", desc: "成功拍下黑白殺人鯨家族破浪而出、或是抹香鯨噴水的極限震撼畫面！", addr: "日本〒086-1833 Menashi District, Rausu, Honchō, 27-1", url: "https://www.e-shiretoko.com" },
-        { day: 7, route: "登別地獄谷 ➔ 登別熊牧場（喂熊與梅花鹿）", km: 140, driveTime: "約 2 小時", tag: "WILDLIFE", hub: "sapporo", targetHub: "noboribetsu", weather: "登別火山硫磺天", spots: "開車前往登別地獄谷感受震撼火山白煙。隨後搭乘空中纜車直達【登別熊牧場】。除了可以購買特製食糧餵飼會招手要食物的龐大蝦夷棕熊外，還能進入「蝦夷鹿牧場」親手餵飼溫馴的日本梅花鹿！", b: "大本營自製", l: "登別溫泉街拉麵", d: "日式傳統燒肉", title: "🐻 熊與梅花鹿雙重餵飼達成", desc: "上傳孩子親手餵飼梅花鹿，或是棕熊精明招手要食物的生動照片！", addr: "224 Noboribetsuonsenchō, Noboribetsu, Hokkaido 059-0551", url: "https://bearpark.jp" },
+        { day: 7, route: "登別地獄谷 ➔ 登別熊牧場（喂熊與梅花鹿）", km: 140, driveTime: "約 2 小時", tag: "WILDLIFE", hub: "sapporo", targetHub: "noboribetsu", weather: "登別火山硫磺天", spots: "開車前往登別地獄谷感受震撼火山白煙。隨後搭乘空中纜車直達【登別熊牧場】。除了可以購買特製食糧餵飼會招手要食物的龐大蝦夷棕熊外，還能進入「蝦夷鹿牧場」親手餵飼溫潤的日本梅花鹿！", b: "大本營自製", l: "登別溫泉街拉麵", d: "日式傳統燒肉", title: "🐻 熊與梅花鹿雙重餵飼達成", desc: "上傳孩子親手餵飼梅花鹿，或是棕熊精明招手要食物的生動照片！", addr: "224 Noboribetsuonsenchō, Noboribetsu, Hokkaido 059-0551", url: "https://bearpark.jp" },
         { day: 8, route: "札幌車站潮流爆買（寶可夢、Jump Shop）", km: 15, driveTime: "約 40 分鐘", tag: "SHOPPING", hub: "noboribetsu", targetHub: "sapporo", weather: "札幌晴天", spots: "今天全面滿足青少年的動漫潮流魂！衝進 JR Tower Stellaplace 狂掃寶可夢中心（Pokemon Center）與 Jump Shop 購買限定周邊。晚餐在 6 樓享用產地直送的高性價比根室花丸迴轉壽司。", b: "大本營自製", l: "車站地下街美食", d: "根室花丸迴轉壽司 (Stellar Place 6樓)", title: "🎮 動漫周邊與寶可夢大爆發", desc: "拍下青少年手提寶可夢中心或Jump Shop戰利品大滿貫的開心照片！", addr: "札幌市中央區北5條西2丁目 (JR Tower)", url: "https://www.stellarplace.net" },
         { day: 9, route: "三井 OUTLET PARK 北廣島（運動品牌爆買日）", km: 45, driveTime: "約 1 小時", tag: "SHOPPING", hub: "sapporo", targetHub: "sapporo", weather: "札幌多雲", spots: "自駕前往三井 OUTLET PARK 札幌北廣島。這裡匯集大量國際運動品牌、服飾與戶外裝備，全室內免受天氣影響，全家開展限時大血拼！晚餐回市區享用頂級日式料理。", b: "大本營自製", l: "Outlet 美食廣場", d: "札幌頂級成吉思汗烤肉", title: "💸 運動品牌戰利品大開箱", desc: "拍下全車後車廂被運動品牌及免稅大包小包塞滿的震撼畫面提交！", addr: "北廣島市大曲幸町3丁目7-6", url: "https://mitsui-shopping-park.com/mop/sapporo/" },
         { day: 10, route: "富良野富田農場（夏日彩色向日葵花田）", km: 130, driveTime: "約 2 小時 15 分鐘", tag: "FURANO", hub: "sapporo", targetHub: "furano", weather: "富良野大晴天", spots: "挺進中富良野【富田農場】！飽覽盛夏盛開的向日葵彩色花田與薰衣草餘韻，狂嗑爆汁夕張哈密瓜。晚上回到札幌，前往名店「冰雪之門」享用極致奢華的帝王蟹與松葉蟹大餐！", b: "大本營自製", l: "富良野在地咖哩飯", d: "冰雪之門 螃蟹盛宴 (中央區南5條西2丁目)", title: "🌻 沉醉夏日向日葵彩色花田", desc: "在無邊際的金色向日葵花海前拍下一家四口的完美陽光合照！", addr: "空知郡中富良野町基線北15號", url: "https://www.farm-tomita.co.jp" },
         { day: 11, route: "移居小樽新基地 ➔ 小樽運河散步 ➔ 爆汁炸雞", km: 45, driveTime: "約 50 分鐘", tag: "OTARU", hub: "furano", targetHub: "otaru", weather: "小樽微風", spots: "早上從小樽獨立屋辦理進駐新基地。黃昏前往懷舊的小樽運河散步。晚餐朝聖青少年的最愛——「若雞時代 Naruto」，品嚐外脆內嫩、咬下去瘋狂爆汁的招牌半身炸雞！", b: "大本營自製", l: "小樽街頭小吃", d: "若雞時代 Naruto (小樽市稻穗3丁目16-13)", title: "🏠 小樽石山町新據點解鎖", desc: "自駕進駐小樽石山町獨立屋，拍下這個極具空間感的新客廳基地合照！", addr: "19-4 Ishiyamachō, 小樽市, 北海道 047-0038", url: "http://www.wakadoridai-naruto.com" },
         { day: 12, route: "積丹半島夏日限定「積丹藍」海景自駕", km: 130, driveTime: "約 2 小時 20 分鐘", tag: "OTARU", hub: "otaru", targetHub: "shakotan", weather: "積丹藍大晴天", spots: "自駕衝向積丹半島神威岬！徒步走在壯麗的海脊步道上，飽覽 360 度震撼澄澈的寶藍色寶藏大海。中午在積丹半島漁夫餐廳享用 8 月最肥美、限時現撈的極品海膽丼！", b: "小樽大本營自製", l: "積丹現撈肥美海膽丼", d: "小樽港新鮮壽司", title: "🌊 征服 360 度夢幻積丹藍", desc: "在神威岬步道極限頂點，拍下背景為純粹「積丹藍」的絕美海景大片！", addr: "積丹郡積丹町大字神威岬", url: "https://www.kanko-shakotan.jp" },
-        { day: 13, route: "三角市場海鮮挑選 ➔ 天狗山夜景纜車", km: 15, driveTime: "約 30 分鐘", tag: "OTARU", hub: "shakotan", targetHub: "otaru", weather: "小樽晴天", spots: "早上直奔三角市場（武田鮮魚店），當場挑選生猛巨型長腳蟹現煮現吃！傍晚前往天狗山搭乘索道纜車登頂，俯瞰完美的弧形海岸線夜景，為旅程倒數完美乾杯。", b: "自理", l: "三角市場生猛鮮蟹大餐", d: "小樽在地浪漫洋食", title: "🚡 天狗山俯瞰浪漫海岸線", desc: "在天狗山觀景台拍下俯瞰小樽完美弧形海岸夜景的經典照片提交！", addr: "小樽市最上2丁目16-15 (天狗山索道)", url: "https://tenguyama.ckk.chuo-bus.co.jp" },
-        { day: 14, route: "小樽退房 ➔ 新千歲機場國內線爆買 ➔ 啟程返港", km: 85, driveTime: "約 1 小時 15 分鐘", tag: "AIRPORT", hub: "otaru", targetHub: "airport", weather: "千歲晴天", spots: "清晨從小樽獨立屋退房並自駕前往機場還車。預留充足時間狂掃新千歲機場國內線航廈2/3樓！衝刺多啦A夢空中樂園，買齊六花亭、北菓樓與 Royce 巧克力。搭乘 13:00 的 BR165 航班回港！", b: "機場限定起司巨塔麵包", l: "機場內札幌拉麵道場", d: "飛機餐 / 返港", title: "✈️ 空港免稅品最後大搜捕", desc: "【最終戰】在新千歲機場多啦A夢空中樂園前，拍下一家手拎滿滿戰利品的大團圓照片結算！", addr: "千歲市美美 (新千歲機場)", url: "https://www.new-chitose-airport.jp" }
+        { day: 13, route: "三角市場海鮮挑選 ➔ 天狗山夜景纜車", km: 15, driveTime: "約 30 分鐘", tag: "OTARU", hub: "shakotan", targetHub: "otaru", weather: "小樽晴天", spots: "早上直奔三角市場（武田鮮魚店），當場挑選生猛巨型長腳蟹現煮現吃！傍晚前往天狗山搭乘索道纜車登頂，俯瞰完美的弧形海岸線夜景，為旅程倒數完美乾杯。", b: "自理", l: "三角市場生猛鮮蟹大餐", d: "小樽在地浪漫洋食", title: "🚡 天狗山俯瞰浪漫海岸線", desc: "在天狗山觀觀景台拍下俯瞰小樽完美弧形海岸夜景的經典照片提交！", addr: "小樽市最上2丁目16-15 (天狗山索道)", url: "https://tenguyama.ckk.chuo-bus.co.jp" },
+        { day: 14, route: "小樽退房 ➔ 新千歲機場國內線爆買 ➔ 啟程返港", km: 85, driveTime: "約 1 小時 15 分鐘", tag: "AIRPORT", hub: "otaru", targetHub: "airport", weather: "千歲晴天", spots: "清晨從小樽獨立屋退房並自駕前往機場還車。預留充足時間狂掃新千歲機場國內線航廈2/3樓！衝刺多啦A夢空中樂園，買齊六花亭、北菓樓與 Royce 巧克力。搭乘 13:00 的 BR165 航班回港！", b: "機場限定起司巨塔麵包", l: "機場內札幌拉麵道場", d: "飛機餐 / 返港", title: "✈️ 空港免稅品最後大搜捕", desc: "【最終戰】在新千歲機場多啦A夢天空樂園前，拍下一家手拎滿滿戰利品的大團圓照片結算！", addr: "千歲市美美 (新千歲機場)", url: "https://www.new-chitose-airport.jp" }
     ];
 
     const mapHubs = {
@@ -508,22 +524,92 @@
 
     const routeOrder = ['taipei','taipei','sapporo','sapporo','rausu','rausu','noboribetsu','sapporo','sapporo','furano','otaru','shakotan','otaru','airport'];
 
+    const initialAchievements = [
+        { id: "horse", name: "🐴 森林騎士", desc: "完成 Day 3 北國優駿公園騎馬體驗", unlocked: false, day: 3, exp: 300 },
+        { id: "fox", name: "🦊 北狐密使", desc: "完成 Day 5 北狐牧場極近接觸", unlocked: false, day: 5, exp: 300 },
+        { id: "orca", name: "🐋 殺人鯨獵影者", desc: "完成 Day 6 羅臼出海野生大目擊", unlocked: false, day: 6, exp: 500 },
+        { id: "bear", name: "🐻 棕熊飼育員", desc: "完成 Day 7 登別餵食熊與梅花鹿", unlocked: false, day: 7, exp: 300 }
+    ];
+
     let activeDay = 1;
     let isMemoirMode = false;
-    let uploadedPhotosCount = 0;
-    let currentUploadedPhotoUrl = "";
+    let currentUploadedPhotoUrl = ""; 
+    let completedDays = []; 
     let recentPhotosArray = [];
-
     let rpgPlayers = {
         dad: { name: "爸爸", title: "🚗 北海道車神", exp: 830 },
         mom: { name: "媽媽", title: "🍜 拉麵獵人", exp: 720 },
-        sis1: { name: "大囡", title: "🐎 馴馬大師", exp: 980 },
+        sis1: { name: "大囡", title: "🐎 森林騎士", exp: 980 },
         sis2: { name: "細囡", title: "🐋 殺人鯨觀測員", exp: 1200 }
     };
+    let achievements = JSON.parse(JSON.stringify(initialAchievements));
 
     let lfMap, lfCarMarker, lfRadarMarker;
-    let lfMarkersGroup = {};
     let lfPolylinesArray = [];
+    let myChartInstance = null;
+
+    function saveGame() {
+        const hokkaidoSave = { activeDay, rpgPlayers, recentPhotosArray, achievements, isMemoirMode, completedDays };
+        localStorage.setItem('hokkaidoSave_v5_0', JSON.stringify(hokkaidoSave));
+    }
+
+    function loadGame() {
+        const saveData = JSON.parse(localStorage.getItem('hokkaidoSave_v5_0'));
+        if (saveData) {
+            activeDay = saveData.activeDay || 1;
+            rpgPlayers = saveData.rpgPlayers || rpgPlayers;
+            recentPhotosArray = saveData.recentPhotosArray || [];
+            achievements = saveData.achievements || achievements;
+            isMemoirMode = saveData.isMemoirMode || false;
+            completedDays = saveData.completedDays || [];
+        }
+    }
+
+    function resetLocalStorageData() {
+        if(confirm("確定要清除緩存的冒險紀錄嗎？")) {
+            localStorage.removeItem('hokkaidoSave_v5_0');
+            window.location.reload();
+        }
+    }
+
+    function initGpsGeofencingHardware() {
+        if (!navigator.geolocation) return;
+        document.getElementById('gps-status-pill').style.display = 'block';
+        
+        navigator.geolocation.watchPosition((position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            const currentTargetHub = masterData[activeDay - 1].targetHub;
+            const targetPos = mapHubs[currentTargetHub];
+            
+            if (targetPos) {
+                const distanceInMeters = calculateHaversineDistance(userLat, userLng, targetPos.lat, targetPos.lng);
+                const alertBanner = document.getElementById('gps-proximity-alert');
+                
+                if (distanceInMeters <= 500) {
+                    alertBanner.innerText = `✅ 已到達任務區域：[${targetPos.name}] (距離 ${Math.round(distanceInMeters)}米)`;
+                    alertBanner.style.display = 'block';
+                } else {
+                    alertBanner.style.display = 'none';
+                }
+            }
+        }, (error) => {
+            console.warn("GPS 讀取失敗: ", error.message);
+        }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 });
+    }
+
+    function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371e3;
+        const phi1 = lat1 * Math.PI / 180;
+        const phi2 = lat2 * Math.PI / 180;
+        const deltaPhi = (lat2 - lat1) * Math.PI / 180;
+        const deltaLambda = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(deltaPhi/2) * Math.sin(deltaPhi/2) +
+                  Math.cos(phi1) * Math.cos(phi2) *
+                  Math.sin(deltaLambda/2) * Math.sin(deltaLambda/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
 
     function initLeafletMapSystem() {
         lfMap = L.map('leafletMap', { zoomControl: false, attributionControl: false }).setView([42.95, 141.8], 7);
@@ -539,11 +625,9 @@
 
         for (let key in mapHubs) {
             let h = mapHubs[key];
-            let marker = L.marker([h.lat, h.lng], {
+            L.marker([h.lat, h.lng], {
                 icon: L.divIcon({ html: `<div class="game-marker-label" id="lf-lbl-${key}">${h.emoji} ${h.name}</div>`, iconAnchor: [25, 0] })
-            }).addTo(lfMap);
-            marker.on('click', () => jumpToHubDay(key));
-            lfMarkersGroup[key] = marker;
+            }).addTo(lfMap).on('click', () => jumpToHubDay(key));
         }
         drawLeafletRoutes();
     }
@@ -570,8 +654,7 @@
         for (let key in mapHubs) {
             let labelDom = document.getElementById(`lf-lbl-${key}`);
             if (labelDom) {
-                let isUnlocked = isMemoirMode || unlockedHubs.has(key);
-                if (isUnlocked) {
+                if (isMemoirMode || unlockedHubs.has(key)) {
                     labelDom.style.filter = "none"; labelDom.style.opacity = "1";
                     labelDom.innerText = `${mapHubs[key].emoji} ${mapHubs[key].name}`;
                 } else {
@@ -591,6 +674,7 @@
         buildTimeline();
         updateAllInterfaces();
         drawLeafletRoutes();
+        saveGame();
     }
 
     function drawLeafletRoutes() {
@@ -632,6 +716,36 @@
         }
     }
 
+    function toggleEditMode(isEdit) {
+        const data = masterData[activeDay - 1];
+        if (isEdit) {
+            document.getElementById('edit-route').value = data.route;
+            document.getElementById('edit-drivetime').value = data.driveTime;
+            document.getElementById('edit-spots').value = data.spots;
+            document.getElementById('edit-b').value = data.b;
+            document.getElementById('edit-l').value = data.l;
+            document.getElementById('edit-d').value = data.d;
+        }
+        document.getElementById('display-itinerary-card').style.display = isEdit ? 'none' : 'block';
+        document.getElementById('edit-itinerary-panel').style.display = isEdit ? 'block' : 'none';
+        document.getElementById('btn-trigger-edit').style.display = isEdit ? 'none' : 'flex';
+    }
+
+    function saveDayEdits() {
+        const data = masterData[activeDay - 1];
+        data.route = document.getElementById('edit-route').value;
+        data.driveTime = document.getElementById('edit-drivetime').value;
+        data.spots = document.getElementById('edit-spots').value;
+        data.b = document.getElementById('edit-b').value;
+        data.l = document.getElementById('edit-l').value;
+        data.d = document.getElementById('edit-d').value;
+        
+        alert(`💾 資料修改成功！`);
+        toggleEditMode(false);
+        updateAllInterfaces();
+        saveGame();
+    }
+
     function updateAllInterfaces() {
         const data = masterData[activeDay - 1];
         const targetHubObj = mapHubs[data.targetHub];
@@ -665,6 +779,10 @@
         if (document.getElementById('btn-submit-quest')) document.getElementById('btn-submit-quest').style.display = 'none';
 
         renderPlayerStats();
+        renderAchievementsUI();
+        initOrUpdateChart();
+        renderAlbumWall();
+        renderHomeCarousel();
     }
 
     function handlePhotoUpload(input) {
@@ -673,41 +791,79 @@
             reader.onload = function(e) {
                 const preview = document.getElementById('photo-preview-img');
                 if (preview) { preview.src = e.target.result; preview.style.display = 'block'; }
-                currentUploadedPhotoUrl = e.target.result;
+                currentUploadedPhotoUrl = e.target.result; 
                 if (document.getElementById('btn-submit-quest')) document.getElementById('btn-submit-quest').style.display = 'block';
             };
             reader.readAsDataURL(input.files[0]);
         }
     }
 
+    function checkAndUnlockAchievement(dayNum) {
+        const ach = achievements.find(a => a.day === dayNum);
+        if (ach && !ach.unlocked) {
+            ach.unlocked = true;
+            for (let key in rpgPlayers) { rpgPlayers[key].exp += ach.exp || 300; }
+            alert(`🏅 恭喜解鎖家族主線成就：【${ach.name}】！\n全體成員同步獲得大進補！`);
+        }
+    }
+
     function validateQuestCompletion() {
+        if (completedDays.includes(activeDay)) {
+            alert("⚠️ 偵測到重複提交！此日期的冒險任務與照片已全真通關，不可重複刷取經驗值。");
+            switchTab('home');
+            return;
+        }
+
         const data = masterData[activeDay - 1];
         for (let key in rpgPlayers) { rpgPlayers[key].exp += 200; }
-        uploadedPhotosCount += 1;
-        recentPhotosArray.unshift({ url: currentUploadedPhotoUrl });
         
-        const carousel = document.getElementById('homePhotoCarousel');
-        if (carousel) {
-            let html = "";
-            for (let i = 0; i < Math.min(3, recentPhotosArray.length); i++) { html += `<div class="home-photo-slot"><img src="${recentPhotosArray[i].url}"></div>`; }
-            for (let j = recentPhotosArray.length; j < 3; j++) { html += `<div class="home-photo-slot"><div>📸</div><div>採集回憶</div></div>`; }
-            carousel.innerHTML = html;
-        }
-
-        const grid = document.getElementById('albumGridZone');
-        if (grid) {
-            const card = document.createElement('div');
-            card.className = 'album-card';
-            card.innerHTML = `<img class="album-img" src="${currentUploadedPhotoUrl}"><div class="album-meta">Day ${data.day} · ${mapHubs[data.targetHub].name}</div>`;
-            grid.appendChild(card);
-        }
-
-        alert(`✅ 任務達成！全家獲得 +200 EXP！`);
+        checkAndUnlockAchievement(data.day);
+        completedDays.push(activeDay);
+        recentPhotosArray.unshift({ url: currentUploadedPhotoUrl, day: data.day, name: mapHubs[data.targetHub].name });
+        
+        saveGame();
+        alert(`✅ Day ${data.day} 主線任務首次通關成功！全家獲得 +200 EXP！`);
+        
         if (activeDay === 14) {
             if (document.getElementById('endGameScreen')) document.getElementById('endGameScreen').style.display = 'flex';
         } else {
-            selectDay(activeDay + 1); switchTab('home');
+            selectDay(activeDay + 1); 
+            switchTab('home');
         }
+    }
+
+    function renderHomeCarousel() {
+        const carousel = document.getElementById('homePhotoCarousel');
+        if (!carousel) return;
+        let html = "";
+        for (let i = 0; i < Math.min(3, recentPhotosArray.length); i++) { html += `<div class="home-photo-slot"><img src="${recentPhotosArray[i].url}"></div>`; }
+        for (let j = recentPhotosArray.length; j < 3; j++) { html += `<div class="home-photo-slot"><div>📸</div><div>採集回憶</div></div>`; }
+        carousel.innerHTML = html;
+    }
+
+    function renderAlbumWall() {
+        const grid = document.getElementById('albumGridZone');
+        if (!grid) return;
+        grid.innerHTML = "";
+        recentPhotosArray.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'album-card';
+            card.innerHTML = `<img class="album-img" src="${p.url}"><div class="album-meta">Day ${p.day} · ${p.name}</div>`;
+            grid.appendChild(card);
+        });
+    }
+
+    function renderAchievementsUI() {
+        const zone = document.getElementById('achievement-scroll-zone');
+        if (!zone) return;
+        zone.innerHTML = "";
+        achievements.forEach(a => {
+            const span = document.createElement('span');
+            span.className = `ach-badge ${a.unlocked ? 'unlocked' : ''}`;
+            span.innerText = a.unlocked ? a.name : `🔒 ${a.name.split(' ')[1] || '未解鎖'}`;
+            span.title = a.desc;
+            zone.appendChild(span);
+        });
     }
 
     function renderPlayerStats() {
@@ -729,42 +885,120 @@
         if (document.getElementById('leaderboard-zone')) document.getElementById('leaderboard-zone').innerHTML = lbHtml;
     }
 
-    function addIndividualExp(playerKey) { rpgPlayers[playerKey].exp += 25; renderPlayerStats(); }
+    function initOrUpdateChart() {
+        const ctx = document.getElementById('rpgChart');
+        if (!ctx) return;
+        const labels = ['爸爸', '媽媽', '大囡', '細囡'];
+        const dataValues = [rpgPlayers.dad.exp, rpgPlayers.mom.exp, rpgPlayers.sis1.exp, rpgPlayers.sis2.exp];
+
+        if (myChartInstance) {
+            myChartInstance.data.datasets[0].data = dataValues;
+            myChartInstance.update();
+        } else {
+            myChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '冒險總 EXP 戰力值',
+                        data: dataValues,
+                        backgroundColor: ['#FF6B6B', '#4ECDC4', '#A855F7', '#FFD93D'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+    }
+
+    function addIndividualExp(playerKey) { 
+        rpgPlayers[playerKey].exp += 25; 
+        renderPlayerStats(); 
+        initOrUpdateChart();
+        saveGame();
+    }
+
     function toggleAudioMute() {
         const audio = document.getElementById('bgm');
         const wave = document.getElementById('audio-wave');
         if (!audio || !wave) return;
-        if (audio.paused) { audio.play(); wave.innerText = "🎵 PLAYING"; } else { audio.pause(); wave.innerText = "🔇 MUTED"; }
+        if (audio.paused) { 
+            audio.play().catch(e => console.log("Muted: ", e)); 
+            wave.innerText = "🎵 PLAYING"; 
+        } else { 
+            audio.pause(); 
+            wave.innerText = "🔇 MUTED"; 
+        }
     }
+
+    document.addEventListener('click', () => {
+        const audio = document.getElementById('bgm');
+        if(audio && audio.paused && document.getElementById('audio-wave').innerText !== "🔇 MUTED") {
+            audio.play().then(() => {
+                document.getElementById('audio-wave').innerText = "🎵 PLAYING";
+            }).catch(e => console.log("iOS Handshake"));
+        }
+    }, { once: true });
+
     function navigateTo(targetTab) { switchTab(targetTab); }
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         const targetDom = document.getElementById(`tab-${tabId}`);
         if(targetDom) targetDom.classList.add('active');
-        if (tabId === 'map' && lfMap) { setTimeout(() => { lfMap.invalidateSize(); drawLeafletRoutes(); }, 100); }
-    }
-    function toggleEditMode(isEdit) {
-        document.getElementById('display-itinerary-card').style.display = isEdit ? 'none' : 'block';
-        document.getElementById('edit-itinerary-panel').style.display = isEdit ? 'block' : 'none';
-        document.getElementById('btn-trigger-edit').style.display = isEdit ? 'none' : 'flex';
-    }
-    function saveDayEdits() {
-        const data = masterData[activeDay - 1];
-        data.route = document.getElementById('edit-route').value;
-        data.driveTime = document.getElementById('edit-drivetime').value;
-        data.spots = document.getElementById('edit-spots').value;
-        data.b = document.getElementById('edit-b').value;
-        data.l = document.getElementById('edit-l').value;
-        data.d = document.getElementById('edit-d').value;
-        alert(`💾 修改成功！`); toggleEditMode(false); updateAllInterfaces();
-    }
-    function enterMemoirMode() {
-        isMemoirMode = true; document.getElementById('endGameScreen').style.display = 'none';
-        document.getElementById('memoir-banner').style.display = 'block';
-        buildTimeline(); drawLeafletRoutes(); switchTab('home');
+        
+        if (tabId === 'map' && lfMap) { 
+            setTimeout(() => { 
+                lfMap.invalidateSize(true); 
+                drawLeafletRoutes();
+            }, 300); 
+        }
     }
 
-    window.onload = function() { buildTimeline(); updateAllInterfaces(); initLeafletMapSystem(); };
+    function enterMemoirMode() {
+        isMemoirMode = true; 
+        document.getElementById('endGameScreen').style.display = 'none';
+        document.getElementById('memoir-banner').style.display = 'block';
+        buildTimeline(); drawLeafletRoutes(); switchTab('home');
+        saveGame();
+    }
+
+    function exportTravelMemoir() {
+        switchTab('rpg-status');
+        setTimeout(() => {
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'block');
+            window.print();
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = '');
+            switchTab('home');
+        }, 500);
+    }
+
+    // ================= 📡 正式修改：註冊實體 service-worker.js =================
+    function injectOfflineServiceWorkerHardware() {
+        if ('serviceWorker' in navigator) {
+            // 直接註冊您在 GitHub 上建立的實體服務工作線
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(() => console.log("📡 [Service Worker] 實體快取註冊成功！100% 離線應用就緒。"))
+                .catch(err => console.error("實體 SW 註冊失敗: ", err));
+        }
+    }
+
+    window.onload = function() { 
+        loadGame(); 
+        buildTimeline(); 
+        updateAllInterfaces(); 
+        initLeafletMapSystem();
+        initGpsGeofencingHardware(); 
+        injectOfflineServiceWorkerHardware(); 
+        
+        if(isMemoirMode) {
+            document.getElementById('memoir-banner').style.display = 'block';
+        }
+    };
 </script>
 </body>
 </html>
