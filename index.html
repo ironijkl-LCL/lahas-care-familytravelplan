@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="北海道冒險">
 
-    <!-- 引入 Leaflet 地圖引擎核心 CSS -->
+    <!-- 引入世界級 Leaflet 地圖引擎核心 CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root {
@@ -95,68 +95,6 @@
             letter-spacing: 1px;
         }
 
-        /* ⚔️ 手遊風關卡冒險任務大螢幕 */
-        .adventure-screen {
-            background: linear-gradient(135deg, #0EA5E9, #38BDF8);
-            padding: 24px;
-            border-radius: 30px;
-            color: white;
-            text-align: center;
-            box-shadow: 0 15px 40px rgba(14,165,233,.25);
-            margin-bottom: 12px;
-            border: 2px solid white;
-            position: relative;
-            overflow: hidden;
-            transition: background 0.4s ease;
-        }
-        .location-big {
-            font-size: 42px;
-            font-weight: 900;
-            text-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
-            letter-spacing: 1px;
-        }
-        .chapter {
-            font-size: 14px;
-            letter-spacing: 4px;
-            opacity: .75;
-            font-weight: bold;
-            margin-top: 4px;
-        }
-        .mission-box {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-top: 14px;
-            background: rgba(255, 255, 255, 0.22);
-            padding: 8px 18px;
-            border-radius: 14px;
-            display: inline-block;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.25);
-            max-width: 90%;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        .exp-box {
-            font-size: 0.85rem;
-            font-weight: bold;
-            margin-top: 12px;
-            color: #FFD93D;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.15);
-        }
-        .sun-mini {
-            position: absolute;
-            right: -10px;
-            top: -10px;
-            font-size: 60px;
-            opacity: 0.15;
-            animation: sunFloat 5s ease-in-out infinite;
-            user-select: none;
-        }
-        @keyframes sunFloat {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-5px) rotate(5deg); }
-        }
-
         /* 常駐狀態條 */
         .rpg-header {
             background: linear-gradient(135deg, #4FC3F7, #81D4FA);
@@ -170,28 +108,92 @@
         .progress { height: 8px; background: rgba(255,255,255,0.4); border-radius: 4px; overflow: hidden; margin-top: 4px; }
         .progress-bar { width: 7%; height: 100%; background: var(--primary); transition: width 0.4s ease; }
         .day-badge { background: var(--primary); color: white; padding: 4px 10px; border-radius: 999px; font-weight: bold; font-size: 0.78rem; text-align: center; }
-        .location { text-align: center; margin-top: 2px; font-weight: bold; font-size: 0.85rem; color: #0F172A; }
 
         /* 分頁切換基礎排版 */
         .tab-content { display: none; padding: 14px; flex: 1; overflow-y: auto; max-height: 78vh; }
         .tab-content.active { display: block; }
 
-        /* 天氣卡 */
-        .weather-card {
-            background: linear-gradient(135deg, #FFD93D, #FFE066);
-            padding: 12px 14px;
-            border-radius: 18px;
-            font-weight: bold;
-            color: #7C2D12;
-            box-shadow: 0 10px 20px rgba(255,217,61,.2);
-            margin-bottom: 12px;
+        /* ================= 🍎 Apple 式全新極簡首頁大看板 ================= */
+        .apple-hero-center {
+            text-align: center;
+            padding: 30px 14px;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            min-height: 340px;
+        }
+        .apple-day {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #0284C7;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            opacity: 0.9;
+            margin-bottom: 6px;
+        }
+        .apple-location {
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: #0F172A;
+            letter-spacing: -1px;
+            margin-bottom: 24px;
+        }
+        .apple-mission-title {
+            font-size: 0.82rem;
+            font-weight: bold;
+            color: var(--gray);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .apple-mission-box {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1E293B;
+            line-height: 1.3;
+            max-width: 90%;
+            margin-bottom: 34px;
+        }
+        .apple-nav-btn {
+            background: #0284C7;
+            color: white;
+            border: none;
+            padding: 16px 36px;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(2, 132, 199, 0.3);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .apple-nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 35px rgba(2, 132, 199, 0.4);
+        }
+        .apple-nav-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 6px 15px rgba(2, 132, 199, 0.2);
+        }
+
+        /* 天氣迷你常駐標籤 */
+        .apple-weather-pill {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(4px);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #334155;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.5);
         }
 
         /* Nintendo Switch 遊戲風九宮格選單 */
-        .switch-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 8px; }
+        .switch-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 10px; }
         .switch-item {
             background: var(--switch-panel); border: 3px solid #E2E8F0; border-radius: 20px;
             padding: 16px 8px; text-align: center; cursor: pointer; transition: all 0.2s ease;
@@ -201,12 +203,12 @@
         .switch-item.active-tab::before { background: var(--primary); }
         .switch-item.active-tab { border-color: var(--primary); background: #FFF; transform: scale(1.02); }
         .switch-item:active { transform: scale(0.96); }
-        .switch-icon { font-size: 1.6rem; margin-bottom: 2px; display: block; margin-right: 0; }
+        .switch-icon { font-size: 1.6rem; margin-bottom: 2px; display: block; }
         .switch-label { font-size: 0.82rem; font-weight: bold; color: var(--text-light); display: block; }
 
-        /* RPG 角色卡 */
+        /* RPG 角色卡面板 */
         .player-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
-        .player-card { background: white; border: 1px solid #E2E8F0; box-shadow: 0 6px 20px rgba(0,0,0,.04); border-radius: 20px; overflow: hidden; padding: 12px 10px; text-align: center; }
+        .player-card { background: white; border: 1px solid #E2E8F0; box-shadow: 0 6px 20px rgba(0,0,0,.04); border-radius: 20px; overflow: hidden; padding: 12px 10px; text-align: center; cursor: pointer; }
         .player-avatar { font-size: 1.8rem; display: block; margin-bottom: 2px; }
         .player-card strong { display: block; font-size: 0.85rem; color: var(--text-light); }
         .player-title-tag { display: block; font-size: 0.68rem; color: var(--gray); font-weight: bold; margin: 1px 0 4px 0; }
@@ -215,7 +217,7 @@
         .player-exp-fill { height: 100%; background: linear-gradient(90deg, #FFD93D, #FF8A00); width: 70%; transition: width 0.3s ease; }
 
         /* 排行榜 */
-        .info-card h3 { margin-top: 0; font-size: 0.95rem; display: flex; align-items: center; gap: 4px; }
+        .lb-row { display: flex; justify-content: space-between; padding: 8px 10px; font-size: 0.85rem; font-weight: 500; border-bottom: 1px dashed #F1F5F9; align-items: center; }
         .lb-top {
             background: linear-gradient(135deg, #FFD93D, #FFB703) !important;
             padding: 12px 10px !important;
@@ -226,7 +228,7 @@
             border: 1px solid #FFF;
         }
 
-        /* 快照回憶 */
+        /* 快照展示 */
         .home-photo-carousel { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; scrollbar-width: none; }
         .home-photo-carousel::-webkit-scrollbar { display: none; }
         .home-photo-slot {
@@ -252,20 +254,12 @@
             border: 3px solid #7dd3fc; border-radius: 22px; position: relative; overflow: hidden;
             box-shadow: 0 8px 25px rgba(3, 105, 161, 0.12);
         }
-        #leafletMap {
-            width: 100%; height: 100%; z-index: 1;
-        }
-        .leaflet-tile-container {
-            filter: sepia(0.2) saturate(1.1) hue-rotate(185deg) contrast(0.95);
-        }
-        .radar-ping-icon {
-            background: transparent;
-        }
+        #leafletMap { width: 100%; height: 100%; z-index: 1; }
+        .leaflet-tile-container { filter: sepia(0.2) saturate(1.1) hue-rotate(185deg) contrast(0.95); }
+        .radar-ping-icon { background: transparent; }
         .radar-wave-glow {
-            width: 36px; height: 30px;
-            border: 3px solid #0EA5E9; border-radius: 50%;
-            position: absolute; top: -15px; left: -18px;
-            animation: leafletPing 1.8s infinite ease-out;
+            width: 36px; height: 30px; border: 3px solid #0EA5E9; border-radius: 50%;
+            position: absolute; top: -15px; left: -18px; animation: leafletPing 1.8s infinite ease-out;
         }
         @keyframes leafletPing {
             0% { transform: scale(0.3); opacity: 1; }
@@ -275,17 +269,15 @@
             background: white; color: #0F172A; font-weight: 900; font-size: 0.65rem;
             padding: 2px 6px; border-radius: 4px; border: 1px solid #CBD5E1;
             white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.12);
-            text-align: center; display: inline-block;
-            transition: transform 0.2s ease;
+            text-align: center; display: inline-block; transition: transform 0.2s ease;
         }
-        .map-treasure-icon {
-            font-size: 1.8rem; text-align: center;
-            animation: treasureBounce 1s infinite ease-in-out;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
-            cursor: pointer;
+        .map-treasure-icon { font-size: 1.8rem; text-align: center; animation: treasureBounce 1s infinite ease-in-out; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)); cursor: pointer; }
+        @keyframes treasureBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
         }
 
-        /* 天數橫排不對折滾動條（修復走位） */
+        /* 天數橫排選擇鈕滾動條 */
         .map-timeline { 
             display: flex; flex-direction: row; flex-wrap: nowrap; 
             overflow-x: auto; gap: 6px; padding-bottom: 6px; margin-bottom: 8px; 
@@ -295,7 +287,7 @@
         .day-node { flex: 0 0 46px; height: 35px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; color: var(--gray); cursor: pointer; border: 1px solid #E2E8F0; }
         .day-node.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 行程細節排版 */
+        /* 行程細節 */
         .detail-section { display: flex; flex-direction: column; gap: 6px; }
         .detail-row { display: flex; flex-direction: column; padding: 4px 0; border-bottom: 1px dashed #F1F5F9; font-size: 0.82rem; }
         .detail-label { font-weight: bold; color: var(--gray); margin-bottom: 2px; }
@@ -316,32 +308,13 @@
         .custom-input, .edit-textarea { width: 100%; margin-bottom: 6px; padding: 8px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.8rem; }
         .edit-textarea { resize: none; }
 
-        /* 📋 拍立得相簿牆 */
-        .photo-upload-zone { background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: 16px; padding: 20px 14px; text-align: center; margin-top: 12px; position: relative; }
-        .photo-upload-zone span { display: block; }
-        .photo-input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
-        .photo-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; }
-        .btn-quest-done { width: 100%; padding: 13px; border: none; background: var(--secondary); color: white; border-radius: 12px; font-weight: bold; cursor: pointer; display: none; font-size: 0.9rem; margin-top: 12px; }
-        .album-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 4px; }
-        .album-card { background: white; border: none; padding: 6px 6px 24px 6px; box-shadow: 0 10px 20px rgba(0,0,0,.08); transform: rotate(-1.5deg); border-radius: 4px; }
-        .album-card:nth-child(even) { transform: rotate(1.5deg); }
-        .album-img { width: 100%; height: 100px; object-fit: cover; display: block; background: #F1F5F9; border-radius: 2px; }
-        .album-meta { padding: 6px 2px 0 2px; font-size: 0.65rem; color: var(--gray); font-weight: bold; text-align: center; }
-
-        /* 🧰 外掛工具箱資料夾 */
-        .folder-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
-        .folder-content { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; transition: all 0.3s ease-in-out; }
-        .folder-content.collapsed { display: none !important; }
-
-        .tool-btn {
-            margin-bottom: 0 !important; font-size: 0.78rem !important; padding: 12px 4px !important;
-            flex-direction: column !important; gap: 6px !important; border-radius: 16px !important;
-            border: 1px solid #E2E8F0 !important; background: #FFFFFF !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: all 0.2s ease;
-        }
-        .tool-btn:active { transform: scale(0.95); }
-
-        /* 工具排版 */
+        /* 📋 隨身行李與快照牆 */
+        .info-card { background: white; border-radius: 18px; padding: 14px; margin-bottom: 12px; border: 1px solid #E2E8F0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .info-header { display: flex; justify-content: space-between; border-bottom: 1px solid #F1F5F9; padding-bottom: 6px; margin-bottom: 8px; }
+        .info-title { font-weight: bold; font-size: 0.9rem; color: var(--text-light); }
+        .info-meta { font-size: 0.75rem; color: var(--primary); font-weight: bold; }
+        .metric-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 5px; font-size: 0.82rem; margin-bottom: 4px; }
+        
         .btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: white; color: var(--text-light); border: 1px solid #CBD5E1; }
@@ -349,21 +322,22 @@
         .check-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 0.8rem; text-align: left; }
         .check-item input:checked + span { text-decoration: line-through; color: var(--gray); }
 
-        .audio-player-widget {
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px);
-            border-radius: 12px; padding: 6px 12px; font-size: 0.72rem; font-weight: bold;
-            display: flex; align-items: center; gap: 8px; border: 1px solid #E2E8F0;
-        }
-
         .end-game-overlay { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: #FFFFFF; z-index: 999; padding: 24px; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow-y: auto; }
         .end-title-banner { font-size: 1.35rem; font-weight: bold; color: #B45309; border-top: 2px solid #B45309; border-bottom: 2px solid #B45309; padding: 12px 0; margin: 18px 0; width: 100%; letter-spacing: 1px; }
         .stat-row { display: flex; justify-content: space-between; width: 85%; margin-bottom: 10px; font-size: 0.88rem; border-bottom: 1px dashed #E2E8F0; padding-bottom: 5px; color: var(--text-light); }
         .champion-box { background: linear-gradient(135deg, #FFD93D, #FF8A00); color: #7C2D12; padding: 10px 20px; border-radius: 14px; font-weight: bold; font-size: 1rem; box-shadow: 0 4px 15px rgba(255,138,0,0.3); margin-top: 8px; }
-
-        @keyframes treasureBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
+        
+        .album-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 4px; }
+        .album-card { background: white; border: none; padding: 6px 6px 24px 6px; box-shadow: 0 10px 20px rgba(0,0,0,.08); transform: rotate(-1.5deg); border-radius: 4px; }
+        .album-card:nth-child(even) { transform: rotate(1.5deg); }
+        .album-img { width: 100%; height: 100px; object-fit: cover; display: block; background: #F1F5F9; border-radius: 2px; }
+        .album-meta { padding: 6px 2px 0 2px; font-size: 0.65rem; color: var(--gray); font-weight: bold; text-align: center; }
+        
+        .photo-upload-zone { background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: 16px; padding: 20px 14px; text-align: center; margin-top: 12px; position: relative; }
+        .photo-upload-zone span { display: block; }
+        .photo-input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+        .photo-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; }
+        .btn-quest-done { width: 100%; padding: 13px; border: none; background: var(--secondary); color: white; border-radius: 12px; font-weight: bold; cursor: pointer; display: none; font-size: 0.9rem; margin-top: 12px; }
     </style>
 </head>
 <body>
@@ -385,144 +359,54 @@
             <div class="progress"><div class="progress-bar" id="top-progress-bar"></div></div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-            <div class="audio-player-widget" onclick="toggleAudioMute()" style="cursor: pointer;">
+            <div class="audio-player-widget" onclick="toggleAudioMute()" style="cursor: pointer; background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold;">
                 <span id="audio-wave">🎵 PLAY</span>
             </div>
             <div>
                 <div class="day-badge" id="top-day-badge">DAY 1</div>
-                <div class="location" id="top-location">📍 台北</div>
             </div>
         </div>
     </div>
 
-    <!-- ================= 分頁 1: 九宮格主選單主面板 ================= -->
+    <!-- ================= 分頁 1: 🍎 全新 Apple 級極簡主儀表板頁面 ================= -->
     <div id="tab-home" class="tab-content active" style="max-height:81vh;">
-        
-        <!-- ⚔️ 關卡任務大螢幕 -->
-        <div class="adventure-screen" id="mainAdventureScreen">
-            <div class="sun-mini">☀️</div>
-            <div class="location-big" id="hero-location-big">🇹🇼 台北</div>
-            <div class="chapter" id="hero-chapter">CHAPTER 1</div>
-            <div class="mission-box" id="hero-mission-box">入住晴美公寓酒店</div>
-            <div class="exp-box">
-                <span id="hero-exploration-rate">🧭 全島總探索度 7%</span> 
-                <span style="margin: 0 4px;">•</span> 
-                <span id="hero-exp-box">EXP +200</span>
-            </div>
+        <div class="apple-hero-center">
+            <div class="apple-day" id="apple-chapter-id">DAY 1</div>
+            <div class="apple-location" id="apple-loc-title">台北</div>
+            <div class="apple-weather-pill" id="apple-weather-text">☀️ 32°C • 台北晴天</div>
+            
+            <div class="apple-mission-title">TODAY'S MISSION</div>
+            <div class="apple-mission-box" id="apple-m-box">入住晴美公寓酒店</div>
+            
+            <!-- 一鍵開啟真實 Google 地理開拓導航 -->
+            <button class="apple-nav-btn" onclick="launchGoogleMapsNavigation()">
+                <span>🚀 啟動即時導航</span>
+            </button>
         </div>
 
-        <!-- 夏日天氣卡 -->
-        <div class="weather-card">
-            <span style="font-size: 1.1rem;">☀️ 32°C</span>
-            <span id="weather-city">台北晴天</span>
-        </div>
-
-        <!-- RPG 角色卡模組 -->
-        <div class="player-grid">
-            <div class="player-card" onclick="addIndividualExp('dad')">
-                <span class="player-avatar">👨</span>
-                <strong>爸爸</strong>
-                <span class="player-title-tag">🚗 北海道車神</span>
-                <div class="player-lv" id="lv-dad">LV.7</div>
-                <div class="player-exp-bar"><div class="player-exp-fill" id="bar-dad" style="width:70%"></div></div>
-            </div>
-            <div class="player-card" onclick="addIndividualExp('mom')">
-                <span class="player-avatar">👩</span>
-                <strong>媽媽</strong>
-                <span class="player-title-tag">🍜 拉麵獵人</span>
-                <div class="player-lv" id="lv-mom">LV.6</div>
-                <div class="player-exp-bar"><div class="player-exp-fill" id="bar-mom" style="width:70%"></div></div>
-            </div>
-            <div class="player-card" onclick="addIndividualExp('sis1')">
-                <span class="player-avatar">👧</span>
-                <strong>大囡 (15)</strong>
-                <span class="player-title-tag">📸 攝影魔人</span>
-                <div class="player-lv" id="lv-sis1">LV.8</div>
-                <div class="player-exp-bar"><div class="player-exp-fill" id="bar-sis1" style="width:70%"></div></div>
-            </div>
-            <div class="player-card" onclick="addIndividualExp('sis2')">
-                <span class="player-avatar">👶</span>
-                <strong>細囡 (13)</strong>
-                <span class="player-title-tag">🏆 打卡女王</span>
-                <div class="player-lv" id="lv-sis2">LV.9</div>
-                <div class="player-exp-bar"><div class="player-exp-fill" id="bar-sis2" style="width:70%"></div></div>
-            </div>
-        </div>
-
-        <!-- 實時動態家族排行榜 -->
-        <div class="info-card">
-            <h3>🏆 家族排行榜</h3>
-            <div id="leaderboard-zone"></div>
-        </div>
-
-        <!-- 📸 今日回憶快照欄位 -->
-        <div class="info-card">
-            <h3>📸 今日回憶快照</h3>
+        <!-- 📸 近期打卡相片快照流 -->
+        <div class="info-card" style="margin-top: -15px; margin-bottom: 15px;">
+            <h4 style="margin: 0 0 6px 0; font-size: 0.75rem; color: var(--gray);">📸 近期採集快照庫</h4>
             <div class="home-photo-carousel" id="homePhotoCarousel">
-                <div class="home-photo-slot" id="slot-1"><div>🏕️</div><div>精彩待續</div></div>
-                <div class="home-photo-slot" id="slot-2"><div>🍦</div><div>美食獵影</div></div>
-                <div class="home-photo-slot" id="slot-3"><div>🚗</div><div>自駕沿途</div></div>
+                <div class="home-photo-slot"><div>📸</div><div>採集回憶</div></div>
+                <div class="home-photo-slot"><div>📸</div><div>採集回憶</div></div>
+                <div class="home-photo-slot"><div>📸</div><div>採集回憶</div></div>
             </div>
         </div>
 
-        <!-- 🏅 橫向捲動里程碑成就系統 -->
-        <div class="info-card">
-            <h3>🏅 家族解鎖里程碑成就</h3>
-            <div class="achievement-scroll">
-                <span class="ach-badge">🍜 拉麵獵人</span>
-                <span class="ach-badge">🌻 向日葵征服者</span>
-                <span class="ach-badge">⛓️ 烏賊終結者</span>
-                <span class="ach-badge">🍈 哈密瓜之神</span>
-                <span class="ach-badge">📸 攝影王</span>
-            </div>
+        <!-- 🎮 下層純淨控制面板選單 -->
+        <div class="switch-grid">
+            <div class="switch-item" id="menu-map" onclick="navigateTo('map')"><span class="switch-icon">🗺️</span><span class="switch-label">探索地圖</span></div>
+            <div class="switch-item" id="menu-quest" onclick="navigateTo('quest')"><span class="switch-icon">🎯</span><span class="switch-label">任務提交</span></div>
+            <div class="switch-item" id="menu-rpg-status" onclick="navigateTo('rpg-status')"><span class="switch-icon">🏆</span><span class="switch-label">戰力排行</span></div>
+            <div class="switch-item" id="menu-packing" onclick="navigateTo('packing')"><span class="switch-icon">🎒</span><span class="switch-label">隨身資產</span></div>
         </div>
-
-        <!-- 🧰 冒險外掛工具箱資料夾 -->
-        <div class="info-card" style="border-left: 4px solid var(--switch-blue); background: #F0F9FF;">
-            <div class="folder-header" onclick="toggleToolboxFolder()">
-                <h3 style="margin: 0; font-size: 0.9rem; color: #0369A1;">🧰 冒險外掛工具箱</h3>
-                <span id="folder-indicator" style="color: #0369A1; font-weight: bold; font-size: 0.85rem;">📂 ▼</span>
-            </div>
-            <div id="toolbox-folder-content" class="folder-content">
-                <a href="https://gemini.google.com" target="_blank" class="btn btn-outline tool-btn">
-                    <span style="font-size:1.4rem;">✨</span>
-                    <strong style="color:#0284C7;">Gemini AI</strong>
-                </a>
-                <a href="https://www.google.com/maps/place/Hokkaido" target="_blank" class="btn btn-outline tool-btn">
-                    <span style="font-size:1.4rem;">📍</span>
-                    <strong style="color:#0284C7;">Google Map</strong>
-                </a>
-                <a href="https://translate.google.com/?sl=zh-TW&tl=ja&op=translate" target="_blank" class="btn btn-outline tool-btn">
-                    <span style="font-size:1.4rem;">🗣️</span>
-                    <strong style="color:#0284C7;">Google 翻譯</strong>
-                </a>
-                <a href="https://www.google.com/search?q=HKD+to+JPY" target="_blank" class="btn btn-outline tool-btn">
-                    <span style="font-size:1.4rem;">💴</span>
-                    <strong style="color:#0284C7;">外幣換算</strong>
-                </a>
-            </div>
-        </div>
-
-        <!-- 🎮 九宮格選單 -->
-        <div class="switch-grid" style="margin-top: 12px;">
-            <div class="switch-item" id="menu-map" onclick="navigateTo('map')"><span class="switch-icon">🗺️</span><span class="switch-label">動態地圖</span></div>
-            <div class="switch-item" id="menu-quest" onclick="navigateTo('quest')"><span class="switch-icon">🎯</span><span class="switch-label">主線任務</span></div>
-            <div class="switch-item" id="menu-album" onclick="navigateTo('album')"><span class="switch-icon">📸</span><span class="switch-label">回憶相簿</span></div>
-            <div class="switch-item" id="menu-drive" onclick="navigateTo('drive')"><span class="switch-icon">🚗</span><span class="switch-label">自駕儀表</span></div>
-            <div class="switch-item" id="menu-packing" onclick="navigateTo('packing')"><span class="switch-icon">🎒</span><span class="switch-label">隨身物資</span></div>
-            <div class="switch-item" id="menu-mustknow" onclick="navigateTo('mustknow')"><span class="switch-icon">📋</span><span class="switch-label">必留安全</span></div>
-        </div>
-
-        <button class="btn btn-outline" style="margin-top:14px; border-radius:14px;" onclick="navigateTo('budget')">💰 查看租車與過路費預算</button>
     </div>
 
-    <!-- ================= 分頁 2: 🗺️ Real Leaflet 真實地理開拓地圖 ================= -->
+    <!-- ================= 分頁 2: 🗺️ Real Leaflet 真實地理地圖與時程 ================= -->
     <div id="tab-map" class="tab-content">
         <div class="map-timeline" id="map-timeline-bar"></div>
-        
-        <div class="map-box">
-            <div id="leafletMap"></div>
-        </div>
+        <div class="map-box"><div id="leafletMap"></div></div>
 
         <div class="info-card" id="display-itinerary-card" style="margin-top: 10px; border-left: 4px solid var(--primary);">
             <div class="info-header"><span class="info-title" id="map-card-day">Day 1</span><span class="info-meta" id="map-card-km">~0km</span></div>
@@ -548,20 +432,20 @@
         </div>
 
         <div class="edit-panel" id="edit-itinerary-panel">
-            <h4>⚙️ 修改內置旅行資料</h4>
-            <input type="text" id="edit-route" class="custom-input" placeholder="路線">
-            <input type="text" id="edit-drivetime" class="custom-input" placeholder="預計開車時間">
-            <textarea id="edit-spots" class="edit-textarea" rows="2" placeholder="景點介紹"></textarea>
-            <input type="text" id="edit-b" class="custom-input" placeholder="早餐">
-            <input type="text" id="edit-l" class="custom-input" placeholder="午餐">
-            <input type="text" id="edit-d" class="custom-input" placeholder="晚餐">
+            <h4>⚙️ 修改內置資料</h4>
+            <input type="text" id="edit-route" class="custom-input">
+            <input type="text" id="edit-drivetime" class="custom-input">
+            <textarea id="edit-spots" class="edit-textarea" rows="2"></textarea>
+            <input type="text" id="edit-b" class="custom-input">
+            <input type="text" id="edit-l" class="custom-input">
+            <input type="text" id="edit-d" class="custom-input">
             <button class="btn btn-primary" style="background:var(--secondary);" onclick="saveDayEdits()">💾 儲存修改</button>
         </div>
         <button class="btn btn-outline" id="btn-trigger-edit" style="margin-top:8px;" onclick="toggleEditMode(true)">⚙️ 修改此日行程細節</button>
         <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:6px;" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= 分頁 3: 🎯 主線任務與相片提交 ================= -->
+    <!-- ================= 分頁 3: 🎯 主線任務提交 ================= -->
     <div id="tab-quest" class="tab-content">
         <div class="info-card" style="background: #FAFAFA; border-color: var(--primary);">
             <h2>🎯 今日冒險任務提交中心</h2>
@@ -571,87 +455,112 @@
             <div class="photo-upload-zone">
                 <span style="font-size:0.82rem; font-weight:bold; color:var(--pack-color);">📷 點擊此處上傳現場打卡照片</span>
                 <input type="file" accept="image/*" class="photo-input" onchange="handlePhotoUpload(this)">
-                <img class="photo-preview" id="photo-preview-img" src="" alt="預覽">
+                <img class="photo-preview" id="photo-preview-img" src="">
             </div>
             <button class="btn-quest-done" id="btn-submit-quest" onclick="validateQuestCompletion()">✅ 任務達成 +200 EXP</button>
-            <button class="btn btn-outline" style="margin-top:12px; font-size:0.75rem;" onclick="toggleCustomForm()">✍️ 建立突發卡 (覆蓋今日主線)</button>
+            <button class="btn btn-outline" style="margin-top:12px; font-size:0.75rem;" onclick="toggleCustomForm()">✍️ 建立突發卡</button>
             <div class="custom-form" id="custom-form">
                 <input type="text" id="ins-title" class="custom-input" placeholder="任務名稱">
-                <textarea id="ins-desc" class="custom-input" placeholder="任務細節與懲罰" rows="2"></textarea>
-                <button class="btn btn-primary" style="background:var(--edit-color);" onclick="injectCustomMission()">📌 覆蓋任務插槽</button>
+                <textarea id="ins-desc" class="custom-input" placeholder="細節與懲罰" rows="2"></textarea>
+                <button class="btn btn-primary" style="background:var(--edit-color);" onclick="injectCustomMission()">📌 覆蓋任務</button>
             </div>
         </div>
         <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= 分頁 4: 📸 拍立得旅行牆相簿 ================= -->
-    <div id="tab-album" class="tab-content">
-        <h3 style="margin:0 0 12px 0; font-size:0.95rem; border-left:4px solid var(--primary); padding-left:8px;">📸 盛夏拼貼相片牆</h3>
-        <div class="album-grid" id="albumGridZone"></div>
-        <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:14px;" onclick="switchTab('home')">🎮 返回主選單</button>
-    </div>
+    <!-- ================= 分頁 4: 🏆 戰力狀態、成就與排行 ================= -->
+    <div id="tab-rpg-status" class="tab-content">
+        <div class="player-grid">
+            <div class="player-card" onclick="addIndividualExp('dad')"><span>👨</span><strong>爸爸</strong><span class="player-title-tag">🚗 北海道車神</span><div class="player-lv" id="lv-dad">LV.7</div><div class="player-exp-bar"><div class="player-exp-fill" id="bar-dad"></div></div></div>
+            <div class="player-card" onclick="addIndividualExp('mom')"><span>👩</span><strong>媽媽</strong><span class="player-title-tag">🍜 拉麵獵人</span><div class="player-lv" id="lv-mom">LV.6</div><div class="player-exp-bar"><div class="player-exp-fill" id="bar-mom"></div></div></div>
+            <div class="player-card" onclick="addIndividualExp('sis1')"><span>👧</span><strong>大囡</strong><span class="player-title-tag">📸 攝影魔人</span><div class="player-lv" id="lv-sis1">LV.8</div><div class="player-exp-bar"><div class="player-exp-fill" id="bar-sis1"></div></div></div>
+            <div class="player-card" onclick="addIndividualExp('sis2')"><span>👶</span><strong>細囡</strong><span class="player-title-tag">🏆 打卡女王</span><div class="player-lv" id="lv-sis2">LV.9</div><div class="player-exp-bar"><div class="player-exp-fill" id="bar-sis2"></div></div></div>
+        </div>
 
-    <!-- ================= 分頁 5: 🚗 自駕儀表板 ================= -->
-    <div id="tab-drive" class="tab-content">
         <div class="info-card">
-            <h3>🚗 夏日行車自駕數據</h3>
-            <div class="drive-metrics">
-                <div class="metric-row"><span>今日行車里程：</span><strong id="dr-day-km">-</strong></div>
-                <div class="metric-row"><span>累積行駛里程：</span><strong id="dr-total-km">-</strong></div>
-                <div class="metric-row"><span>預計剩餘油量：</span><strong id="dr-gas">-</strong></div>
-                <div class="metric-row"><span>ETC 累計估算：</span><strong id="dr-etc">-</strong></div>
-                <div class="metric-row"><span>預估停車費：</span><strong>¥1,000</strong></div>
+            <h3>🏆 家族排行榜</h3>
+            <div id="leaderboard-zone"></div>
+        </div>
+
+        <div class="info-card">
+            <h3>🏅 家族里程碑成就</h3>
+            <div class="achievement-scroll">
+                <span class="ach-badge">🍜 拉麵獵人</span>
+                <span class="ach-badge">🌻 向日葵征服者</span>
+                <span class="ach-badge">⛓️ 烏賊終結者</span>
+                <span class="ach-badge">🍈 哈密瓜之神</span>
+                <span class="ach-badge">📸 攝影王</span>
             </div>
         </div>
-        <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('home')">🎮 返回主選單</button>
+
+        <div class="info-card" style="border-left: 4px solid var(--switch-blue); background: #F0F9FF;">
+            <div class="folder-header" onclick="toggleToolboxFolder()">
+                <h3 style="margin:0; font-size:0.9rem; color:#0369A1;">🧰 冒險外掛工具箱</h3>
+                <span id="folder-indicator" style="color:#0369A1; font-weight:bold; font-size:0.85rem;">📂 ▼</span>
+            </div>
+            <div id="toolbox-folder-content" class="folder-content">
+                <a href="https://gemini.google.com" target="_blank" class="btn btn-outline tool-btn"><span>✨</span><strong>Gemini AI</strong></a>
+                <a href="https://www.google.com/maps/place/Hokkaido" target="_blank" class="btn btn-outline tool-btn"><span>📍</span><strong>Google Map</strong></a>
+                <a href="https://translate.google.com/?sl=zh-TW&tl=ja&op=translate" target="_blank" class="btn btn-outline tool-btn"><span>🗣️</span><strong>Google 翻譯</strong></a>
+                <a href="https://www.google.com/search?q=HKD+to+JPY" target="_blank" class="btn btn-outline tool-btn"><span>💴</span><strong>外幣換算</strong></a>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:10px;" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= 分頁 6: 🎒 隨身物資 ================= -->
+    <!-- ================= 分頁 5: 🎒 隨身物資、隨身資產與回憶牆 ================= -->
     <div id="tab-packing" class="tab-content">
+        <div class="info-card">
+            <h3>📸 旅行快照相片牆</h3>
+            <div class="album-grid" id="albumGridZone"></div>
+        </div>
+
         <div class="info-card" style="border-left: 4px solid var(--pack-color);">
             <div class="info-title" style="color:var(--pack-color);">👗 衣物與防護</div>
-            <div class="detail-section" style="margin-top: 8px;">
+            <div class="detail-section" style="margin-top:8px;">
                 <div class="check-item"><input type="checkbox"><span>短袖短褲、夏日防曬漁夫帽</span></div>
-                <div class="check-item"><input type="checkbox"><span><b>連帽防風薄外套</b>（函館夜景、積丹海邊風大跌到18°C防寒用！）</span></div>
-                <div class="check-item"><input type="checkbox"><span>高系數防曬乳、防曬傘</span></div>
+                <div class="check-item"><input type="checkbox"><span><b>連帽防風薄外套</b>（函館夜景跌到18°C防寒用！）</span></div>
             </div>
         </div>
         <div class="info-card" style="border-left: 4px solid var(--pack-color);">
             <div class="info-title" style="color:var(--pack-color);">🔌 數碼與自駕備忘</div>
-            <div class="detail-section" style="margin-top: 8px;">
-                <div class="check-item"><input type="checkbox"><span><b>高容量行動電源 (尿袋)</b>（隨時上傳照片計分必備）</span></div>
-                <div class="check-item"><input type="checkbox"><span>點煙器多孔車載充電頭、車載手機架</span></div>
+            <div class="detail-section" style="margin-top:8px;">
+                <div class="check-item"><input type="checkbox"><span><b>高容量行動電源</b>（上傳照片計分必備）</span></div>
+                <div class="check-item"><input type="checkbox"><span>車載多孔充電頭、手機架</span></div>
             </div>
         </div>
-        <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('home')">🎮 返回主選單</button>
+
+        <button class="btn btn-outline" onclick="navigateTo('budget')">💰 查看租車與過路費預算</button>
+        <button class="btn btn-outline" onclick="navigateTo('mustknow')">📋 查看自駕安全事項</button>
+        <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:10px;" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= 分頁 7: 📋 必留安全 ================= -->
+    <!-- ================= 分頁 6: 📋 自駕安全防線 ================= -->
     <div id="tab-mustknow" class="tab-content">
         <div class="info-card" style="border-left: 4px solid #EF4444;">
-            <div class="info-title" style="color:#EF4444;">🛄 出發文件與意外處理</div>
+            <div class="info-title" style="color:#EF4444;">🛄 文件與事故處理</div>
             <div class="detail-section" style="font-size:0.8rem; line-height:1.45; margin-top:8px;">
                 1. <b>香港駕照正本 + 國際駕駛許可證 (IDP)</b> 缺一不可！<br><br>
-                2. 任何刮擦 or 擦撞，<b>必須即時致電 110 報警</b>取得事故證明書，保險方可生效。
+                2. 任何刮擦，<b>必須即時致電 110 報警</b>取得事故證明書，保險方可生效。
             </div>
         </div>
-        <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('home')">🎮 返回主選單</button>
+        <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('packing')">🎒 返回隨身資產</button>
     </div>
 
-    <!-- ================= 分頁 8: 💰 預算費用 ================= -->
+    <!-- ================= 分頁 7: 💰 預算模組 ================= -->
     <div id="tab-budget" class="tab-content">
         <div class="info-card">
-            <h3>💰 租車與過路費預算估算</h3>
+            <h3>💰 租車與過路費費用預算</h3>
             <div class="metric-row"><span>14天車輛租金連全險：</span><strong>¥180,000 - ¥220,000</strong></div>
             <div class="metric-row"><span>HEP 高速路電子卡費：</span><strong>~¥12,000</strong></div>
             <div class="metric-row"><span>油資與停車費總計：</span><strong>~¥28,000</strong></div>
         </div>
-        <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('home')">🎮 返回主選單</button>
+        <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('packing')">🎒 返回隨身資產</button>
     </div>
 
-    <!-- ================= 🏆 大結局結算面板 ================= -->
+    <!-- 大結尾面板 -->
     <div class="end-game-overlay" id="endGameScreen">
-        <h2 style="color: #64748B; font-size: 1rem; margin:0;">🎮 GAME COMPLETE</h2>
         <div class="end-title-banner">━━━━━━━━━━<br>全真章節冒險通關<br>━━━━━━━━━━</div>
         <div style="width:100%; display:flex; flex-direction:column; align-items:center; margin-bottom:14px;">
             <div class="stat-row"><span>自駕開拓總里程</span><strong style="color:var(--secondary);">1480 km</strong></div>
@@ -660,25 +569,23 @@
             <div class="stat-row"><span>爆食雪糕杯數</span><strong style="color:var(--accent);">26 杯</strong></div>
             <div class="stat-row"><span>肥美海膽大餐</span><strong style="color:#FB923C;">5 次</strong></div>
         </div>
-        <h3 style="color:var(--gray); font-size:0.85rem; margin:6px 0 0 0;">👑 本次旅程總冠軍誕生 👑</h3>
         <div class="champion-box">🏆 北海道王者：細囡</div>
-        <button class="btn btn-primary" style="margin-top:28px; background:var(--primary); width:85%; padding:14px; border-radius:14px;" onclick="enterMemoirMode()">📖 開啟家庭回憶錄模式</button>
+        <button class="btn btn-primary" style="margin-top:28px; background:var(--primary); width:85%; padding:14px;" onclick="enterMemoirMode()">📖 開啟家庭回憶錄模式</button>
     </div>
 </div>
 
-<!-- 引入 Leaflet 地圖引擎核心 JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // ⚔️ 【精準機票、兩間 Airbnb 獨立屋以及預計開車時間完全對齊整合數據】
+    // 完全對齊真實 2 晚台北晴美 + 11 晚包棟獨立屋自駕行程數據
     const masterData = [
-        { day: 1, route: "香港 (HKG) ➔ 台北 (TPE)", km: 0, driveTime: "0 小時 (乘搭飛機航程)", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "搭乘長榮航空 BR892 (10:10-11:55) 快閃空降台北！下午 15:30 後解鎖入住中山區「晴美公寓酒店」。晚上直奔林森北路條通美食或雙城街夜市爆食熱炒與珍奶！", b: "飛機餐 or 落機在機場便利店買手卷。", l: "台北桃園機場快閃小吃 or 林森北路高家莊米苔目。", d: "林森北路條通台式熱炒：必點三杯雞、鳳梨蝦球配爸媽冰啤酒！", title: "晴美公寓酒店解鎖", desc: "順利抵達台北中山區林森北路晴美公寓酒店並成功 Check-in，上傳全家第一張台式快閃大合照提交！" },
+        { day: 1, route: "香港 (HKG) ➔ 台北 (TPE)", km: 0, driveTime: "0 小時 (乘搭飛機航程)", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "搭乘長榮航空 BR892 (10:10-11:55) 快閃空降台北！下午 15:30 後解鎖入住中山區「晴美公寓酒店」。晚上直奔林森北路條通美食或雙城街夜市爆食熱炒與珍奶！", b: "飛機餐或落機在機場便利店買手卷。", l: "台北桃園機場快閃小吃或林森北路高家莊米苔目。", d: "林森北路條通台式熱炒：必點三杯雞、鳳梨蝦球配爸媽冰啤酒！", title: "晴美公寓酒店解鎖", desc: "順利抵達台北中山區林森北路晴美公寓酒店並成功 Check-in，上傳全家第一張台式快閃大合照提交！" },
         { day: 2, route: "台北西門町與南西商圈搜捕散策", km: 0, driveTime: "0 小時 (市區捷運步攻)", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北午後豪雨", spots: "晴美公寓酒店享用美味雙人早餐。隨後前往西門町與中山南西商圈。囡囡最愛文青小店、格子鋪，以及拍立得日系貼紙相店大獵影！", b: "酒店內包含的精緻雙人份特製早點。", l: "西門町「阿宗麵線」 or 老山東牛肉麵（厚切牛筋鮮美彈牙）。", d: "中山站排隊神店「肥前屋」鰻魚飯 or 鼎泰豐小籠包盛宴！", title: "📸 中山商圈貼紙相大賽", desc: "全家在中山站南西商圈成功拍下一張充滿台式潮流感嘅日系貼紙相，提交相片得分！" },
         { day: 3, route: "台北 (TPE) ➔ 札幌 (CTS) ➔ 札幌獨立屋", km: 50, driveTime: "約 1 小時 15 分鐘", tag: "SAPPORO", hub: "taipei", targetHub: "sapporo", weather: "札幌微風晴天", spots: "早上從晴美公寓退房，搭乘長榮 BR116 (10:10-15:00) 直飛札幌新千歲！落機直奔還車點取車自駕。下午 15:00 後解鎖解鎖入住位於札幌市東區「北40條東17丁目1-8」的超大包棟獨立屋大本營！", b: "晴美公寓最後清晨早餐。", l: "飛機上享用高空精緻餐點。", d: "札幌大通公園夏祭啤酒節現場：搶攻限定屋台，激食烤北海道甜玉米、炸雞塊配生啤酒！", title: "🏡 札幌北40條大本營登陸", desc: "在新千歲落機順利取車，自駕開拓至札幌市東區北40條獨立屋，拍下包棟客廳第一張合照提交！" },
-        { day: 4, route: "札幌 ➔ 小樽 ➔ 積丹半島 ➔ 札幌獨立屋", km: 210, driveTime: "約 3 小時 45 分鐘 (來回大長征)", tag: "SHAKOTAN", hub: "sapporo", targetHub: "shakotan", weather: "積丹藍大晴天", spots: "自駕極限衝向神威岬！沿住步道行入海脊，兩邊係蔚藍震撼嘅積丹藍海景。黃昏時快閃回小樽運河，欣賞懷舊煤氣燈亮起的美景，夜裡回到札幌獨立屋休整。", b: "札幌北40條大本營自製極鮮牛乳烘焙麵包餐。", l: "積丹「中村屋」：爆食夏季限定極品純馬糞海膽丼（甘甜入口即化）。", d: "小樽「政壽司」：品嚐極上握壽司（當地小樽港新鮮直送大牡丹蝦）。", title: "🌊 積丹藍・海膽尋寶", desc: "在神威岬步道拍出最夢幻、最純粹嘅「積丹藍 club」海景相片並提交打卡！" },
+        { day: 4, route: "札幌 ➔ 小樽 ➔ 積丹半島 ➔ 札幌獨立屋", km: 210, driveTime: "約 3 小時 45 分鐘 (來回大長征)", tag: "SHAKOTAN", hub: "sapporo", targetHub: "shakotan", weather: "積丹藍大晴天", spots: "自駕極限衝向神威岬！沿住步道行入海脊，兩邊係蔚藍震撼嘅積丹藍海景。黃昏時快閃回小樽運河，欣賞懷舊煤氣燈亮起的美景，夜裡回到札幌獨立屋休整。", b: "札幌北40條大本營自製極鮮牛乳烘焙麵包餐。", l: "積丹「中村屋」：爆食夏季限定極品純馬糞海膽丼（甘甜入口即化）。", d: "小樽「政壽司」：品嚐極上握壽司（當地小樽港新鮮直送大牡丹蝦）。", title: "🌊 積丹藍・海膽尋寶", desc: "在神威岬步道拍出最夢幻、最純粹嘅「積丹藍 club']海景相片並提交打卡！" },
         { day: 5, route: "札幌市區休整與藥妝採購預熱", km: 20, driveTime: "約 45 分鐘 (市區短途行車)", tag: "SAPPORO", hub: "shakotan", targetHub: "sapporo", weather: "札幌多雲", spots: "白色戀人觀光工廠：歐洲城堡風嘅朱古力庭園。莫埃來沼公園：由大師野口勇設計，有幾何金字塔。下午全家大本營出動，狸小路免稅店大採購！", b: "二條市場海鮮丼飯配一碗滿滿鮮甜蟯湯。", l: "札幌「根室花丸」：超人氣排隊迴轉壽司。", d: "札幌名物「Suage+」：湯咖哩（帶骨雞腿炸至酥脆，浸入香料濃湯）。", title: "🎨 狸小路古怪手信搜捕", desc: "全家分頭在狸小路藥妝店，找出一樣最莫名其妙的古怪商品照片並上傳！" },
         { day: 6, route: "札幌 ➔ 登別地獄谷 ➔ 洞爺湖", km: 150, driveTime: "約 2 小時 20 分鐘", tag: "NOBORIBETSU", hub: "sapporo", targetHub: "noboribetsu", weather: "登別火山硫磺天", spots: "告別札幌獨立屋（今日暫離大本營線）。開往登別地獄谷：白煙裊裊，震撼驚人。大湯沼川天然足湯：在火山溫泉森林享受天然腳溫泉。傍晚殺往洞爺湖畔入住溫泉飯店！", b: "大本營快閃飯糰與十勝優格。", l: "登別溫泉街「味之大王」：地獄拉麵（湯頭濃郁辛辣，極度開胃）。", d: "溫泉酒店內傳統「手作懷石料理」：享用頂級前菜、毛蟹解體盛宴、十勝和牛陶板燒。", title: "👹 地獄谷硫磺鬼臉模仿", desc: "在煙霧繚繞的登別地獄谷找到赤鬼雕像，拍下全家一起模仿鬼臉邊高能量照片上傳！" },
         { day: 7, route: "洞爺湖 ➔ 大沼公園 ➔ 函館獨立屋防線", km: 160, driveTime: "約 2 小時 40 分鐘", tag: "HAKODATE", hub: "noboribetsu", targetHub: "hakodate", weather: "函館百萬夜景大晴天", spots: "大沼國定公園：擁有大小島嶼嘅優美湖泊，踩架單車環湖。傍晚自駕進駐函館市區。函館山頂：傍晚搭纜車登頂，等候百萬夜景降臨那一刻。地圖上隱藏寶箱即將浮現！", b: "洞爺湖畔烘焙坊咖啡與熱辣牛角包。", l: "大沼公園名物「沼之家」：大沼糰子（醬油與紅豆雙拼）。", d: "函館「大門橫丁」屋台村：體驗地道居酒屋氣氛，串燒、烤扇貝、鹽味拉麵輪流食。", title: "🦑 捕捉活烏賊", desc: "【地圖隱藏寶箱解鎖日】在函館朝市成功釣起生猛活烏賊，拍下烏賊噴水 or 切片刺身透明相片並提交！" },
-        { day: 8, route: "函館 ➔ 縱貫道央超長途拉車 ➔ 旭川", km: 380, driveTime: "約 5 小時 15 分鐘 (終極長途拉車挑戰)", tag: "ROADTRIP", hub: "hakodate", targetHub: "asahikawa", weather: "道央多雲轉晴", spots: "道央高速公路拉力日！全日本最硬派拉車賽。自駕大縱走，沿途欣賞內浦灣海景與羊蹄山（蝦夷富士）嘅宏偉雄姿，直達北部重鎮旭川市區！", b: "函館朝市「きくよ食堂」：經典三色海鮮丼（海膽、鮭魚卵、干貝）。", l: "「砂川服務區」限定：北海道特厚切黑豚炸豬排丼飯（外脆內嫩）。", d: "旭川拉麵村：「青葉拉麵」點招牌醬油拉麵，表面有一層焦香豬油防散熱。", title: "🚗 長途公路後座演唱會", desc: "5小時公路長途自駕，拍下兩位囡囡喺後座戴住睡眠頸枕、張開大口瞓覺嘅生鬼相片提交！" },
+        { day: 8, route: "函館 ➔ 縱貫道央超長途拉車 ➔ 旭川", km: 380, driveTime: "約 5 小時 15 分鐘 (終極長途拉車挑戰)", tag: "ROADTRIP", hub: "hakodate", targetHub: "asahikawa", weather: "旭川晴天", spots: "道央高速公路拉力日！全日本最硬派拉車賽。自駕大縱走，沿途欣賞內浦灣海景與羊蹄山（蝦夷富士）嘅宏偉雄姿，直達北部重鎮旭川市區！", b: "函館朝市「きくよ食堂」：經典三色海鮮丼（海膽、鮭魚卵、干貝）。", l: "「砂川服務區」限定：北海道特厚切黑豚炸豬排丼飯（外脆內嫩）。", d: "旭川拉麵村：「青葉拉麵」點招牌醬油拉麵，表面有一層焦香豬油防散熱。", title: "🚗 長途公路後座演唱會", desc: "5小時公路長途自駕，拍下兩位囡囡喺後座戴住睡眠頸枕、張開大口瞓覺嘅生鬼相片提交！" },
         { day: 9, route: "旭川 ➔ 北龍町向日葵 ➔ 旭山動物園 ➔ 旭川", km: 120, driveTime: "約 2 小時 10 分鐘", tag: "HOKURYU", hub: "asahikawa", targetHub: "hokuryu", weather: "北龍町大晴天", spots: "北龍町向日葵之里：全日本規模最大！200 萬株金色向日葵滿開迷宮。下午殺回旭山動物園：透過透明圓筒近距離觀察企鵝與海豹潛水絕技！", b: "旭川市內連鎖咖啡廳鬆軟鬆餅。", l: "北龍町觀光中心 : 享用限定向日葵主題定食。", d: "旭川排隊神店「成吉思汗 大黑屋」：炭火烤小羔羊肉（外焦內嫩，毫無羊羶味）。", title: "🌻 向日葵迷宮極速逃脫", desc: "闖入 200 萬株金色向日葵迷宮，拍下兩姊妹喺花海深處迷路、搞笑求救嘅打卡相！" },
         { day: 10, route: "旭川 ➔ 美瑛青池 ➔ 富良野彩色花田", km: 50, driveTime: "約 1 小時 10 分鐘", tag: "BIEI", hub: "hokuryu", targetHub: "biei", weather: "美瑛富良野大晴天", spots: "美瑛白金青池：池水因礦物質呈現夢幻嘅蒂芬妮藍。四季彩之丘：大地如色彩拼布畫布。黃昏進駐富良野高地景觀公路。", b: "旭川買限定男山清酒酒粕麵包。", l: "美瑛超級名店「純平 (Junpei)」：必點招牌「海老丼」（巨型炸大蝦炸衣酥脆）。", d: "「富良野 Wine House」：食瑞士芝士火鍋配頂級富良野和牛排。", title: "🎨 四季彩之丘色彩獵人", desc: "喺四季彩之丘七彩花田前面，拍下一張一家四口高難度「千手觀音」 or 「疊羅漢」相片提交！" },
         { day: 11, route: "富良野 ➔ 景觀公路 ➔ 小樽石山町獨立屋", km: 150, driveTime: "約 2 小時 30 分鐘", tag: "FURANO", hub: "biei", targetHub: "furano", weather: "富良野晴天", spots: "富田農場：狂嗑爆汁夕張哈密瓜與原隻哈密瓜鮮奶霜淇淋！下午告別富良野，開展下半部全新防線——自駕開拓進駐位於小樽市「19-4 Ishiyamachō」的高質感包棟獨立屋！", b: "富良野在地農產市集：現烤流心起司撻。", l: "富田農場園內：現切爆汁夕張哈密瓜連埋原隻哈密瓜鮮奶霜淇淋！", d: "札幌拉麵神店「麵屋 彩未」：極致濃郁嘅味噌拉麵（湯頭微甜，帶有生薑香氣）。", title: "🏠 小樽石山町新據點解鎖", desc: "自駕橫跨道央抵達小樽石山町獨立屋新防線，拍下這個極具空間感的新客廳基地合照提交！" },
@@ -754,7 +661,6 @@
             attributionControl: false
         }).setView([42.95, 141.8], 7);
 
-        // 使用真實世界的地圖地磚，並加入降級備忘，在完全斷網時地圖也不會死機崩潰
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             errorTileUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" style="background:%23E2E8F0"><line x1="0" y1="0" x2="256" y2="256" stroke="%23CBD5E1"/><line x1="256" y1="0" x2="0" y2="256" stroke="%23CBD5E1"/></svg>'
         }).addTo(lfMap);
@@ -786,6 +692,7 @@
 
     function buildTimeline() {
         const bar = document.getElementById('map-timeline-bar');
+        if (!bar) return;
         bar.innerHTML = "";
         masterData.forEach(d => {
             const node = document.createElement('div');
@@ -898,57 +805,47 @@
         const data = masterData[activeDay - 1];
         const targetHubObj = mapHubs[data.targetHub];
         
-        document.getElementById('top-day-badge').innerText = `DAY ${data.day}`;
-        document.getElementById('top-location').innerText = `📍 ${targetHubObj.name}`;
-        document.getElementById('weather-city').innerText = `${data.weather}`;
+        if (document.getElementById('top-day-badge')) document.getElementById('top-day-badge').innerText = `DAY ${data.day}`;
+        if (document.getElementById('top-location')) document.getElementById('top-location').innerText = `📍 ${targetHubObj.name}`;
+        if (document.getElementById('weather-city')) document.getElementById('weather-city').innerText = `${data.weather}`;
         
+        // 同步更新 Apple 極簡首頁的數據
+        if (document.getElementById('apple-chapter-id')) document.getElementById('apple-chapter-id').innerText = `DAY ${data.day}`;
+        if (document.getElementById('apple-loc-title')) document.getElementById('apple-loc-title').innerText = targetHubObj.name;
+        if (document.getElementById('apple-weather-text')) document.getElementById('apple-weather-text').innerText = `☀️ ${data.day <= 2 ? '32' : '24'}°C • ${data.weather}`;
+        if (document.getElementById('apple-m-box')) document.getElementById('apple-m-box').innerText = data.title;
+
         const screenDom = document.getElementById('mainAdventureScreen');
         if (screenDom && biomeGradients[data.tag]) {
             screenDom.style.background = biomeGradients[data.tag];
         }
-        document.getElementById('hero-location-big').innerText = `${targetHubObj.emoji} ${targetHubObj.name}`;
-        document.getElementById('hero-chapter').innerText = `CHAPTER ${data.day}`;
-        document.getElementById('hero-mission-box').innerText = data.title;
-        
-        let totalExploration = Math.round((data.day / 14) * 100);
-        document.getElementById('hero-exploration-rate').innerText = `🧭 全島總探索度 ${totalExploration}%`;
-        document.getElementById('hero-exp-box').innerText = (data.day === 14) ? "🎁 FINAL QUEST" : "EXP +200";
         
         let progressPercent = Math.round((data.day / 14) * 100);
-        document.getElementById('top-progress-text').innerText = `旅程進度 ${progressPercent}%`;
-        document.getElementById('top-progress-bar').style.width = `${progressPercent}%`;
+        if (document.getElementById('top-progress-text')) document.getElementById('top-progress-text').innerText = `旅程進度 ${progressPercent}%`;
+        if (document.getElementById('top-progress-bar')) document.getElementById('top-progress-bar').style.width = `${progressPercent}%`;
 
-        document.getElementById('map-card-day').innerText = `📅 Day ${data.day} - ${data.tag}`;
-        document.getElementById('map-card-km').innerText = `~${data.km}km`;
-        document.getElementById('det-route').innerText = data.route;
-        
-        document.getElementById('det-drivetime').innerText = data.driveTime;
-        
-        document.getElementById('det-spots').innerText = data.spots;
-        document.getElementById('det-b').innerText = data.b;
-        document.getElementById('det-l').innerText = data.l;
-        document.getElementById('det-d').innerText = data.d;
+        if (document.getElementById('map-card-day')) document.getElementById('map-card-day').innerText = `📅 Day ${data.day} - ${data.tag}`;
+        if (document.getElementById('map-card-km')) document.getElementById('map-card-km').innerText = `~${data.km}km`;
+        if (document.getElementById('det-route')) document.getElementById('det-route').innerText = data.route;
+        if (document.getElementById('det-drivetime')) document.getElementById('det-drivetime').innerText = data.driveTime;
+        if (document.getElementById('det-spots')) document.getElementById('det-spots').innerText = data.spots;
+        if (document.getElementById('det-b')) document.getElementById('det-b').innerText = data.b;
+        if (document.getElementById('det-l')) document.getElementById('det-l').innerText = data.l;
+        if (document.getElementById('det-d')) document.getElementById('det-d').innerText = data.d;
 
-        document.getElementById('q-title').innerText = data.title;
-        document.getElementById('q-desc').innerText = data.desc;
+        if (document.getElementById('q-title')) document.getElementById('q-title').innerText = data.title;
+        if (document.getElementById('q-desc')) document.getElementById('q-desc').innerText = data.desc;
         
-        document.getElementById('photo-preview-img').style.display = 'none';
-        document.getElementById('btn-submit-quest').style.display = 'none';
+        if (document.getElementById('photo-preview-img')) document.getElementById('photo-preview-img').style.display = 'none';
+        if (document.getElementById('btn-submit-quest')) document.getElementById('btn-submit-quest').style.display = 'none';
         currentUploadedPhotoUrl = "";
 
-        let totalKm = 0;
-        for(let i=0; i<data.day; i++) { totalKm += masterData[i].km; }
-        document.getElementById('dr-day-km').innerText = `${data.km} km`;
-        document.getElementById('dr-total-km').innerText = `${totalKm} km`;
-        document.getElementById('dr-gas').innerText = `${480 - (totalKm % 410)} km`;
-        document.getElementById('dr-etc').innerText = `¥${(1200 + (data.day * 1050)).toLocaleString()}`;
-
-        document.getElementById('edit-route').value = data.route;
-        document.getElementById('edit-drivetime').value = data.driveTime;
-        document.getElementById('edit-spots').value = data.spots;
-        document.getElementById('edit-b').value = data.b;
-        document.getElementById('edit-l').value = data.l;
-        document.getElementById('edit-d').value = data.d;
+        if (document.getElementById('edit-route')) document.getElementById('edit-route').value = data.route;
+        if (document.getElementById('edit-drivetime')) document.getElementById('edit-drivetime').value = data.driveTime;
+        if (document.getElementById('edit-spots')) document.getElementById('edit-spots').value = data.spots;
+        if (document.getElementById('edit-b')) document.getElementById('edit-b').value = data.b;
+        if (document.getElementById('edit-l')) document.getElementById('edit-l').value = data.l;
+        if (document.getElementById('edit-d')) document.getElementById('edit-d').value = data.d;
 
         renderPlayerStats();
     }
@@ -958,9 +855,12 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const preview = document.getElementById('photo-preview-img');
-                preview.src = e.target.result; preview.style.display = 'block';
+                if (preview) {
+                    preview.src = e.target.result; 
+                    preview.style.display = 'block';
+                }
                 currentUploadedPhotoUrl = e.target.result;
-                document.getElementById('btn-submit-quest').style.display = 'block';
+                if (document.getElementById('btn-submit-quest')) document.getElementById('btn-submit-quest').style.display = 'block';
             };
             reader.readAsDataURL(input.files[0]);
         }
@@ -975,16 +875,18 @@
         renderHomeCarousel();
 
         const grid = document.getElementById('albumGridZone');
-        const card = document.createElement('div');
-        card.className = 'album-card';
-        card.innerHTML = `<img class="album-img" src="${currentUploadedPhotoUrl}"><div class="album-meta">Day ${data.day} · ${mapHubs[data.targetHub].name}</div>`;
-        grid.appendChild(card);
+        if (grid) {
+            const card = document.createElement('div');
+            card.className = 'album-card';
+            card.innerHTML = `<img class="album-img" src="${currentUploadedPhotoUrl}"><div class="album-meta">Day ${data.day} · ${mapHubs[data.targetHub].name}</div>`;
+            grid.appendChild(card);
+        }
 
         alert(`✅ 任務達成！全家獲得 +200 EXP 大進補！相片已同步掛上首頁快照與回憶牆。`);
 
         if (activeDay === 14) {
-            document.getElementById('end-photo-count').innerText = `${683 + uploadedPhotosCount} 張`;
-            document.getElementById('endGameScreen').style.display = 'flex';
+            if (document.getElementById('end-photo-count')) document.getElementById('end-photo-count').innerText = `${683 + uploadedPhotosCount} 張`;
+            if (document.getElementById('endGameScreen')) document.getElementById('endGameScreen').style.display = 'flex';
         } else {
             selectDay(activeDay + 1);
             switchTab('home');
@@ -993,7 +895,7 @@
 
     function renderHomeCarousel() {
         const carousel = document.getElementById('homePhotoCarousel');
-        if (recentPhotosArray.length === 0) return;
+        if (!carousel || recentPhotosArray.length === 0) return;
         
         let html = "";
         for (let i = 0; i < Math.min(3, recentPhotosArray.length); i++) {
@@ -1007,14 +909,13 @@
 
     function enterMemoirMode() {
         isMemoirMode = true;
-        document.getElementById('endGameScreen').style.display = 'none';
-        document.getElementById('memoir-banner').style.display = 'block';
+        if (document.getElementById('endGameScreen')) document.getElementById('endGameScreen').style.display = 'none';
+        if (document.getElementById('memoir-banner')) document.getElementById('memoir-banner').style.display = 'block';
         drawLeafletRoutes();
         buildTimeline(); 
         
-        document.getElementById('top-title').innerText = "📖 北海道家庭回憶錄 (已通關)";
-        document.getElementById('top-progress-text').innerText = "旅程進度 100% COMPLETE!";
-        document.getElementById('top-progress-bar').style.width = "100%";
+        if (document.getElementById('top-progress-text')) document.getElementById('top-progress-text').innerText = "旅程進度 100% COMPLETE!";
+        if (document.getElementById('top-progress-bar')) document.getElementById('top-progress-bar').style.width = "100%";
         
         for (let key in rpgPlayers) { rpgPlayers[key].exp += 1500; }
         renderPlayerStats();
@@ -1028,8 +929,8 @@
             let calculatedLv = Math.floor(player.exp / 100) + 1;
             let barFillPercent = player.exp % 100; 
             
-            document.getElementById(`lv-${key}`).innerText = `LV.${calculatedLv} (${player.exp} XP)`;
-            document.getElementById(`bar-${key}`).style.width = `${barFillPercent}%`;
+            if (document.getElementById(`lv-${key}`)) document.getElementById(`lv-${key}`).innerText = `LV.${calculatedLv} (${player.exp} XP)`;
+            if (document.getElementById(`bar-${key}`)) document.getElementById(`bar-${key}`).style.width = `${barFillPercent}%`;
             
             sortable.push({ key: key, name: player.name, title: player.title, exp: player.exp });
         }
@@ -1044,7 +945,7 @@
                         <strong>${item.exp} EXP</strong>
                       </div>`;
         });
-        document.getElementById('leaderboard-zone').innerHTML = lbHtml;
+        if (document.getElementById('leaderboard-zone')) document.getElementById('leaderboard-zone').innerHTML = lbHtml;
     }
 
     function addIndividualExp(playerKey) {
@@ -1055,6 +956,7 @@
     function toggleToolboxFolder() {
         const folder = document.getElementById('toolbox-folder-content');
         const indicator = document.getElementById('folder-indicator');
+        if (!folder || !indicator) return;
         folder.classList.toggle('collapsed');
         indicator.innerText = folder.classList.contains('collapsed') ? '📁 ▶' : '📂 ▼';
     }
@@ -1062,6 +964,7 @@
     function toggleAudioMute() {
         const audio = document.getElementById('bgm');
         const wave = document.getElementById('audio-wave');
+        if (!audio || !wave) return;
         if (audio.paused) {
             audio.play().catch(err => console.log("BGM 播放被瀏覽器攔截"));
             wave.innerText = "🎵 PLAYING";
@@ -1094,6 +997,7 @@
         const displayCard = document.getElementById('display-itinerary-card');
         const editPanel = document.getElementById('edit-itinerary-panel');
         const triggerBtn = document.getElementById('btn-trigger-edit');
+        if (!displayCard || !editPanel || !triggerBtn) return;
         if(isEdit) {
             displayCard.style.display = 'none'; editPanel.style.display = 'block'; triggerBtn.style.display = 'none';
         } else {
@@ -1117,7 +1021,7 @@
 
     function toggleCustomForm() {
         const form = document.getElementById('custom-form');
-        form.style.display = form.style.display === 'block' ? 'none' : 'block';
+        if (form) form.style.display = form.style.display === 'block' ? 'none' : 'block';
     }
 
     function injectCustomMission() {
@@ -1143,7 +1047,6 @@
     // ================= 🛰️ Service Worker 離線環境獨立註冊腳本 =================
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            // 利用 Data URI 形式將 Service Worker 代碼直接動態打包註冊，避開外部獨立 sw.js 限制，達成單一 HTML 檔案完美離線化
             const swCode = `
                 const CACHE_NAME = 'hokkaido-rpg-v2';
                 const ASSETS = [
@@ -1168,11 +1071,14 @@
 
     window.onload = function() {
         initCanvasLoop();
-        document.getElementById('bgm').play().then(() => {
-            document.getElementById('audio-wave').innerText = "🎵 PLAYING";
-        }).catch(() => {
-            document.getElementById('audio-wave').innerText = "🎵 PLAY";
-        });
+        const bgm = document.getElementById('bgm');
+        if (bgm) {
+            bgm.play().then(() => {
+                if (document.getElementById('audio-wave')) document.getElementById('audio-wave').innerText = "🎵 PLAYING";
+            }).catch(() => {
+                if (document.getElementById('audio-wave')) document.getElementById('audio-wave').innerText = "🎵 PLAY";
+            });
+        }
     };
 </script>
 
