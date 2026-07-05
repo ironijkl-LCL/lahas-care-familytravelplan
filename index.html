@@ -310,6 +310,8 @@
 </head>
 <body>
 
+<audio id="bgm" loop preload="auto" src="summer.mp3"></audio>
+
 <div class="sky-cloud">☁️</div>
 <div class="sky-cloud cloud2">☁️</div>
 <div class="sky-cloud cloud3">☁️</div>
@@ -484,10 +486,11 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    // ================= 🛰️ 5.1 精確網址變更校正陣列 =================
     const masterData = [
-        { day: 1, route: "抵達台北 ➔ 晴光商圈 ➔ 寧夏夜市", km: 15, driveTime: "約 30 分鐘", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "下午抵達台北，解鎖入住中山區「晴美公寓酒店」。下樓即是晴光市場商圈，必吃紅豆餅與脆皮鮮奶甜甜圈！晚上直奔寧夏夜市爆食蚵仔煎、地瓜球、大腸包小腸！", b: "自理", l: "自理", d: "寧夏夜市在地小吃大激食", title: "晴美公寓酒店解鎖", desc: "順利抵達台北並成功 Check-in，上傳全家第一張台式快閃合照！", addr: "10491台灣臺北市中山區林森北路568號", url: "http://www.jolleyhotel.com" },
+        { day: 1, route: "抵達台北 ➔ 晴光商圈 ➔ 寧夏夜市", km: 15, driveTime: "約 30 分鐘", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "下午抵達台北，解鎖入住中山區「晴美公寓酒店」。下樓即是晴光市場商圈，必吃紅豆餅與脆皮鮮奶甜甜圈！晚上直奔寧夏夜市爆食蚵仔煎、地瓜球、大腸包小腸！", b: "自理", l: "自理", d: "寧夏夜市在地小吃大激食", title: "晴美公寓酒店解鎖", desc: "順利抵達台北並成功 Check-in，上傳全家第一張台式快閃合照！", addr: "10491台灣臺北市中山區林森北路568號", url: "https://www.jolleyhotels.com/" },
         { day: 2, route: "西門町潮流購物 ➔ 鼎泰豐晚餐", km: 10, driveTime: "約 20 分鐘", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "帶領兩位青少年狂掃西門町商圈！潮流服飾、萬年大樓潮玩極合孩子口味。晚上前往鼎泰豐（新生店）享用世界級小籠包與排骨炒飯大餐。", b: "酒店內享用", l: "西門町在地美食", d: "鼎泰豐 新生店頂級麵點", title: "西門町潮流捕獲", desc: "拍下青少年在西門町萬年大樓買到心儀潮玩的開心合照提交！", addr: "106台灣臺北市大安區信義路二段277號 (鼎泰豐)", url: "https://www.dintaifung.com.tw" },
-        { day: 3, route: "台北 ➔ 新千歲機場 ➔ 北國優駿公園 ➔ 札幌獨立屋", km: 65, driveTime: "約 1 小時 30 分鐘", tag: "SAPPORO", hub: "taipei", targetHub: "sapporo", weather: "札幌微風", spots: "機票 10:10 起飛，清晨 07:00 前辦理退房前往桃園機場！抵達新千歲取車後，15分鐘直奔【北國優駿公園】！體驗專為家庭設計的「觀光牽馬」或深入森林的騎馬健行，欣賞小馬搞笑表演。晚上回札幌獨立屋並爆食湯咖哩！", b: "自理", l: "飛機餐", d: "湯咖哩 Suage+ (中央區南4條西5丁目)", title: "🐴 森林初試近距離騎馬", desc: "拍下全家或青少年跨上馬背、在森林步道漫步的帥氣瞬間上傳！", addr: "114-7 Misawa, Tomakomai, Hokkaido 059-1361日本", url: "https://www.northern-horse-park.jp" },
+        { day: 3, route: "台北 ➔ 新千歲機場 ➔ 北國優駿公園 ➔ 札幌獨立屋", km: 65, driveTime: "約 1 小時 30 分鐘", tag: "SAPPORO", hub: "taipei", targetHub: "sapporo", weather: "札幌微風", spots: "機票 10:10 起飛，清晨 07:00 前辦理退房前往桃園機場！抵達新千歲取車後，15分鐘直奔【北國優駿公園】！體驗專為家庭設計的「觀光牽馬」或深入森林的騎馬健行，欣賞小馬搞笑表演。晚上回札幌獨立屋並爆食湯咖哩！", b: "自理", l: "飛機餐", d: "湯咖哩 Suage+ (中央區南4條西5丁目)", title: "🐴 森林初試近距離騎馬", desc: "拍下全家或青少年跨上馬背、在森林步道漫步的帥氣瞬間上傳！", addr: "114-7 Misawa, Tomakomai, Hokkaido 059-1361日本", url: "https://www.conventionsapporo.jp/uv_and_tb/tch/unique_venue/detail.asp?id=328" },
         { day: 4, route: "白色戀人公園 ➔ 狸小路爆買 ➔ 藻岩山百萬夜景", km: 30, driveTime: "約 1 小時", tag: "SAPPORO", hub: "sapporo", targetHub: "sapporo", weather: "札幌晴朗", spots: "上午造訪夢幻的白色戀人公園歐洲城堡。下午突擊狸小路商店街 MEGA Don Quijote 瘋狂採購。傍晚搭乘纜車登上藻岩山頂，俯瞰全日本新三大夜景的震撼璀璨燈海！", b: "大本營自製", l: "狸小路在地拉麵", d: "札幌特色居酒屋", title: "✨ 藻岩山百萬夜景降臨", desc: "在藻岩山觀景台以百萬燈海為背景，拍下全家高能量大合照提交！", addr: "日本北海道札幌市西區宮之澤2條2丁目11-36 (白色戀人)", url: "https://www.shiroikoibitopark.jp" },
         { day: 5, route: "美瑛青池 ➔ 北狐牧場 ➔ 知床（宿知床/羅臼）", km: 410, driveTime: "約 5 小時 30 分鐘 (跨區遠征 Day 1)", tag: "WILDLIFE", hub: "sapporo", targetHub: "rausu", weather: "美瑛東海道晴天", spots: "今日開啟野生大自然遠征！先到美瑛白金青池賞夢幻蒂芬妮藍。隨後順路經北見市進入【北狐牧場】！全家走在自然放養步道上，幾厘米極近距離看著毛茸茸的北極狐散步、追逐！夜宿知床/羅臼一帶。", b: "大本營快閃", l: "美瑛在地洋食", d: "東北海道海鮮大餐", title: "🦊 零距離接觸毛茸茸北狐", desc: "成功捕捉狐狸在身邊散步、睡覺或互相追逐的超萌近鏡照片！", addr: "52-1 Rubeshibechō Hanaoka, Kitami, Hokkaido 091-0157", url: "https://kitakitsune-farm.com" },
         { day: 6, route: "羅臼賞鯨船（震撼睇殺人鯨） ➔ 旭川拉麵村 ➔ 返札幌", km: 430, driveTime: "約 5 小時 45 分鐘 (跨區遠征 Day 2)", tag: "WILDLIFE", hub: "rausu", targetHub: "sapporo", weather: "羅臼出海大晴天", spots: "【全旅程最高價值觀光亮點】！早上 08:30 登上【知床羅臼賞鯨船】出海。8月是觀賞野生殺人鯨（Orca）家族的黃金季節！看巨型黑白殺人鯨破浪而出甚至躍出海面，震撼力舉世無雙！回程順路爆食旭川拉麵村，深夜返札幌獨立屋。", b: "知床自理", l: "羅臼在地漁夫料理", d: "旭川拉麵村 (旭川市永山11條4丁目119-48)", title: "🐋 霸氣解鎖！夏日限定野生殺人鯨", desc: "成功拍下黑白殺人鯨家族破浪而出、或是抹香鯨噴水的極限震撼畫面！", addr: "日本〒086-1833 Menashi District, Rausu, Honchō, 27-1", url: "https://www.e-shiretoko.com" },
@@ -495,9 +498,9 @@
         { day: 8, route: "札幌車站潮流爆買（寶可夢、Jump Shop）", km: 15, driveTime: "約 40 分鐘", tag: "SHOPPING", hub: "noboribetsu", targetHub: "sapporo", weather: "札幌晴天", spots: "今天全面滿足青少年的動漫潮流魂！衝進 JR Tower Stellaplace 狂掃寶可夢中心（Pokemon Center）與 Jump Shop 購買限定周邊。晚餐在 6 樓享用產地直送的高性價比根室花丸迴轉壽司。", b: "大本營自製", l: "車站地下街美食", d: "根室花丸迴轉壽司 (Stellar Place 6樓)", title: "🎮 動漫周邊與寶可夢大爆發", desc: "拍下青少年手提寶可夢中心或Jump Shop戰利品大滿貫的開心照片！", addr: "札幌市中央區北5條西2丁目 (JR Tower)", url: "https://www.stellarplace.net" },
         { day: 9, route: "三井 OUTLET PARK 北廣島（運動品牌爆買日）", km: 45, driveTime: "約 1 小時", tag: "SHOPPING", hub: "sapporo", targetHub: "sapporo", weather: "札幌多雲", spots: "自駕前往三井 OUTLET PARK 札幌北廣島。這裡匯集大量國際運動品牌、服飾與戶外裝備，全室內免受天氣影響，全家開展限時大血拼！晚餐回市區享用頂級日式料理。", b: "大本營自製", l: "Outlet 美食廣場", d: "札幌頂級成吉思汗烤肉", title: "💸 運動品牌戰利品大開箱", desc: "拍下全車後車廂被運動品牌及免稅大包小包塞滿的震撼畫面提交！", addr: "北廣島市大曲幸町3丁目7-6", url: "https://mitsui-shopping-park.com/mop/sapporo/" },
         { day: 10, route: "富良野富田農場（夏日彩色向日葵花田）", km: 130, driveTime: "約 2 小時 15 分鐘", tag: "FURANO", hub: "sapporo", targetHub: "furano", weather: "富良野大晴天", spots: "挺進中富良野【富田農場】！飽覽盛夏盛開的向日葵彩色花田與薰衣草餘韻，狂嗑爆汁夕張哈密瓜。晚上回到札幌，前往名店「冰雪之門」享用極致奢華的帝王蟹與松葉蟹大餐！", b: "大本營自製", l: "富良野在地咖哩飯", d: "冰雪之門 螃蟹盛宴 (中央區南5條西2丁目)", title: "🌻 沉醉夏日向日葵彩色花田", desc: "在無邊際的金色向日葵花海前拍下一家四口的完美陽光合照！", addr: "空知郡中富良野町基線北15號", url: "https://www.farm-tomita.co.jp" },
-        { day: 11, route: "移居小樽新基地 ➔ 小樽運河散步 ➔ 爆汁炸雞", km: 45, driveTime: "約 50 分鐘", tag: "OTARU", hub: "furano", targetHub: "otaru", weather: "小樽微風", spots: "早上從小樽獨立屋辦理進駐新基地。黃昏前往懷舊的小樽運河散步。晚餐朝聖青少年的最愛——「若雞時代 Naruto」，品嚐外脆內嫩、咬下去瘋狂爆汁的招牌半身炸雞！", b: "大本營自製", l: "小樽街頭小吃", d: "若雞時代 Naruto (小樽市稻穗3丁目16-13)", title: "🏠 小樽石山町新據點解鎖", desc: "自駕進駐小樽石山町獨立屋，拍下這個極具空間感的新客廳基地合照！", addr: "19-4 Ishiyamachō, 小樽市, 北海道 047-0038", url: "http://www.wakadoridai-naruto.com" },
+        { day: 11, route: "移居小樽新基地 ➔ 小樽運河散步 ➔ 爆汁炸雞", km: 45, driveTime: "約 50 分鐘", tag: "OTARU", hub: "furano", targetHub: "otaru", weather: "小樽微風", spots: "早上從小樽獨立屋辦理進駐新基地。黃昏前往懷舊的小樽運河散步。晚餐朝聖青少年的最愛——「若雞時代 Naruto」，品嚐外脆內嫩、咬下去瘋狂爆汁的招牌半身炸雞！", b: "大本營自製", l: "小樽街頭小吃", d: "若雞時代 Naruto (小樽市稻穗3丁目16-13)", title: "🏠 小樽石山町新據點解鎖", desc: "自駕進駐小樽石山町獨立屋，拍下這個極具空間感的新客廳基地合照！", addr: "19-4 Ishiyamachō, 小樽市, 北海道 047-0038", url: "https://maps.app.goo.gl/Vp6yPAarJ9JnLbpg9?g_st=ic" },
         { day: 12, route: "積丹半島夏日限定「積丹藍」海景自駕", km: 130, driveTime: "約 2 小時 20 分鐘", tag: "OTARU", hub: "otaru", targetHub: "shakotan", weather: "積丹藍大晴天", spots: "自駕衝向積丹半島神威岬！徒步走在壯麗的海脊步道上，飽覽 360 度震撼澄澈的寶藍色寶藏大海。中午在積丹半島漁夫餐廳享用 8 月最肥美、限時現撈的極品海膽丼！", b: "小樽大本營自製", l: "積丹現撈肥美海膽丼", d: "小樽港新鮮壽司", title: "🌊 征服 360 度夢幻積丹藍", desc: "在神威岬步道極限頂點，拍下背景為純粹「積丹藍」的絕美海景大片！", addr: "積丹郡積丹町大字神威岬", url: "https://www.kanko-shakotan.jp" },
-        { day: 13, route: "三角市場海鮮挑選 ➔ 天狗山夜景纜車", km: 15, driveTime: "約 30 分鐘", tag: "OTARU", hub: "shakotan", targetHub: "otaru", weather: "小樽晴天", spots: "早上直奔三角市場（武田鮮魚店），當場挑選生猛巨型長腳蟹現煮現吃！傍晚前往天狗山搭乘索道纜車登頂，俯瞰完美的弧形海岸線夜景，為旅程倒數完美乾杯。", b: "自理", l: "三角市場生猛鮮蟹大餐", d: "小樽在地浪漫洋食", title: "🚡 天狗山俯瞰浪漫海岸線", desc: "在天狗山觀觀景台拍下俯瞰小樽完美弧形海岸夜景的經典照片提交！", addr: "小樽市最上2丁目16-15 (天狗山索道)", url: "https://tenguyama.ckk.chuo-bus.co.jp" },
+        { day: 13, route: "三角市場海鮮挑選 ➔ 天狗山夜景纜車", km: 15, driveTime: "約 30 分鐘", tag: "OTARU", hub: "shakotan", targetHub: "otaru", weather: "小樽晴天", spots: "早上直奔三角市場（武田鮮魚店），當場挑選生猛巨型長腳蟹現煮現吃！傍邊前往天狗山搭乘索道纜車登頂，俯瞰完美的弧形海岸線夜景，為旅程倒數完美乾杯。", b: "自理", l: "三角市場生猛鮮蟹大餐", d: "小樽在地浪漫洋食", title: "🚡 天狗山俯瞰浪漫海岸線", desc: "在天狗山觀觀景台拍下俯瞰小樽完美弧形海岸夜景的經典照片提交！", addr: "小樽市最上2丁目16-15 (天狗山索道)", url: "https://tenguyama.ckk.chuo-bus.co.jp" },
         { day: 14, route: "小樽退房 ➔ 新千歲機場國內線爆買 ➔ 啟程返港", km: 85, driveTime: "約 1 小時 15 分鐘", tag: "AIRPORT", hub: "otaru", targetHub: "airport", weather: "千歲晴天", spots: "清晨從小樽獨立屋退房並自駕前往機場還車。預留充足時間狂掃新千歲機場國內線航廈2/3樓！衝刺多啦A夢空中樂園，買齊六花亭、北菓樓與 Royce 巧克力。搭乘 13:00 的 BR165 航班回港！", b: "機場限定起司巨塔麵包", l: "機場內札幌拉麵道場", d: "飛機餐 / 返港", title: "✈️ 空港免稅品最後大搜捕", desc: "【最終戰】在新千歲機場多啦A夢天空樂園前，拍下一家手拎滿滿戰利品的大團圓照片結算！", addr: "千歲市美美 (新千歲機場)", url: "https://www.new-chitose-airport.jp" }
     ];
 
@@ -977,10 +980,8 @@
         }, 500);
     }
 
-    // ================= 📡 正式修改：註冊實體 service-worker.js =================
     function injectOfflineServiceWorkerHardware() {
         if ('serviceWorker' in navigator) {
-            // 直接註冊您在 GitHub 上建立的實體服務工作線
             navigator.serviceWorker.register('./service-worker.js')
                 .then(() => console.log("📡 [Service Worker] 實體快取註冊成功！100% 離線應用就緒。"))
                 .catch(err => console.error("實體 SW 註冊失敗: ", err));
