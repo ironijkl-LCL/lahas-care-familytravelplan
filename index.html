@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎮 北海道冒險作戰中心 - Summer RPG 2.0 盛夏晴空版</title>
+    <!-- 引入世界級 Leaflet 地圖引擎核心 CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root {
             --primary: #FF6B6B;
@@ -75,7 +77,6 @@
             z-index: 1;
         }
 
-        /* 頂部回憶錄條幅 */
         .memoir-mode-banner {
             display: none;
             background: linear-gradient(90deg, #F59E0B, #D97706);
@@ -87,9 +88,9 @@
             letter-spacing: 1px;
         }
 
-        /* ================= ⚔️ 關卡任務大螢幕（支援動態生態域主題調色盤） ================= */
+        /* ⚔         * ⚔️ 手遊風關卡冒險任務大螢幕 */
         .adventure-screen {
-            background: linear-gradient(135deg, #0EA5E9, #38BDF8); /* 由 JS 依據當天景色即時切換漸變 */
+            background: linear-gradient(135deg, #0EA5E9, #38BDF8);
             padding: 24px;
             border-radius: 30px;
             color: white;
@@ -149,7 +150,7 @@
             50% { transform: translateY(-5px) rotate(5deg); }
         }
 
-        /* 常駐旅行狀態條 */
+        /* 常駐狀態條 */
         .rpg-header {
             background: linear-gradient(135deg, #4FC3F7, #81D4FA);
             color: #0F172A;
@@ -168,7 +169,7 @@
         .tab-content { display: none; padding: 14px; flex: 1; overflow-y: auto; max-height: 78vh; }
         .tab-content.active { display: block; }
 
-        /* 經典動態天氣卡片組件 */
+        /* 天氣卡 */
         .weather-card {
             background: linear-gradient(135deg, #FFD93D, #FFE066);
             padding: 12px 14px;
@@ -196,19 +197,18 @@
         .switch-icon { font-size: 1.6rem; margin-bottom: 2px; display: block; }
         .switch-label { font-size: 0.82rem; font-weight: bold; color: var(--text-light); display: block; }
 
-        /* RPG 角色卡模組 */
+        /* RPG 角色卡 */
         .player-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
         .player-card { background: white; border: 1px solid #E2E8F0; box-shadow: 0 6px 20px rgba(0,0,0,.04); border-radius: 20px; overflow: hidden; padding: 12px 10px; text-align: center; }
         .player-avatar { font-size: 1.8rem; display: block; margin-bottom: 2px; }
         .player-card strong { display: block; font-size: 0.85rem; color: var(--text-light); }
         .player-title-tag { display: block; font-size: 0.68rem; color: var(--gray); font-weight: bold; margin: 1px 0 4px 0; }
         .player-lv { font-size: 0.65rem; background: var(--switch-blue); color: white; padding: 1px 6px; border-radius: 10px; display: inline-block; font-weight: bold; }
-        
         .player-exp-bar { height: 6px; background: #E5E7EB; border-radius: 99px; overflow: hidden; margin-top: 6px; }
         .player-exp-fill { height: 100%; background: linear-gradient(90deg, #FFD93D, #FF8A00); width: 70%; transition: width 0.3s ease; }
 
-        /* 排行榜冠軍特別發光 */
-        .lb-row { display: flex; justify-content: space-between; padding: 8px 10px; font-size: 0.85rem; font-weight: 500; border-bottom: 1px dashed #F1F5F9; align-items: center; }
+        /* 排行榜 */
+        .info-card h3 { margin-top: 0; font-size: 0.95rem; display: flex; align-items: center; gap: 4px; }
         .lb-top {
             background: linear-gradient(135deg, #FFD93D, #FFB703) !important;
             padding: 12px 10px !important;
@@ -219,10 +219,8 @@
             border: 1px solid #FFF;
         }
 
-        /* 首頁今日回憶快照牆 */
-        .home-photo-carousel {
-            display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; scrollbar-width: none;
-        }
+        /* 快照回憶 */
+        .home-photo-carousel { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; scrollbar-width: none; }
         .home-photo-carousel::-webkit-scrollbar { display: none; }
         .home-photo-slot {
             flex: 0 0 100px; height: 110px; background: #F1F5F9; border-radius: 8px;
@@ -232,10 +230,8 @@
         }
         .home-photo-slot img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* 橫向滾動成就系統 */
-        .achievement-scroll {
-            display: flex; overflow-x: auto; gap: 8px; padding: 4px 0; scrollbar-width: none;
-        }
+        /* 成就 */
+        .achievement-scroll { display: flex; overflow-x: auto; gap: 8px; padding: 4px 0; scrollbar-width: none; }
         .achievement-scroll::-webkit-scrollbar { display: none; }
         .ach-badge {
             background: #F1F5F9; border: 1px solid #E2E8F0; padding: 6px 12px;
@@ -243,74 +239,81 @@
             color: #334155; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
         }
 
-        /* ================= 🗺️ 北海道迷霧探索地圖（修復橫條天數走位） ================= */
+        /* ================= 🗺️ 【Leaflet 世界級真實地理開拓地圖核心 CSS】 ================= */
         .map-box {
             width: 100%; height: 280px;
-            background: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 50%, #f0fdf4 100%);
             border: 3px solid #7dd3fc; border-radius: 22px; position: relative; overflow: hidden;
-            box-shadow: inset 0 0 20px rgba(3, 105, 161, 0.1);
+            box-shadow: 0 8px 25px rgba(3, 105, 161, 0.12);
         }
-        .map-svg-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        
-        /* 地圖節點縮放互動 */
-        .map-hub { 
-            position: absolute; z-index: 2; cursor: pointer; text-align: center; 
-            animation: pokemonFloat 2.4s ease-in-out infinite;
-            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        #leafletMap {
+            width: 100%; height: 100%; z-index: 1;
         }
-        .map-hub:hover {
-            transform: scale(1.25) translateY(-2px) !important;
-            z-index: 10;
+        /* 真實地圖手繪復古暗黑迷霧探險感濾鏡 */
+        .leaflet-tile-container {
+            filter: sepia(0.2) saturate(1.1) hue-rotate(185deg) contrast(0.95);
         }
-        
-        /* 迷霧未開拓暗底樣式 */
-        .map-hub.fog-of-war {
-            filter: grayscale(0.9) opacity(0.4) blur(0.5px);
+        /* 自訂動態脈衝波掃描樣式 */
+        .radar-ping-icon {
+            background: transparent;
+        }
+        .radar-wave-glow {
+            width: 36px; height: 30px;
+            border: 3px solid #0EA5E9; border-radius: 50%;
+            position: absolute; top: -15px; left: -18px;
+            animation: leafletPing 1.8s infinite ease-out;
+        }
+        @keyframes leafletPing {
+            0% { transform: scale(0.3); opacity: 1; }
+            100% { transform: scale(2.2); opacity: 0; }
+        }
+        /* 自訂 Leaflet 遊戲圖標白底標籤樣式 */
+        .game-marker-label {
+            background: white; color: #0F172A; font-weight: 900; font-size: 0.65rem;
+            padding: 2px 6px; border-radius: 4px; border: 1px solid #CBD5E1;
+            white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+            text-align: center; display: inline-block;
+            transition: transform 0.2s ease;
+        }
+        /* 🎁 寶箱跳躍樣式 */
+        .map-treasure-icon {
+            font-size: 1.8rem; text-align: center;
+            animation: treasureBounce 1s infinite ease-in-out;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+            cursor: pointer;
         }
 
-        .map-hub.focused .hub-emoji {
-            transform: scale(1.3);
-            filter: drop-shadow(0 0 8px #0284C7) drop-shadow(0 0 15px #0284C7);
-        }
-        .map-car-emoji { position: absolute; z-index: 5; font-size: 1.4rem; transition: left 0.6s cubic-bezier(0.25, 1, 0.5, 1), top 0.6s cubic-bezier(0.25, 1, 0.5, 1); pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); }
-        
-        /* 🛰️ 新增：自駕雷達定位探測波 */
-        .radar-pulse {
-            position: absolute; width: 40px; height: 40px;
-            border: 3px solid rgba(14, 165, 233, 0.6); border-radius: 50%;
-            animation: radarPing 2s infinite ease-out; pointer-events: none; z-index: 1; display: none;
-        }
-        @keyframes radarPing {
-            0% { transform: scale(0.4); opacity: 1; }
-            100% { transform: scale(2.4); opacity: 0; }
-        }
-
-        /* 橫向單排不對折滾動條（修復走位） */
+        /* 天數橫排不對折滾動條（修復走位） */
         .map-timeline { 
-            display: flex; 
-            flex-direction: row;
-            flex-wrap: nowrap; 
-            overflow-x: auto; 
-            gap: 6px; 
-            padding-bottom: 6px; 
-            margin-bottom: 8px; 
+            display: flex; flex-direction: row; flex-wrap: nowrap; 
+            overflow-x: auto; gap: 6px; padding-bottom: 6px; margin-bottom: 8px; 
             scrollbar-width: none; 
         }
         .map-timeline::-webkit-scrollbar { display: none; }
         .day-node { flex: 0 0 46px; height: 35px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; color: var(--gray); cursor: pointer; border: 1px solid #E2E8F0; }
         .day-node.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 🎁 隱藏寶箱 */
-        .treasure {
-            position: absolute; font-size: 1.7rem; z-index: 9; cursor: pointer;
-            animation: treasureBounce 1s infinite ease-in-out;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
-            user-select: none; display: none;
-        }
-        @keyframes treasureBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
+        /* 行程細節排版 */
+        .detail-section { display: flex; flex-direction: column; gap: 6px; }
+        .detail-row { display: flex; flex-direction: column; padding: 4px 0; border-bottom: 1px dashed #F1F5F9; font-size: 0.82rem; }
+        .detail-label { font-weight: bold; color: var(--gray); margin-bottom: 2px; }
+        .detail-text { color: var(--text-light); line-height: 1.4; }
+
+        /* 修改面板 */
+        .edit-panel { display: none; margin-top: 10px; background: #F8FAFC; padding: 12px; border-radius: 14px; border: 1px dashed var(--edit-color); }
+        .edit-panel h4 { margin: 0 0 8px 0; font-size: 0.85rem; color: var(--edit-color); }
+        .custom-input, .edit-textarea { width: 100%; margin-bottom: 6px; padding: 8px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.8rem; }
+        .edit-textarea { resize: none; }
+
+        /* 📋 拍立得相簿牆 */
+        .photo-upload-zone { background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: 16px; padding: 20px 14px; text-align: center; margin-top: 12px; position: relative; }
+        .photo-input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+        .photo-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; }
+        .btn-quest-done { width: 100%; padding: 13px; border: none; background: var(--secondary); color: white; border-radius: 12px; font-weight: bold; cursor: pointer; display: none; font-size: 0.9rem; margin-top: 12px; }
+        .album-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 4px; }
+        .album-card { background: white; border: none; padding: 6px 6px 24px 6px; box-shadow: 0 10px 20px rgba(0,0,0,.08); transform: rotate(-1.5deg); border-radius: 4px; }
+        .album-card:nth-child(even) { transform: rotate(1.5deg); }
+        .album-img { width: 100%; height: 100px; object-fit: cover; display: block; background: #F1F5F9; border-radius: 2px; }
+        .album-meta { padding: 6px 2px 0 2px; font-size: 0.65rem; color: var(--gray); font-weight: bold; text-align: center; }
 
         /* 🧰 外掛工具箱資料夾 */
         .folder-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
@@ -325,13 +328,7 @@
         }
         .tool-btn:active { transform: scale(0.95); }
 
-        /* 基礎卡片樣式 */
-        .info-card { background: white; border-radius: 18px; padding: 14px; margin-bottom: 12px; border: 1px solid #E2E8F0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        .info-header { display: flex; justify-content: space-between; border-bottom: 1px solid #F1F5F9; padding-bottom: 6px; margin-bottom: 8px; }
-        .info-title { font-weight: bold; font-size: 0.9rem; color: var(--text-light); }
-        .info-meta { font-size: 0.75rem; color: var(--primary); font-weight: bold; }
-        .metric-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 5px; font-size: 0.82rem; margin-bottom: 4px; }
-        
+        /* 工具排版 */
         .btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: white; color: var(--text-light); border: 1px solid #CBD5E1; }
@@ -344,6 +341,16 @@
             border-radius: 12px; padding: 6px 12px; font-size: 0.72rem; font-weight: bold;
             display: flex; align-items: center; gap: 8px; border: 1px solid #E2E8F0;
         }
+
+        .end-game-overlay { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: #FFFFFF; z-index: 999; padding: 24px; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow-y: auto; }
+        .end-title-banner { font-size: 1.35rem; font-weight: bold; color: #B45309; border-top: 2px solid #B45309; border-bottom: 2px solid #B45309; padding: 12px 0; margin: 18px 0; width: 100%; letter-spacing: 1px; }
+        .stat-row { display: flex; justify-content: space-between; width: 85%; margin-bottom: 10px; font-size: 0.88rem; border-bottom: 1px dashed #E2E8F0; padding-bottom: 5px; color: var(--text-light); }
+        .champion-box { background: linear-gradient(135deg, #FFD93D, #FF8A00); color: #7C2D12; padding: 10px 20px; border-radius: 14px; font-weight: bold; font-size: 1rem; box-shadow: 0 4px 15px rgba(255,138,0,0.3); margin-top: 8px; }
+
+        @keyframes treasureBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
     </style>
 </head>
 <body>
@@ -351,7 +358,6 @@
 <!-- 🎵 背景音樂系統 -->
 <audio id="bgm" loop autoplay src="summer.mp3"></audio>
 
-<!-- 動態背景漂移雲朵 -->
 <div class="sky-cloud">☁️</div>
 <div class="sky-cloud cloud2">☁️</div>
 <div class="sky-cloud cloud3">☁️</div>
@@ -359,7 +365,7 @@
 <div class="phone-container">
     <div class="memoir-mode-banner" id="memoir-banner">📖 珍貴紀錄：北海道家庭冒險回憶錄 📖</div>
 
-    <!-- 常駐旅行狀態條 -->
+    <!-- 常駐狀態條 -->
     <div class="rpg-header">
         <div class="progress-wrapper">
             <span id="top-progress-text">旅程進度 7%</span>
@@ -379,7 +385,7 @@
     <!-- ================= 分頁 1: 九宮格主選單主面板 ================= -->
     <div id="tab-home" class="tab-content active" style="max-height:81vh;">
         
-        <!-- ⚔️ 關卡任務手遊大螢幕（全面連動 JS 生態域大改動） -->
+        <!-- ⚔️ 手遊風關卡任務大螢幕（動態調色盤） -->
         <div class="adventure-screen" id="mainAdventureScreen">
             <div class="sun-mini">☀️</div>
             <div class="location-big" id="hero-location-big">🗼 札幌</div>
@@ -433,12 +439,10 @@
         <!-- 實時動態家族排行榜 -->
         <div class="info-card">
             <h3>🏆 家族排行榜</h3>
-            <div id="leaderboard-zone">
-                <!-- 由 JavaScript 實時渲染 -->
-            </div>
+            <div id="leaderboard-zone"></div>
         </div>
 
-        <!-- 📸 今日回憶快照欄位 -->
+        <!-- 📸 今日回憶快照 -->
         <div class="info-card">
             <h3>📸 今日回憶快照</h3>
             <div class="home-photo-carousel" id="homePhotoCarousel">
@@ -499,42 +503,14 @@
         <button class="btn btn-outline" style="margin-top:14px; border-radius:14px;" onclick="navigateTo('budget')">💰 查看租車與過路費預算</button>
     </div>
 
-    <!-- ================= 分頁 2: 🗺️ 互動地理輪廓地圖 ================= -->
+    <!-- ================= 分頁 2: 🗺️ Real Leaflet 真實地理探索地圖 ================= -->
     <div id="tab-map" class="tab-content">
-        <!-- 天數選擇滾動條 -->
+        <!-- 橫向單排天數鈕不對折防走位滾動條 -->
         <div class="map-timeline" id="map-timeline-bar"></div>
         
-        <div class="map-box" id="mapContainer">
-            <!-- 北海道全島高精度地理外觀輪廓 -->
-            <svg class="map-svg-overlay" id="mapSvg" viewBox="0 0 400 280">
-                <defs>
-                    <linearGradient id="hokkaidoLand" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#E2F0D9" />
-                        <stop offset="60%" stop-color="#C5E0B4" />
-                        <stop offset="100%" stop-color="#A9D18E" />
-                    </linearGradient>
-                    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
-                        <feDropShadow dx="2" dy="3" stdDeviation="3" flood-opacity="0.15"/>
-                    </filter>
-                </defs>
-                <path d="M 45,255 C 30,240 50,215 75,210 C 95,205 100,215 125,215 C 140,215 135,195 150,180 C 125,170 95,155 85,135 C 75,115 65,100 75,85 C 85,75 100,90 120,110 C 135,120 150,125 165,120 C 180,95 210,40 245,20 C 255,15 265,15 265,30 C 265,50 245,75 255,85 C 285,75 335,65 370,80 C 395,90 380,115 350,125 C 330,130 310,150 290,160 C 265,168 240,175 220,182 C 195,190 175,200 155,205 C 125,215 95,235 75,250 Z" fill="url(#hokkaidoLand)" stroke="#7F9F6F" stroke-width="2" filter="url(#shadow)" />
-                <text x="25" y="150" font-size="11px" opacity="0.4">🌊</text>
-                <text x="65" y="125" font-size="11px" opacity="0.4">🌊</text>
-                <text x="310" y="145" font-size="11px" opacity="0.5">🌲</text>
-                <text x="330" y="135" font-size="11px" opacity="0.5">🌲</text>
-                <text x="245" y="115" font-size="11px" opacity="0.4">🌳</text>
-                <text x="295" y="85" font-size="11px" opacity="0.4">🏔️</text>
-                <ellipse cx="195" cy="185" rx="8" ry="4" fill="#7DD3FC" opacity="0.7"/>
-                <ellipse cx="105" cy="215" rx="7" ry="4" fill="#7DD3FC" opacity="0.7"/>
-                <g id="svgRouteGroup"></g>
-            </svg>
-            <div class="map-car-emoji" id="mapCar">🚗</div>
-            
-            <!-- 🛰️ 定位探測雷達擴散圈 -->
-            <div class="radar-pulse" id="mapRadarPulse"></div>
-            
-            <!-- 🎁 Day 7 隱藏大寶箱 -->
-            <div class="treasure" id="map-treasure" onclick="claimTreasure()">🎁</div>
+        <!-- Leaflet 地圖外殼 -->
+        <div class="map-box">
+            <div id="leafletMap"></div>
         </div>
 
         <div class="info-card" id="display-itinerary-card" style="margin-top: 10px; border-left: 4px solid var(--primary);">
@@ -649,7 +625,7 @@
         <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= 🏆 終結大結局與結算大面板 ================= -->
+    <!-- ================= 🏆 終結大結局結算面板 ================= -->
     <div class="end-game-overlay" id="endGameScreen">
         <h2 style="color: #64748B; font-size: 1rem; margin:0;">🎮 GAME COMPLETE</h2>
         <div class="end-title-banner">━━━━━━━━━━<br>北海道冒險完成<br>━━━━━━━━━━</div>
@@ -666,12 +642,14 @@
     </div>
 </div>
 
+<!-- 引入世界級 Leaflet 地圖引擎核心 JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     const masterData = [
         { day: 1, route: "新千歲機場 ➔ 札幌市區", km: 50, tag: "SAPPORO", hub: "airport", targetHub: "sapporo", weather: "札幌晴天", spots: "大通公園夏祭現場。全個公園變身巨型露天花園，佈滿限定美食攤位與高聳嘅生啤機！", b: "飛機餐或落機在機場便利店快閃買生乳卷頂肚。", l: "新千歲機場「拉麵道場」一幻蝦湯拉麵（濃厚甜蝦頭熬製）。", d: "大通公園啤酒節屋台：必點烤北海道甜玉米、炸雞塊配爸媽生啤酒！", title: "拉麵道場極限進補", desc: "在新千歲機場拉麵道場成功挑戰一幻蝦湯拉麵，拍下第一張美食相片提交！" },
         { day: 2, route: "札幌 ➔ 小樽 ➔ 積丹半島 ➔ 札幌", km: 210, tag: "SHAKOTAN", hub: "sapporo", targetHub: "shakotan", weather: "積丹晴天", spots: "神威岬：沿住步道行入海脊，兩邊係蔚藍震撼嘅積丹藍海景。小樽運河：黃昏時懷舊煤氣燈亮起。", b: "札幌酒店豪華極鮮牛乳配烘焙麵包。", l: "積丹「中村屋」：爆食夏季限定極品純馬糞海膽丼（甘甜入口即化）。", d: "小樽「政壽司」：品嚐極上握壽司（當地小樽港新鮮直送大牡丹蝦）。", title: "🌊 積丹藍・海膽尋寶", desc: "在神威岬步道拍出最夢幻、最純粹嘅「積丹藍 club」海景相片並提交打卡！" },
         { day: 3, route: "札幌市區休整與採購預熱", km: 20, tag: "SAPPORO", hub: "shakotan", targetHub: "sapporo", weather: "札幌多雲", spots: "白色戀人觀光工廠：歐洲城堡風嘅朱古力庭園。莫埃來沼公園：由大師野口勇設計，有幾何金字塔。", b: "二條市場海鮮丼飯配一碗滿滿鮮甜蟯湯。", l: "札幌「根室花丸」：超人氣排隊迴轉壽司。", d: "札幌名物「Suage+」：湯咖哩（帶骨雞腿炸至酥脆，浸入香料濃湯）。", title: "🛍️ 狸小路古怪手信搜捕", desc: "全家分頭在狸小路藥妝店，找出一樣最莫名其妙的古怪商品照片並上傳！" },
-        { day: 4, route: "札幌 ➔ 登別地獄谷", km: 110, tag: "NOBORIBETSU", hub: "sapporo", targetHub: "noboribetsu", weather: "登別晴天", spots: "登別地獄谷：火山爆發後形成嘅奇特谷地，白煙裊裊。大湯沼川天然足湯 : 森林享天然腳溫泉。", b: "札幌烘焙坊精緻麵包。", l: "登別溫泉街「味之大王」：地獄拉麵（湯頭濃郁辛辣，極度開胃）。", d: "溫泉酒店內傳統「手作懷石料理」：享用頂級前菜、毛蟹解體盛宴、十勝和牛陶板燒。", title: "👹 地獄谷硫磺鬼臉模仿", desc: "在煙霧繚繞的登別地獄谷找到赤鬼雕像，拍下全家一起模仿鬼臉嘅高能量照片上傳！" },
+        { day: 4, route: "札幌 ➔ 登別地獄谷", km: 110, tag: "NOBORIBETSU", hub: "sapporo", targetHub: "noboribetsu", weather: "登別晴天", spots: "登別地獄谷：火山爆發後形成嘅奇特谷地，白煙裊裊。大湯沼川天然足湯：森林享天然腳溫泉。", b: "札幌烘焙坊精緻麵包。", l: "登別溫泉街「味之大王」：地獄拉麵（湯頭濃郁辛辣，極度開胃）。", d: "溫泉酒店內傳統「手作懷石料理」：享用頂級前菜、毛蟹解體盛宴、十勝和牛陶板燒。", title: "👹 地獄谷硫磺鬼臉模仿", desc: "在煙霧繚繞的登別地獄谷找到赤鬼雕像，拍下全家一起模仿鬼臉嘅高能量照片上傳！" },
         { day: 5, route: "登別 ➔ 洞爺湖溫泉鄉", km: 40, tag: "TOYA", hub: "noboribetsu", targetHub: "toya", weather: "洞爺湖晴天", spots: "洞爺湖畔：可以租架天鵝船踩入湖心。昭和新山：依然在冒煙嘅活火山，近距離感受地球心跳。", b: "溫泉酒店精跡日式 Buffet。", l: "「Lake Hill Farm」：大草原風景餐廳，必食手工 Gelato 意式雪糕與起司披薩。", d: "洞爺湖乃之風「湖畔餐廳」：一邊食精緻長腳蟹自助餐，一邊望住玻璃窗外的湖景與花火。", title: "🎆 洞爺花火房內攝影大賽", desc: "晚上 20:45 煙花準時由湖面發射！拍下喺房間陽台睇煙花最夢幻嘅一幕並提交！" },
         { day: 6, route: "洞爺湖 ➔ 大沼公園 ➔ 函館", km: 160, tag: "HAKODATE", hub: "toya", targetHub: "hakodate", weather: "函館晴天", spots: "大沼國定公園：擁有大小島嶼嘅優美湖泊。函館山頂：傍晚搭纜車登頂，等候百萬夜景降臨那一刻。", b: "洞爺湖畔烘焙坊咖啡與熱辣刻牛角包。", l: "大沼公園名物「沼之家」：大沼糰子（醬油與紅豆雙拼）。", d: "函館「大門橫丁」屋台村：體驗地道居酒屋氣氛，串燒、烤扇貝、鹽味拉麵輪流食。", title: "🚴 大沼公園單車追逐賽", desc: "喺大沼公園踩單車時，拍下爸爸或媽媽迎風踩單車橫衝直撞嘅爆笑表情相片上傳！" },
         { day: 7, route: "函館市區浪漫一日遊", km: 15, tag: "HAKODATE", hub: "hakodate", targetHub: "hakodate", weather: "函館大晴天", spots: "五稜郭塔：俯瞰巨大星形歷史堡壘。金森紅磚倉庫：文青購物街。八幡坂：直通大海嘅視覺斜坡。", b: "函館朝市「きくよ食堂」：經典三色海鮮丼（海膽、鮭魚卵、干貝），鮮甜到爆！", l: "傳奇傳說「幸運小丑漢堡」：必點「中華炸雞漢堡」。", d: "「うに むらかみ」函館本店：無添加明礬嘅純天然海膽盛宴。", title: "🦑 捕捉活烏賊", desc: "在函館朝市成功釣起生猛活烏賊，拍下烏賊噴水 or 切片刺身透明相片並提交！" },
@@ -685,20 +663,19 @@
     ];
 
     const mapHubs = {
-        airport:    { name: "新千歲", x: 215, y: 175, emoji: "✈️" },
-        sapporo:    { name: "札幌", x: 170, y: 135, emoji: "🗼" },
-        shakotan:   { name: "積丹半島", x: 80,  y: 95,  emoji: "🌊" },
-        noboribetsu:{ name: "登別", x: 140, y: 195, emoji: "👹" },
-        toya:       { name: "洞爺湖", x: 105, y: 215, emoji: "🎆" },
-        hakodate:   { name: "函館", x: 50,  y: 245, emoji: "🦑" },
-        asahikawa:  { name: "旭川", x: 275, y: 70,  emoji: "🐯" },
-        hokuryu:    { name: "北龍町", x: 235, y: 85,  emoji: "🌻" },
-        biei:       { name: "美瑛", x: 290, y: 105, emoji: "🥦" },
-        furano:     { name: "富良野", x: 265, y: 130, emoji: "🍈" },
-        chitose:    { name: "支笏湖", x: 195, y: 185, emoji: "🚣" }
+        airport:    { name: "新千歲", lat: 42.775, lng: 141.692, emoji: "✈️" },
+        sapporo:    { name: "札幌", lat: 43.062, lng: 141.354, emoji: "🗼" },
+        shakotan:   { name: "積丹半島", lat: 43.328, lng: 140.355, emoji: "🌊" },
+        noboribetsu:{ name: "登別", lat: 42.492, lng: 141.143, emoji: "👹" },
+        toya:       { name: "洞爺湖", lat: 42.545, lng: 140.842, emoji: "🎆" },
+        hakodate:   { name: "函館", lat: 41.768, lng: 140.728, emoji: "🦑" },
+        asahikawa:  { name: "旭川", lat: 43.770, lng: 142.364, emoji: "🐯" },
+        hokuryu:    { name: "北龍町", lat: 43.738, lng: 141.872, emoji: "🌻" },
+        biei:       { name: "美瑛", lat: 43.590, lng: 142.459, emoji: "🥦" },
+        furano:     { name: "富良野", lat: 43.342, lng: 142.383, emoji: "🍈" },
+        chitose:    { name: "支笏湖", lat: 42.759, lng: 141.332, emoji: "🚣" }
     };
 
-    // 不同地理景觀（Biomes）的手遊調色漸變配置
     const biomeGradients = {
         SAPPORO: "linear-gradient(135deg, #0EA5E9, #38BDF8)",
         SHAKOTAN: "linear-gradient(135deg, #0284C7, #06B6D4)",
@@ -729,7 +706,45 @@
         sis2: { name: "細囡", title: "🏆 打卡女王", exp: 1200 }
     };
 
-    // 【迷霧探索地圖引擎】動態計算當天前全家解鎖的地理迷霧
+    let lfMap, lfCarMarker, lfRadarMarker, lfTreasureMarker;
+    let lfMarkersGroup = {};
+    let lfPolylinesArray = [];
+
+    // 初始化真實地圖
+    function initLeafletMapSystem() {
+        lfMap = L.map('leafletMap', {
+            zoomControl: false,
+            attributionControl: false
+        }).setView([42.95, 141.8], 7);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(lfMap);
+
+        lfCarMarker = L.marker([mapHubs.airport.lat, mapHubs.airport.lng], {
+            icon: L.divIcon({ html: '<div style="font-size:1.5rem; text-align:center;">🚗</div>', iconSize: [30, 30] })
+        }).addTo(lfMap);
+
+        lfRadarMarker = L.marker([mapHubs.airport.lat, mapHubs.airport.lng], {
+            icon: L.divIcon({ className: 'radar-ping-icon', html: '<div class="radar-wave-glow"></div>', iconSize: [0, 0] })
+        }).addTo(lfMap);
+
+        for (let key in mapHubs) {
+            let h = mapHubs[key];
+            let marker = L.marker([h.lat, h.lng], {
+                icon: L.divIcon({
+                    className: '',
+                    html: `<div class="game-marker-label" id="lf-lbl-${key}">${h.emoji} ${h.name}</div>`,
+                    iconAnchor: [25, 0]
+                })
+            }).addTo(lfMap);
+            
+            marker.on('click', () => jumpToHubDay(key));
+            lfMarkersGroup[key] = marker;
+        }
+
+        drawLeafletRoutes();
+    }
+
+    // 地圖迷霧解鎖算法
     function buildTimeline() {
         const bar = document.getElementById('map-timeline-bar');
         bar.innerHTML = "";
@@ -742,33 +757,25 @@
             bar.appendChild(node);
         });
 
-        // 收集至當前天數為止，走過的所有解鎖據點
         let unlockedHubs = new Set(['airport']);
         for(let i = 0; i < activeDay; i++) {
             unlockedHubs.add(masterData[i].targetHub);
             unlockedHubs.add(masterData[i].hub);
         }
 
-        const mapBox = document.getElementById('mapContainer');
-        document.querySelectorAll('.map-hub').forEach(e => e.remove());
-        
         for (let key in mapHubs) {
-            let h = mapHubs[key];
-            let isUnlocked = isMemoirMode || unlockedHubs.has(key);
-            
-            const hubDiv = document.createElement('div');
-            hubDiv.className = `map-hub ${key === masterData[activeDay-1].targetHub ? 'focused' : ''} ${isUnlocked ? '' : 'fog-of-war'}`;
-            hubDiv.id = `hub-node-${key}`;
-            hubDiv.style.left = `${h.x - 15}px`;
-            hubDiv.style.top = `${h.y - 25}px`;
-            hubDiv.onclick = () => jumpToHubDay(key);
-            
-            // 尚未探索到的地方在地圖上顯示迷霧符號與問號
-            let emoji = isUnlocked ? h.emoji : "🌫️";
-            let name = isUnlocked ? h.name : "???";
-            
-            hubDiv.innerHTML = `<span class="hub-emoji">${emoji}</span><span class="hub-name">${name}</span>`;
-            mapBox.appendChild(hubDiv);
+            let labelDom = document.getElementById(`lf-lbl-${key}`);
+            if (labelDom) {
+                let isUnlocked = isMemoirMode || unlockedHubs.has(key);
+                if (isUnlocked) {
+                    labelDom.style.filter = "none";
+                    labelDom.style.opacity = "1";
+                    labelDom.innerText = `${mapHubs[key].emoji} ${mapHubs[key].name}`;
+                } else {
+                    labelDom.style.filter = "grayscale(1) opacity(0.4)";
+                    labelDom.innerText = `🌫️ ???`;
+                }
+            }
         }
     }
 
@@ -779,84 +786,61 @@
 
     function selectDay(dayNum) {
         activeDay = dayNum;
-        buildTimeline(); // 即時重新計算迷霧解鎖狀態
+        buildTimeline();
         
         document.querySelectorAll('.day-node').forEach(n => n.classList.remove('active'));
         const activeNode = document.getElementById(`timeline-d${dayNum}`);
         if(activeNode) activeNode.classList.add('active');
-        
-        const currentTargetHub = masterData[dayNum - 1].targetHub;
-        document.querySelectorAll('.map-hub').forEach(h => h.classList.remove('focused'));
-        const focusedHubDom = document.getElementById(`hub-node-${currentTargetHub}`);
-        if(focusedHubDom) focusedHubDom.classList.add('focused');
 
-        toggleEditMode(false);
         updateAllInterfaces();
-        drawRouteLines();
+        drawLeafletRoutes();
     }
 
-    function drawRouteLines() {
-        const routeGroup = document.getElementById('svgRouteGroup');
-        routeGroup.innerHTML = ""; 
-        
-        for(let i = 0; i < routeOrder.length - 1; i++) {
+    function drawLeafletRoutes() {
+        if (!lfMap) return;
+
+        lfPolylinesArray.forEach(line => lfMap.removeLayer(line));
+        lfPolylinesArray = [];
+
+        for (let i = 0; i < routeOrder.length - 1; i++) {
             const p1 = mapHubs[routeOrder[i]];
             const p2 = mapHubs[routeOrder[i+1]];
             let isPassed = isMemoirMode || (i < activeDay);
 
-            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", p1.x); line.setAttribute("y1", p1.y);
-            line.setAttribute("x2", p2.x); line.setAttribute("y2", p2.y);
-            
-            if (isPassed) {
-                line.setAttribute("stroke", "var(--route-done)");
-                line.setAttribute("stroke-width", "4");
-                line.setAttribute("stroke-linecap", "round");
-                line.setAttribute("class", "route-line-passed");
-                line.style.filter = "drop-shadow(0 0 4px #22C55E)"; 
-            } else {
-                line.setAttribute("stroke", "var(--route-future)");
-                line.setAttribute("stroke-width", "3");
-                line.setAttribute("stroke-dasharray", "6,6");
-                line.setAttribute("stroke-linecap", "round");
-            }
-            routeGroup.appendChild(line);
+            let lineOpts = {
+                color: isPassed ? '#22C55E' : '#CBD5E1',
+                weight: isPassed ? 5 : 3,
+                dashArray: isPassed ? null : '6, 6',
+                opacity: isPassed ? 0.85 : 0.5
+            };
+
+            let polyline = L.polyline([[p1.lat, p1.lng], [p2.lat, p2.lng]], lineOpts).addTo(lfMap);
+            lfPolylinesArray.push(polyline);
         }
 
         const currentTargetHub = masterData[activeDay - 1].targetHub;
-        const carDom = document.getElementById('mapCar');
-        const pulseDom = document.getElementById('mapRadarPulse');
-        
-        if(mapHubs[currentTargetHub]) {
-            let targetX = mapHubs[currentTargetHub].x;
-            let targetY = mapHubs[currentTargetHub].y;
-            
-            if (carDom) {
-                carDom.style.left = `${targetX - 10}px`;
-                carDom.style.top = `${targetY - 14}px`;
-            }
-            // 🛰️ 同步移動 GPS 雷達探測波到當前車輛位置
-            if (pulseDom) {
-                pulseDom.style.left = `${targetX - 20}px`;
-                pulseDom.style.top = `${targetY - 20}px`;
-                pulseDom.style.display = 'block';
-            }
+        const currentHubPos = mapHubs[currentTargetHub];
+
+        if (currentHubPos) {
+            lfCarMarker.setLatLng([currentHubPos.lat, currentHubPos.lng]);
+            lfRadarMarker.setLatLng([currentHubPos.lat, currentHubPos.lng]);
+            lfMap.flyTo([currentHubPos.lat, currentHubPos.lng], 8, { animate: true, duration: 0.6 });
         }
 
-        const chest = document.getElementById('map-treasure');
+        if (lfTreasureMarker) { lfMap.removeLayer(lfTreasureMarker); lfTreasureMarker = null; }
         if (activeDay === 7) {
-            chest.style.left = `${mapHubs.hakodate.x + 12}px`;
-            chest.style.top = `${mapHubs.hakodate.y - 28}px`;
-            chest.style.display = 'block';
-        } else {
-            chest.style.display = 'none';
+            lfTreasureMarker = L.marker([mapHubs.hakodate.lat + 0.05, mapHubs.hakodate.lng + 0.06], {
+                icon: L.divIcon({ className: 'map-treasure-icon', html: '🎁', iconSize: [35, 35] })
+            }).addTo(lfMap);
+            
+            lfTreasureMarker.on('click', () => claimTreasure());
         }
     }
 
     function claimTreasure() {
         for (let key in rpgPlayers) { rpgPlayers[key].exp += 150; }
         renderPlayerStats();
-        document.getElementById('map-treasure').style.display = 'none';
+        if (lfTreasureMarker) { lfMap.removeLayer(lfTreasureMarker); lfTreasureMarker = null; }
         alert("🎁 哇！成功解鎖【函館隱藏大寶箱】！\n全家人同步獲得 +150 EXP 超激進補！戰力大飆升！");
     }
 
@@ -868,7 +852,7 @@
         document.getElementById('top-location').innerText = `📍 ${targetHubObj.name}`;
         document.getElementById('weather-city').innerText = `${data.weather}`;
         
-        // ⚔️ 【生態域改動連動】變更冒險大螢幕內容與背景漸變色
+        // ⚔️ 動態對齊與更新關卡大螢幕數據
         const screenDom = document.getElementById('mainAdventureScreen');
         if (screenDom && biomeGradients[data.tag]) {
             screenDom.style.background = biomeGradients[data.tag];
@@ -877,7 +861,6 @@
         document.getElementById('hero-chapter').innerText = `CHAPTER ${data.day}`;
         document.getElementById('hero-mission-box').innerText = data.title;
         
-        // 計算全島地圖探索比率
         let totalExploration = Math.round((data.day / 14) * 100);
         document.getElementById('hero-exploration-rate').innerText = `🧭 全島總探索度 ${totalExploration}%`;
         document.getElementById('hero-exp-box').innerText = (data.day === 14) ? "🎁 FINAL QUEST" : "EXP +200";
@@ -973,8 +956,8 @@
         isMemoirMode = true;
         document.getElementById('endGameScreen').style.display = 'none';
         document.getElementById('memoir-banner').style.display = 'block';
-        drawRouteLines();
-        buildTimeline(); // 回憶錄模式全開地圖
+        drawLeafletRoutes();
+        buildTimeline(); 
         
         document.getElementById('top-title').innerText = "📖 北海道家庭回憶錄 (已通關)";
         document.getElementById('top-progress-text').innerText = "旅程進度 100% COMPLETE!";
@@ -1027,7 +1010,7 @@
         const audio = document.getElementById('bgm');
         const wave = document.getElementById('audio-wave');
         if (audio.paused) {
-            audio.play().catch(err => console.log("BGM 播放被瀏覽器攔截，需手動互動解鎖"));
+            audio.play().catch(err => console.log("BGM 播放被瀏覽器攔截"));
             wave.innerText = "🎵 PLAYING";
         } else {
             audio.pause();
@@ -1045,7 +1028,14 @@
         document.querySelectorAll('.switch-item').forEach(item => item.classList.remove('active-tab'));
         const menuBtn = document.getElementById(`menu-${tabId}`);
         if(menuBtn) menuBtn.classList.add('active-tab');
-        if (tabId === 'map') { setTimeout(drawRouteLines, 50); }
+        
+        // 解決 Leaflet 地圖在隱藏分頁切換時，造成的容器大小失效、折線消失問題
+        if (tabId === 'map' && lfMap) { 
+            setTimeout(() => {
+                lfMap.invalidateSize();
+                drawLeafletRoutes();
+            }, 100); 
+        }
     }
 
     function toggleEditMode(isEdit) {
@@ -1093,7 +1083,7 @@
     function initCanvasLoop() { 
         buildTimeline(); 
         updateAllInterfaces();
-        drawRouteLines();
+        initLeafletMapSystem();
     }
 
     window.onload = function() {
