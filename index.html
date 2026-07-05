@@ -87,51 +87,66 @@
             letter-spacing: 1px;
         }
 
-        /* ☀️ 首頁遊戲風 Hero 橫幅 */
-        .hero-world {
-            height: 140px;
-            border-radius: 26px;
-            background: linear-gradient(180deg, #6EC6FF, #B3E5FC);
+        /* ================= ⚔️ 關卡任務大螢幕（支援動態生態域主題調色盤） ================= */
+        .adventure-screen {
+            background: linear-gradient(135deg, #0EA5E9, #38BDF8); /* 由 JS 依據當天景色即時切換漸變 */
+            padding: 24px;
+            border-radius: 30px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(14,165,233,.25);
+            margin-bottom: 12px;
+            border: 2px solid white;
             position: relative;
             overflow: hidden;
-            margin-bottom: 12px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            box-shadow: 0 8px 25px rgba(110, 198, 255, 0.3);
-            border: 2px solid white;
+            transition: background 0.4s ease;
         }
-        .hero-title {
-            font-size: 1.3rem;
+        .location-big {
+            font-size: 42px;
             font-weight: 900;
-            color: #0F172A;
-            letter-spacing: 0.5px;
-            text-shadow: 0 2px 4px rgba(255,255,255,0.5);
+            text-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+            letter-spacing: 1px;
         }
-        .hero-sub {
+        .chapter {
+            font-size: 14px;
+            letter-spacing: 4px;
+            opacity: .75;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+        .mission-box {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 14px;
+            background: rgba(255, 255, 255, 0.22);
+            padding: 8px 18px;
+            border-radius: 14px;
+            display: inline-block;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.25);
+            max-width: 90%;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .exp-box {
             font-size: 0.85rem;
             font-weight: bold;
-            color: #1E3A8A;
-            margin-top: 4px;
-            background: rgba(255, 255, 255, 0.4);
-            padding: 2px 10px;
-            border-radius: 20px;
-            display: inline-block;
-            align-self: flex-start;
+            margin-top: 12px;
+            color: #FFD93D;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
-        .sun {
+        .sun-mini {
             position: absolute;
-            right: 20px;
-            top: 15px;
-            font-size: 52px;
-            animation: sunFloat 4s ease-in-out infinite;
-            filter: drop-shadow(0 2px 8px rgba(255,217,61,0.4));
+            right: -10px;
+            top: -10px;
+            font-size: 60px;
+            opacity: 0.15;
+            animation: sunFloat 5s ease-in-out infinite;
             user-select: none;
         }
         @keyframes sunFloat {
             0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-8px) rotate(8deg); }
+            50% { transform: translateY(-5px) rotate(5deg); }
         }
 
         /* 常駐旅行狀態條 */
@@ -204,7 +219,7 @@
             border: 1px solid #FFF;
         }
 
-        /* 首頁今日回憶展示欄位 */
+        /* 首頁今日回憶快照牆 */
         .home-photo-carousel {
             display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; scrollbar-width: none;
         }
@@ -224,11 +239,11 @@
         .achievement-scroll::-webkit-scrollbar { display: none; }
         .ach-badge {
             background: #F1F5F9; border: 1px solid #E2E8F0; padding: 6px 12px;
-            border-radius: 99px; font-size: 0.75rem; font-weight: bold; white-space: nowrap;
+            border-radius: 999px; font-size: 0.75rem; font-weight: bold; white-space: nowrap;
             color: #334155; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
         }
 
-        /* ================= 🗺️ 真・北海道地理輪廓地圖與互動 ================= */
+        /* ================= 🗺️ 北海道迷霧探索地圖（修復橫條天數走位） ================= */
         .map-box {
             width: 100%; height: 280px;
             background: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 50%, #f0fdf4 100%);
@@ -237,31 +252,44 @@
         }
         .map-svg-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         
-        /* 活化地圖節點：滑鼠懸停放大特效 */
+        /* 地圖節點縮放互動 */
         .map-hub { 
             position: absolute; z-index: 2; cursor: pointer; text-align: center; 
             animation: pokemonFloat 2.4s ease-in-out infinite;
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .map-hub:hover {
             transform: scale(1.25) translateY(-2px) !important;
             z-index: 10;
         }
-        .map-hub:nth-child(even) { animation-delay: 0.5s; animation-duration: 2.7s; }
-        .hub-emoji { font-size: 1.4rem; display: block; transition: transform 0.2s; }
-        .hub-name { background: white; color: #0F172A; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; font-weight: bold; white-space: nowrap; display: block; margin-top: 1px; border: 1px solid #CBD5E1; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
         
+        /* 迷霧未開拓暗底樣式 */
+        .map-hub.fog-of-war {
+            filter: grayscale(0.9) opacity(0.4) blur(0.5px);
+        }
+
         .map-hub.focused .hub-emoji {
             transform: scale(1.3);
             filter: drop-shadow(0 0 8px #0284C7) drop-shadow(0 0 15px #0284C7);
         }
         .map-car-emoji { position: absolute; z-index: 5; font-size: 1.4rem; transition: left 0.6s cubic-bezier(0.25, 1, 0.5, 1), top 0.6s cubic-bezier(0.25, 1, 0.5, 1); pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); }
         
-        /* ⚡ 【精準修正 image_5.png 走位問題】強逼橫向單排不換行捲動 ⚡ */
+        /* 🛰️ 新增：自駕雷達定位探測波 */
+        .radar-pulse {
+            position: absolute; width: 40px; height: 40px;
+            border: 3px solid rgba(14, 165, 233, 0.6); border-radius: 50%;
+            animation: radarPing 2s infinite ease-out; pointer-events: none; z-index: 1; display: none;
+        }
+        @keyframes radarPing {
+            0% { transform: scale(0.4); opacity: 1; }
+            100% { transform: scale(2.4); opacity: 0; }
+        }
+
+        /* 橫向單排不對折滾動條（修復走位） */
         .map-timeline { 
             display: flex; 
             flex-direction: row;
-            flex-wrap: nowrap; /* 確保天數絕對不向下折行 */
+            flex-wrap: nowrap; 
             overflow-x: auto; 
             gap: 6px; 
             padding-bottom: 6px; 
@@ -272,7 +300,7 @@
         .day-node { flex: 0 0 46px; height: 35px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; color: var(--gray); cursor: pointer; border: 1px solid #E2E8F0; }
         .day-node.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 🎁 隱藏寶箱跳躍動畫 */
+        /* 🎁 隱藏寶箱 */
         .treasure {
             position: absolute; font-size: 1.7rem; z-index: 9; cursor: pointer;
             animation: treasureBounce 1s infinite ease-in-out;
@@ -284,7 +312,7 @@
             50% { transform: translateY(-8px); }
         }
 
-        /* 🧰 外掛工具箱資料夾樣式 */
+        /* 🧰 外掛工具箱資料夾 */
         .folder-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
         .folder-content { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; transition: all 0.3s ease-in-out; }
         .folder-content.collapsed { display: none !important; }
@@ -297,7 +325,7 @@
         }
         .tool-btn:active { transform: scale(0.95); }
 
-        /* 基礎樣式組件 */
+        /* 基礎卡片樣式 */
         .info-card { background: white; border-radius: 18px; padding: 14px; margin-bottom: 12px; border: 1px solid #E2E8F0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .info-header { display: flex; justify-content: space-between; border-bottom: 1px solid #F1F5F9; padding-bottom: 6px; margin-bottom: 8px; }
         .info-title { font-weight: bold; font-size: 0.9rem; color: var(--text-light); }
@@ -311,7 +339,6 @@
         .check-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 0.8rem; text-align: left; }
         .check-item input:checked + span { text-decoration: line-through; color: var(--gray); }
 
-        /* 音樂播放器精緻小控制條 */
         .audio-player-widget {
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px);
             border-radius: 12px; padding: 6px 12px; font-size: 0.72rem; font-weight: bold;
@@ -352,11 +379,17 @@
     <!-- ================= 分頁 1: 九宮格主選單主面板 ================= -->
     <div id="tab-home" class="tab-content active" style="max-height:81vh;">
         
-        <!-- ☀️ 頂部夏日冒險大主題看板 -->
-        <div class="hero-world">
-            <div class="sun">☀️</div>
-            <div class="hero-title">☀️ 北海道夏日冒險</div>
-            <div class="hero-sub" id="hero-day-sub">DAY 1 • 札幌篇</div>
+        <!-- ⚔️ 關卡任務手遊大螢幕（全面連動 JS 生態域大改動） -->
+        <div class="adventure-screen" id="mainAdventureScreen">
+            <div class="sun-mini">☀️</div>
+            <div class="location-big" id="hero-location-big">🗼 札幌</div>
+            <div class="chapter" id="hero-chapter">CHAPTER 1</div>
+            <div class="mission-box" id="hero-mission-box">拉麵道場極限進補</div>
+            <div class="exp-box">
+                <span id="hero-exploration-rate">🧭 全島總探索度 7%</span> 
+                <span style="margin: 0 4px;">•</span> 
+                <span id="hero-exp-box">EXP +200</span>
+            </div>
         </div>
 
         <!-- 夏日天氣卡 -->
@@ -365,7 +398,7 @@
             <span id="weather-city">札幌晴天</span>
         </div>
 
-        <!-- RPG 角色卡模組（注入身份稱號配置） -->
+        <!-- RPG 角色卡模組 -->
         <div class="player-grid">
             <div class="player-card" onclick="addIndividualExp('dad')">
                 <span class="player-avatar">👨</span>
@@ -397,15 +430,15 @@
             </div>
         </div>
 
-        <!-- 實時動態家族排行榜 (第一名特別發光) -->
+        <!-- 實時動態家族排行榜 -->
         <div class="info-card">
             <h3>🏆 家族排行榜</h3>
             <div id="leaderboard-zone">
-                <!-- 由 JavaScript 實時降序加載渲染 -->
+                <!-- 由 JavaScript 實時渲染 -->
             </div>
         </div>
 
-        <!-- 📸 今日回憶精簡展示欄位 -->
+        <!-- 📸 今日回憶快照欄位 -->
         <div class="info-card">
             <h3>📸 今日回憶快照</h3>
             <div class="home-photo-carousel" id="homePhotoCarousel">
@@ -421,7 +454,7 @@
             <div class="achievement-scroll">
                 <span class="ach-badge">🍜 拉麵獵人</span>
                 <span class="ach-badge">🌻 向日葵征服者</span>
-                <span class="ach-badge">🦑 烏賊終結者</span>
+                <span class="ach-badge">⛓️ 烏賊終結者</span>
                 <span class="ach-badge">🍈 哈密瓜之神</span>
                 <span class="ach-badge">📸 攝影王</span>
             </div>
@@ -468,11 +501,11 @@
 
     <!-- ================= 分頁 2: 🗺️ 互動地理輪廓地圖 ================= -->
     <div id="tab-map" class="tab-content">
-        <!-- ⚡ 【已經完美橫向單排對齊】 ⚡ -->
+        <!-- 天數選擇滾動條 -->
         <div class="map-timeline" id="map-timeline-bar"></div>
         
         <div class="map-box" id="mapContainer">
-            <!-- 北海道全島高精度地理向量輪廓線 -->
+            <!-- 北海道全島高精度地理外觀輪廓 -->
             <svg class="map-svg-overlay" id="mapSvg" viewBox="0 0 400 280">
                 <defs>
                     <linearGradient id="hokkaidoLand" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -497,7 +530,10 @@
             </svg>
             <div class="map-car-emoji" id="mapCar">🚗</div>
             
-            <!-- 🎁 Day 7 函館隱藏跳躍寶箱 -->
+            <!-- 🛰️ 定位探測雷達擴散圈 -->
+            <div class="radar-pulse" id="mapRadarPulse"></div>
+            
+            <!-- 🎁 Day 7 隱藏大寶箱 -->
             <div class="treasure" id="map-treasure" onclick="claimTreasure()">🎁</div>
         </div>
 
@@ -635,15 +671,15 @@
         { day: 1, route: "新千歲機場 ➔ 札幌市區", km: 50, tag: "SAPPORO", hub: "airport", targetHub: "sapporo", weather: "札幌晴天", spots: "大通公園夏祭現場。全個公園變身巨型露天花園，佈滿限定美食攤位與高聳嘅生啤機！", b: "飛機餐或落機在機場便利店快閃買生乳卷頂肚。", l: "新千歲機場「拉麵道場」一幻蝦湯拉麵（濃厚甜蝦頭熬製）。", d: "大通公園啤酒節屋台：必點烤北海道甜玉米、炸雞塊配爸媽生啤酒！", title: "拉麵道場極限進補", desc: "在新千歲機場拉麵道場成功挑戰一幻蝦湯拉麵，拍下第一張美食相片提交！" },
         { day: 2, route: "札幌 ➔ 小樽 ➔ 積丹半島 ➔ 札幌", km: 210, tag: "SHAKOTAN", hub: "sapporo", targetHub: "shakotan", weather: "積丹晴天", spots: "神威岬：沿住步道行入海脊，兩邊係蔚藍震撼嘅積丹藍海景。小樽運河：黃昏時懷舊煤氣燈亮起。", b: "札幌酒店豪華極鮮牛乳配烘焙麵包。", l: "積丹「中村屋」：爆食夏季限定極品純馬糞海膽丼（甘甜入口即化）。", d: "小樽「政壽司」：品嚐極上握壽司（當地小樽港新鮮直送大牡丹蝦）。", title: "🌊 積丹藍・海膽尋寶", desc: "在神威岬步道拍出最夢幻、最純粹嘅「積丹藍 club」海景相片並提交打卡！" },
         { day: 3, route: "札幌市區休整與採購預熱", km: 20, tag: "SAPPORO", hub: "shakotan", targetHub: "sapporo", weather: "札幌多雲", spots: "白色戀人觀光工廠：歐洲城堡風嘅朱古力庭園。莫埃來沼公園：由大師野口勇設計，有幾何金字塔。", b: "二條市場海鮮丼飯配一碗滿滿鮮甜蟯湯。", l: "札幌「根室花丸」：超人氣排隊迴轉壽司。", d: "札幌名物「Suage+」：湯咖哩（帶骨雞腿炸至酥脆，浸入香料濃湯）。", title: "🛍️ 狸小路古怪手信搜捕", desc: "全家分頭在狸小路藥妝店，找出一樣最莫名其妙的古怪商品照片並上傳！" },
-        { day: 4, route: "札幌 ➔ 登別地獄谷", km: 110, tag: "NOBORIBETSU", hub: "sapporo", targetHub: "noboribetsu", weather: "登別晴天", spots: "登別地獄谷：火山爆發後形成嘅奇特谷地，白煙裊裊。大湯沼川天然足湯：森林享天然腳溫泉。", b: "札幌烘焙坊精緻麵包。", l: "登別溫泉街「味之大王」：地獄拉麵（湯頭濃郁辛辣，極度開胃）。", d: "溫泉酒店內傳統「手作懷石料理」：享用頂級前菜、毛蟹解體盛宴、十勝和牛陶板燒。", title: "👹 地獄谷硫磺鬼臉模仿", desc: "在煙霧繚繞的登別地獄谷找到赤鬼雕像，拍下全家一起模仿鬼臉嘅高能量照片上傳！" },
+        { day: 4, route: "札幌 ➔ 登別地獄谷", km: 110, tag: "NOBORIBETSU", hub: "sapporo", targetHub: "noboribetsu", weather: "登別晴天", spots: "登別地獄谷：火山爆發後形成嘅奇特谷地，白煙裊裊。大湯沼川天然足湯 : 森林享天然腳溫泉。", b: "札幌烘焙坊精緻麵包。", l: "登別溫泉街「味之大王」：地獄拉麵（湯頭濃郁辛辣，極度開胃）。", d: "溫泉酒店內傳統「手作懷石料理」：享用頂級前菜、毛蟹解體盛宴、十勝和牛陶板燒。", title: "👹 地獄谷硫磺鬼臉模仿", desc: "在煙霧繚繞的登別地獄谷找到赤鬼雕像，拍下全家一起模仿鬼臉嘅高能量照片上傳！" },
         { day: 5, route: "登別 ➔ 洞爺湖溫泉鄉", km: 40, tag: "TOYA", hub: "noboribetsu", targetHub: "toya", weather: "洞爺湖晴天", spots: "洞爺湖畔：可以租架天鵝船踩入湖心。昭和新山：依然在冒煙嘅活火山，近距離感受地球心跳。", b: "溫泉酒店精跡日式 Buffet。", l: "「Lake Hill Farm」：大草原風景餐廳，必食手工 Gelato 意式雪糕與起司披薩。", d: "洞爺湖乃之風「湖畔餐廳」：一邊食精緻長腳蟹自助餐，一邊望住玻璃窗外的湖景與花火。", title: "🎆 洞爺花火房內攝影大賽", desc: "晚上 20:45 煙花準時由湖面發射！拍下喺房間陽台睇煙花最夢幻嘅一幕並提交！" },
         { day: 6, route: "洞爺湖 ➔ 大沼公園 ➔ 函館", km: 160, tag: "HAKODATE", hub: "toya", targetHub: "hakodate", weather: "函館晴天", spots: "大沼國定公園：擁有大小島嶼嘅優美湖泊。函館山頂：傍晚搭纜車登頂，等候百萬夜景降臨那一刻。", b: "洞爺湖畔烘焙坊咖啡與熱辣刻牛角包。", l: "大沼公園名物「沼之家」：大沼糰子（醬油與紅豆雙拼）。", d: "函館「大門橫丁」屋台村：體驗地道居酒屋氣氛，串燒、烤扇貝、鹽味拉麵輪流食。", title: "🚴 大沼公園單車追逐賽", desc: "喺大沼公園踩單車時，拍下爸爸或媽媽迎風踩單車橫衝直撞嘅爆笑表情相片上傳！" },
-        { day: 7, route: "函館市區浪漫一日遊", km: 15, tag: "HAKODATE", hub: "hakodate", targetHub: "hakodate", weather: "函館大晴天", spots: "五稜郭塔：俯瞰巨大星形歷史堡壘。金森紅磚倉庫：文青購物街。八幡坂：直通大海嘅視覺斜坡。", b: "函館朝市「きくよ食堂」：經典三色海鮮丼（海膽、鮭魚卵、干貝），鮮甜到爆！", l: "傳奇傳說「幸運小丑漢堡」：必點「中華炸雞漢堡」。", d: "「うに むらかみ」函館本店：無添加明礬嘅純天然海膽盛宴。", title: "Squid 函館朝市挑戰", desc: "在函館朝市成功釣起生猛活烏賊，拍下烏賊噴水 or 切片刺身透明相片並提交！" },
-        { day: 8, route: "函館 ➔ 一路北上 ➔ 旭川", km: 380, tag: "ROADTRIP", hub: "hakodate", targetHub: "asahikawa", weather: "旭川晴天", spots: "道央高速公路拉力日。沿途欣賞內浦灣海景與羊蹄山（蝦夷富士）嘅宏偉雄姿。", b: "函館元町法式麵包與熱鮮奶。", l: "「砂川服務區」限定：北海道特厚切黑豚炸豬排丼飯（外脆內嫩，多汁飽腹）。", d: "旭川拉麵村：「青葉拉麵」點招牌醬油拉麵，表面有一層焦香豬油防散熱。", title: "🚗 長途拉車！後座提神演唱會", desc: "5小時公路長途自駕，拍下兩位囡囡喺後座戴住睡眠頸枕、張開大口瞓覺嘅生鬼相片！" },
+        { day: 7, route: "函館市區浪漫一日遊", km: 15, tag: "HAKODATE", hub: "hakodate", targetHub: "hakodate", weather: "函館大晴天", spots: "五稜郭塔：俯瞰巨大星形歷史堡壘。金森紅磚倉庫：文青購物街。八幡坂：直通大海嘅視覺斜坡。", b: "函館朝市「きくよ食堂」：經典三色海鮮丼（海膽、鮭魚卵、干貝），鮮甜到爆！", l: "傳奇傳說「幸運小丑漢堡」：必點「中華炸雞漢堡」。", d: "「うに むらかみ」函館本店：無添加明礬嘅純天然海膽盛宴。", title: "🦑 捕捉活烏賊", desc: "在函館朝市成功釣起生猛活烏賊，拍下烏賊噴水 or 切片刺身透明相片並提交！" },
+        { day: 8, route: "函館 ➔ 一路北上 ➔ 旭川", km: 380, tag: "ROADTRIP", hub: "hakodate", targetHub: "asahikawa", weather: "旭川晴天", spots: "道央高速公路拉力日。沿途欣賞內浦灣海景與羊蹄山（蝦夷富士）嘅宏偉雄姿。", b: "函館元町法式麵包與熱鮮奶。", l: "「砂川服務區」限定：北海道特厚切黑豚炸豬排丼飯（外脆內嫩，多汁飽腹）。", d: "旭川拉麵村：「青葉拉麵」點招牌醬油拉麵，表面有一層焦香豬油防散熱。", title: "🚗 長途公路拉力賽", desc: "5小時公路長途自駕，拍下兩位囡囡喺後座戴住睡眠頸枕、張開大口瞓覺嘅生鬼相片！" },
         { day: 9, route: "旭川 ➔ 北龍町向日葵之里 ➔ 旭川", km: 120, tag: "HOKURYU", hub: "asahikawa", targetHub: "hokuryu", weather: "北龍町大晴天", spots: "北龍町向日葵之里：全日本規模最大！200 萬株金色向日葵滿開。旭山動物園：透過透明圓筒睇企鵝潛水。", b: "旭川市內連鎖咖啡廳鬆軟鬆餅。", l: "北龍町觀光中心：享用限定向日葵主題定食。", d: "旭川排隊神店「成吉思汗 大黑屋」：炭火烤小羔羊肉（毫無羊羶味，肉質鮮嫩）。", title: "🌻 向日葵迷宮極速逃脫", desc: "闖入 200 萬株金色向日葵迷宮，拍下兩姊妹喺花海深處迷路、搞笑求救嘅打卡相！" },
         { day: 10, route: "旭川 ➔ 美瑛拼布之路 ➔ 富良野", km: 50, tag: "BIEI", hub: "hokuryu", targetHub: "biei", weather: "美瑛晴天", spots: "美瑛白金青池：池水因礦物質呈現夢幻嘅蒂芬妮藍。拼布之路：Ken & Mary 之樹，大地如色彩畫布。", b: "旭川買限定男山清酒酒粕麵包。", l: "美瑛超級名店「純平 (Junpei)」：必點招牌「海老丼」（巨型炸大蝦炸衣酥脆）。", d: "「富良野 Wine House」：食瑞士芝士火鍋配頂級富良野和牛排。", title: "🎨 四季彩之丘色彩獵人", desc: "喺四季彩之丘七彩花田前面，拍下一張一家四口高難度「千手觀音」 or 「疊羅漢」相片提交！" },
-        { day: 11, route: "富良野 ➔ 隨景觀公路 ➔ 返回札幌", km: 120, tag: "FURANO", hub: "biei", targetHub: "furano", weather: "富良野晴天", spots: "富田農場：雖然薰衣草尾聲，但繽紛嘅彩色花田此時正值最豔麗嘅全盛期。富良野高地景觀公路。", b: "「Furano Marche」在地農產市集：現烤流心起司撻。", l: "富田農場園內：食咖哩蛋包飯，甜點係現切爆汁夕張哈密瓜連埋原隻哈密瓜鮮奶霜淇淋！", d: "札幌拉麵神店「麵屋 彩未」：極致濃郁嘅味噌拉麵（湯頭微甜，帶有淡淡生薑香氣）。", title: "🍈 哈密瓜終極爆食挑戰", desc: "拍下兩位囡囡手捧原隻哈密瓜霜淇淋、食到滿嘴都係雪糕嘅極致吃貨吃相相片！" },
-        { day: 12, route: "札幌 ➔ 三井 Outlet ➔ 狸小路", km: 35, tag: "SHOPPING", hub: "furano", targetHub: "sapporo", weather: "札幌晴天", spots: "三井 Outlet Park 北廣島：全室內型 Outlet 唔驚曬。狸小路商店街：有巨型藥妝店同各種古怪手信店。", b: "酒店豐盛自助餐或路過松屋食熱辣辣牛肉飯飯。", l: "Outlet 美食廣場：十勝名物「豚丼之豬太」（現烤炭火燒肉，醬汁焦香）。", d: "「燒肉 德壽」：大啖北海道頂級白老牛燒肉拼盤，油花分布完美。", title: "💸 Outlet 限時盲盒穿搭賽", desc: "在三井 Outlet 現場，拍下爸爸換上兩位囡囡親自挑選嘅「爆笑日系潮流感」穿搭照！" },
+        { day: 11, route: "富良野 ➔ 隨景觀公路 ➔ 返回札幌", km: 120, tag: "FURANO", hub: "biei", targetHub: "furano", weather: "富良野晴天", spots: "富田農場：雖然薰衣草尾聲，但繽紛嘅彩色花田此時正值最豔麗嘅全盛期。富良野高地景觀公路。", b: "「Furano Marche」在地農產市集 : 現烤流心起司撻。", l: "富田農場園內：食咖哩蛋包飯，甜點係現切爆汁夕張哈密瓜連埋原隻哈密瓜鮮奶霜淇淋！", d: "札幌拉麵神店「麵屋 彩未」：極致濃郁嘅味噌拉麵（湯頭微甜，帶有淡淡生薑香氣）。", title: "🍈 哈密瓜終極爆食挑戰", desc: "拍下兩位囡囡手捧原隻哈密瓜霜淇淋、食到滿嘴都係雪糕嘅極致吃貨吃相相片！" },
+        { day: 12, route: "札幌 ➔ 三井 Outlet ➔ 狸小路", km: 35, tag: "SHOPPING", hub: "furano", targetHub: "sapporo", weather: "札幌晴天", spots: "三井 Outlet Park 北廣島：全室內型 Outlet 唔驚曬。狸小路商店街：有巨型藥妝店同各種古怪手信店。", b: "酒店豐盛自助餐或路過松屋食熱辣辣牛肉飯飯。", l: "Outlet 美食廣場：十勝名物「豚丼之豬太」（現烤炭火燒肉，醬汁焦香）。", d: "「燒肉 德壽」：大啖北海道頂級白老牛燒肉拼盤，油花分布完美。", title: "💸 Outlet 限時手信盲盒賽", desc: "在三井 Outlet 現場，拍下爸爸換上兩位囡囡親自挑選嘅「爆笑日系潮流感」穿搭照！" },
         { day: 13, route: "札幌 ➔ 支笏湖散策 ➔ 千歲", km: 60, tag: "CHITOSE", hub: "sapporo", targetHub: "chitose", weather: "支笏湖多雲", spots: "支笏湖：日本透明度第一嘅火山湖。可以租隻獨木舟或者玻璃底觀光船，直接望穿幾十米深嘅清澈湖底。", b: "札幌特色手沖珈琲與法式吐司。", l: "支笏湖畔餐廳：享用當地名物「姬鱒魚 (Chip)」鹽烤定食 or 炸鱒魚漢堡，超鮮美。", d: "千歲市區當地人愛店「旬之味 鶴」：享用低調居酒屋嘅鹽烤章魚、炸雞唐揚。", title: "🚣 支笏湖超透明清澈鑑定", desc: "利用湖水透視錯位，拍下一張小船漂浮在虛空中、全家凌空盤坐嘅「魔幻奇蹟照」上傳！" },
         { day: 14, route: "千歲市區 ➔ 機場還車 ➔ 快樂返港", km: 15, tag: "AIRPORT", hub: "chitose", targetHub: "airport", weather: "千歲晴天", spots: "新千歲機場國內線大樓：內嵌叮噹 WAKUWAKU 天空樂園、Hello Kitty 機場樂園與 Royce 朱古力實體生產工廠！", b: "千歲飯店早餐 or 直奔機場烘焙坊食限定起司巨塔麵包。", l: "機場內「白樺山莊」：最後拉車大進補。甜點直攻 LeTAO 雙層起司蛋糕！", d: "飛機餐 or 返港享用港式大餐結算總積分！", title: "✈️ 空港免稅品最後大搜捕", desc: "【最終戰】在新千歲機場叮噹天空樂園前面，拍下一張全家大團圓、手拎滿滿戰利品嘅大結局合照！" }
     ];
@@ -662,6 +698,22 @@
         chitose:    { name: "支笏湖", x: 195, y: 185, emoji: "🚣" }
     };
 
+    // 不同地理景觀（Biomes）的手遊調色漸變配置
+    const biomeGradients = {
+        SAPPORO: "linear-gradient(135deg, #0EA5E9, #38BDF8)",
+        SHAKOTAN: "linear-gradient(135deg, #0284C7, #06B6D4)",
+        NOBORIBETSU: "linear-gradient(135deg, #E11D48, #F97316)",
+        TOYA: "linear-gradient(135deg, #4338CA, #6366F1)",
+        HAKODATE: "linear-gradient(135deg, #1E1B4B, #4F46E5)",
+        ROADTRIP: "linear-gradient(135deg, #4B5563, #9CA3AF)",
+        HOKURYU: "linear-gradient(135deg, #EAB308, #84CC16)",
+        BIEI: "linear-gradient(135deg, #10B981, #F59E0B)",
+        FURANO: "linear-gradient(135deg, #A855F7, #EC4899)",
+        SHOPPING: "linear-gradient(135deg, #F43F5E, #FB7185)",
+        CHITOSE: "linear-gradient(135deg, #0284C7, #34D399)",
+        AIRPORT: "linear-gradient(135deg, #0EA5E9, #64748B)"
+    };
+
     const routeOrder = ['airport','sapporo','shakotan','sapporo','noboribetsu','toya','hakodate','asahikawa','hokuryu','biei','furano','sapporo','chitose','airport'];
 
     let activeDay = 1;
@@ -677,6 +729,7 @@
         sis2: { name: "細囡", title: "🏆 打卡女王", exp: 1200 }
     };
 
+    // 【迷霧探索地圖引擎】動態計算當天前全家解鎖的地理迷霧
     function buildTimeline() {
         const bar = document.getElementById('map-timeline-bar');
         bar.innerHTML = "";
@@ -689,18 +742,32 @@
             bar.appendChild(node);
         });
 
+        // 收集至當前天數為止，走過的所有解鎖據點
+        let unlockedHubs = new Set(['airport']);
+        for(let i = 0; i < activeDay; i++) {
+            unlockedHubs.add(masterData[i].targetHub);
+            unlockedHubs.add(masterData[i].hub);
+        }
+
         const mapBox = document.getElementById('mapContainer');
         document.querySelectorAll('.map-hub').forEach(e => e.remove());
         
         for (let key in mapHubs) {
             let h = mapHubs[key];
+            let isUnlocked = isMemoirMode || unlockedHubs.has(key);
+            
             const hubDiv = document.createElement('div');
-            hubDiv.className = `map-hub ${key === masterData[activeDay-1].targetHub ? 'focused' : ''}`;
+            hubDiv.className = `map-hub ${key === masterData[activeDay-1].targetHub ? 'focused' : ''} ${isUnlocked ? '' : 'fog-of-war'}`;
             hubDiv.id = `hub-node-${key}`;
             hubDiv.style.left = `${h.x - 15}px`;
             hubDiv.style.top = `${h.y - 25}px`;
             hubDiv.onclick = () => jumpToHubDay(key);
-            hubDiv.innerHTML = `<span class="hub-emoji">${h.emoji}</span><span class="hub-name">${h.name}</span>`;
+            
+            // 尚未探索到的地方在地圖上顯示迷霧符號與問號
+            let emoji = isUnlocked ? h.emoji : "🌫️";
+            let name = isUnlocked ? h.name : "???";
+            
+            hubDiv.innerHTML = `<span class="hub-emoji">${emoji}</span><span class="hub-name">${name}</span>`;
             mapBox.appendChild(hubDiv);
         }
     }
@@ -712,6 +779,8 @@
 
     function selectDay(dayNum) {
         activeDay = dayNum;
+        buildTimeline(); // 即時重新計算迷霧解鎖狀態
+        
         document.querySelectorAll('.day-node').forEach(n => n.classList.remove('active'));
         const activeNode = document.getElementById(`timeline-d${dayNum}`);
         if(activeNode) activeNode.classList.add('active');
@@ -756,9 +825,22 @@
 
         const currentTargetHub = masterData[activeDay - 1].targetHub;
         const carDom = document.getElementById('mapCar');
-        if(carDom && mapHubs[currentTargetHub]) {
-            carDom.style.left = `${mapHubs[currentTargetHub].x - 10}px`;
-            carDom.style.top = `${mapHubs[currentTargetHub].y - 14}px`;
+        const pulseDom = document.getElementById('mapRadarPulse');
+        
+        if(mapHubs[currentTargetHub]) {
+            let targetX = mapHubs[currentTargetHub].x;
+            let targetY = mapHubs[currentTargetHub].y;
+            
+            if (carDom) {
+                carDom.style.left = `${targetX - 10}px`;
+                carDom.style.top = `${targetY - 14}px`;
+            }
+            // 🛰️ 同步移動 GPS 雷達探測波到當前車輛位置
+            if (pulseDom) {
+                pulseDom.style.left = `${targetX - 20}px`;
+                pulseDom.style.top = `${targetY - 20}px`;
+                pulseDom.style.display = 'block';
+            }
         }
 
         const chest = document.getElementById('map-treasure');
@@ -780,12 +862,25 @@
 
     function updateAllInterfaces() {
         const data = masterData[activeDay - 1];
+        const targetHubObj = mapHubs[data.targetHub];
         
         document.getElementById('top-day-badge').innerText = `DAY ${data.day}`;
-        document.getElementById('top-location').innerText = `📍 ${mapHubs[data.targetHub].name}`;
+        document.getElementById('top-location').innerText = `📍 ${targetHubObj.name}`;
         document.getElementById('weather-city').innerText = `${data.weather}`;
         
-        document.getElementById('hero-day-sub').innerText = `DAY ${data.day} • ${data.tag}篇`;
+        // ⚔️ 【生態域改動連動】變更冒險大螢幕內容與背景漸變色
+        const screenDom = document.getElementById('mainAdventureScreen');
+        if (screenDom && biomeGradients[data.tag]) {
+            screenDom.style.background = biomeGradients[data.tag];
+        }
+        document.getElementById('hero-location-big').innerText = `${targetHubObj.emoji} ${targetHubObj.name}`;
+        document.getElementById('hero-chapter').innerText = `CHAPTER ${data.day}`;
+        document.getElementById('hero-mission-box').innerText = data.title;
+        
+        // 計算全島地圖探索比率
+        let totalExploration = Math.round((data.day / 14) * 100);
+        document.getElementById('hero-exploration-rate').innerText = `🧭 全島總探索度 ${totalExploration}%`;
+        document.getElementById('hero-exp-box').innerText = (data.day === 14) ? "🎁 FINAL QUEST" : "EXP +200";
         
         let progressPercent = Math.round((data.day / 14) * 100);
         document.getElementById('top-progress-text').innerText = `旅程進度 ${progressPercent}%`;
@@ -879,6 +974,7 @@
         document.getElementById('endGameScreen').style.display = 'none';
         document.getElementById('memoir-banner').style.display = 'block';
         drawRouteLines();
+        buildTimeline(); // 回憶錄模式全開地圖
         
         document.getElementById('top-title').innerText = "📖 北海道家庭回憶錄 (已通關)";
         document.getElementById('top-progress-text').innerText = "旅程進度 100% COMPLETE!";
