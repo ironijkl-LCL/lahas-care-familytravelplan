@@ -282,7 +282,7 @@
             cursor: pointer;
         }
 
-        /* 天數橫排不對折滾動條（修復走位） */
+        /* 天數橫排不對折滾動條 */
         .map-timeline { 
             display: flex; flex-direction: row; flex-wrap: nowrap; 
             overflow-x: auto; gap: 6px; padding-bottom: 6px; margin-bottom: 8px; 
@@ -386,7 +386,7 @@
     <!-- ================= 分頁 1: 九宮格主選單主面板 ================= -->
     <div id="tab-home" class="tab-content active" style="max-height:81vh;">
         
-        <!-- ⚔️ 手遊風關卡任務大螢幕（動態調色盤，同步對齊真實行程數據） -->
+        <!-- ⚔️ 關卡任務大螢幕（動態調色盤，同步對齊真實行程數據） -->
         <div class="adventure-screen" id="mainAdventureScreen">
             <div class="sun-mini">☀️</div>
             <div class="location-big" id="hero-location-big">🇹🇼 台北</div>
@@ -518,7 +518,6 @@
             <div class="info-header"><span class="info-title" id="map-card-day">Day 1</span><span class="info-meta" id="map-card-km">~0km</span></div>
             <div class="detail-section">
                 <div class="detail-row"><div class="detail-label">🗺️ 行程路線</div><div class="detail-text" id="det-route">-</div></div>
-                <!-- ⏱️ 新增：預計架車時間顯示欄位 -->
                 <div class="detail-row" style="background: #F8FAFC; border-radius: 8px; padding: 6px 8px; margin: 4px 0;"><div class="detail-label" style="color: var(--pack-color);">⏱️ 預計開車車程時間</div><div class="detail-text" id="det-drivetime" style="font-weight: bold; color: var(--pack-color); font-size: 0.9rem;">-</div></div>
                 <div class="detail-row"><div class="detail-label">🎯 景點深度</div><div class="detail-text" id="det-spots">-</div></div>
                 <div class="detail-row"><div class="detail-label">🌅 早餐提案</div><div class="detail-text" id="det-b">-</div></div>
@@ -649,7 +648,6 @@
 <!-- 引入 Leaflet 地圖引擎核心 JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // ⚔️ 【精準機票、兩間 Airbnb 獨立屋以及預計開車時間完全對齊整合數據】
     const masterData = [
         { day: 1, route: "香港 (HKG) ➔ 台北 (TPE)", km: 0, driveTime: "0 小時 (乘搭飛機航程)", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "搭乘長榮航空 BR892 (10:10-11:55) 快閃空降台北！下午 15:30 後解鎖入住中山區「晴美公寓酒店」。晚上直奔林森北路條通美食或雙城街夜市爆食熱炒與珍奶！", b: "飛機餐或落機在機場便利店買手卷。", l: "台北桃園機場快閃小吃或林森北路高家莊米苔目。", d: "林森北路條通台式熱炒：必點三杯雞、鳳梨蝦球配爸媽冰啤酒！", title: "晴美公寓酒店解鎖", desc: "順利抵達台北中山區林森北路晴美公寓酒店並成功 Check-in，上傳全家第一張台式快閃大合照提交！" },
         { day: 2, route: "台北西門町與南西商圈搜捕散策", km: 0, driveTime: "0 小時 (市區捷運步攻)", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北午後豪雨", spots: "晴美公寓酒店享用美味雙人早餐。隨後前往西門町與中山南西商圈。囡囡最愛文青小店、格子鋪，以及拍立得日系貼紙相店大獵影！", b: "酒店內包含的精緻雙人份特製早點。", l: "西門町「阿宗麵線」或老山東牛肉麵（厚切牛筋鮮美彈牙）。", d: "中山站排隊神店「肥前屋」鰻魚飯或鼎泰豐小籠包盛宴！", title: "📸 中山商圈貼紙相大賽", desc: "全家在中山站南西商圈成功拍下一張充滿台式潮流感嘅日系貼紙相，提交相片得分！" },
@@ -659,12 +657,12 @@
         { day: 6, route: "札幌 ➔ 登別地獄谷 ➔ 洞爺湖", km: 150, driveTime: "約 2 小時 20 分鐘", tag: "NOBORIBETSU", hub: "sapporo", targetHub: "noboribetsu", weather: "登別火山硫磺天", spots: "告別札幌獨立屋（今日暫離大本營線）。開往登別地獄谷：白煙裊裊，震撼驚人。大湯沼川天然足湯：在火山溫泉森林享受天然腳溫泉。傍晚殺往洞爺湖畔入住溫泉飯店！", b: "大本營快閃飯糰與十勝優格。", l: "登別溫泉街「味之大王」：地獄拉麵（湯頭濃郁辛辣，極度開胃）。", d: "溫泉酒店內傳統「手作懷石料理」：享用頂級前菜、毛蟹解體盛宴、十勝和牛陶板燒。", title: "👹 地獄谷硫磺鬼臉模仿", desc: "在煙霧繚繞的登別地獄谷找到赤鬼雕像，拍下全家一起模仿鬼臉嘅高能量照片上傳！" },
         { day: 7, route: "洞爺湖 ➔ 大沼公園 ➔ 函館獨立屋防線", km: 160, driveTime: "約 2 小時 40 分鐘", tag: "HAKODATE", hub: "noboribetsu", targetHub: "hakodate", weather: "函館百萬夜景大晴天", spots: "大沼國定公園：擁有大小島嶼嘅優美湖泊，踩架單車環湖。傍晚自駕進駐函館市區。函館山頂：傍晚搭纜車登頂，等候百萬夜景降臨那一刻。地圖上隱藏寶箱即將浮現！", b: "洞爺湖畔烘焙坊咖啡與熱辣牛角包。", l: "大沼公園名物「沼之家」：大沼糰子（醬油與紅豆雙拼）。", d: "函館「大門橫丁」屋台村：體驗地道居酒屋氣氛，串燒、烤扇貝、鹽味拉麵輪流食。", title: "🦑 捕捉活烏賊", desc: "【地圖隱藏寶箱解鎖日】在函館朝市成功釣起生猛活烏賊，拍下烏賊噴水或切片刺身透明相片並提交！" },
         { day: 8, route: "函館 ➔ 縱貫道央超長途拉車 ➔ 旭川", km: 380, driveTime: "約 5 小時 15 分鐘 (終極長途拉車挑戰)", tag: "ROADTRIP", hub: "hakodate", targetHub: "asahikawa", weather: "道央多雲轉晴", spots: "道央高速公路拉力日！全日本最硬派拉車賽。自駕大縱走，沿途欣賞內浦灣海景與羊蹄山（蝦夷富士）嘅宏偉雄姿，直達北部重鎮旭川市區！", b: "函館朝市「きくよ食堂」：經典三色海鮮丼（海膽、鮭魚卵、干貝）。", l: "「砂川服務區」限定：北海道特厚切黑豚炸豬排丼飯（外脆內嫩）。", d: "旭川拉麵村：「青葉拉麵」點招牌醬油拉麵，表面有一層焦香豬油防散熱。", title: "🚗 長途公路後座演唱會", desc: "5小時公路長途自駕，拍下兩位囡囡喺後座戴住睡眠頸枕、張開大口瞓覺嘅生鬼相片提交！" },
-        { day: 9, route: "旭川 ➔ 北龍町向日葵 ➔ 旭山動物園 ➔ 旭川", km: 120, driveTime: "約 2 小時 10 分鐘", tag: "HOKURYU", hub: "asahikawa", targetHub: "hokuryu", weather: "北龍町黃金大晴天", spots: "北龍町向日葵之里：全日本規模最大！200 萬株金色向日葵滿開迷宮。下午殺回旭山動物園：透過透明圓筒近距離觀察企鵝與海豹潛水絕技！", b: "旭川市內連鎖咖啡廳鬆軟鬆餅。", l: "北龍町觀光中心：享用限定向日葵主題定食。", d: "旭川排隊神店「成吉思汗 大黑屋」：炭火烤小羔羊肉（外焦內嫩，毫無羊羶味）。", title: "🌻 向日葵迷宮極速逃脫", desc: "闖入 200 萬株金色向日葵迷宮，拍下兩姊妹喺花海深處迷路、搞笑求救嘅打卡相！" },
+        { day: 9, route: "旭川 ➔ 北龍町向日葵 ➔ 旭山動物園 ➔ 旭川", km: 120, driveTime: "約 2 小時 10 分鐘", tag: "HOKURYU", hub: "asahikawa", targetHub: "hokuryu", weather: "北龍町黃金大晴天", spots: "北龍町向日葵之里：全日本規模最大！200 萬株金色向日葵滿開迷宮。下午殺回旭山動物園：透過透明圓筒近距離觀察企鵝與海豹潛水絕技！", b: "旭川市內連鎖咖啡廳鬆軟鬆餅。", l: "北龍町觀光中心 : 享用限定向日葵主題定食。", d: "旭川排隊神店「成吉思汗 大黑屋」：炭火烤小羔羊肉（外焦內嫩，毫無羊羶味）。", title: "🌻 向日葵迷宮極速逃脫", desc: "闖入 200 萬株金色向日葵迷宮，拍下兩姊妹喺花海深處迷路、搞笑求救嘅打卡相！" },
         { day: 10, route: "旭川 ➔ 美瑛青池 ➔ 富良野彩色花田", km: 50, driveTime: "約 1 小時 10 分鐘", tag: "BIEI", hub: "hokuryu", targetHub: "biei", weather: "美瑛富良野大晴天", spots: "美瑛白金青池：池水因礦物質呈現夢幻嘅蒂芬妮藍。四季彩之丘：大地如色彩拼布畫布。黃昏進駐富良野高地景觀公路。", b: "旭川買限定男山清酒酒粕麵包。", l: "美瑛超級名店「純平 (Junpei)」：必點招牌「海老丼」（巨型炸大蝦炸衣酥脆）。", d: "「富良野 Wine House」：食瑞士芝士火鍋配頂級富良野和牛排。", title: "🎨 四季彩之丘色彩獵人", desc: "喺四季彩之丘七彩花田前面，拍下一張一家四口高難度「千手觀音」 or 「疊羅漢」相片提交！" },
         { day: 11, route: "富良野 ➔ 景觀公路 ➔ 小樽石山町獨立屋", km: 150, driveTime: "約 2 小時 30 分鐘", tag: "FURANO", hub: "biei", targetHub: "furano", weather: "富良野晴天", spots: "富田農場：狂嗑爆汁夕張哈密瓜與原隻哈密瓜鮮奶霜淇淋！下午告別富良野，開展下半部全新防線——自駕開拓進駐位於小樽市「19-4 Ishiyamachō」的高質感包棟獨立屋！", b: "富良野在地農產市集：現烤流心起司撻。", l: "富田農場園內：現切爆汁夕張哈密瓜連埋原隻哈密瓜鮮奶霜淇淋！", d: "札幌拉麵神店「麵屋 彩未」：極致濃郁嘅味噌拉麵（湯頭微甜，帶有生薑香氣）。", title: "🏠 小樽石山町新據點解鎖", desc: "自駕橫跨道央抵達小樽石山町獨立屋新防線，拍下這個極具空間感的新客廳基地合照提交！" },
         { day: 12, route: "小樽 ➔ 三井 Outlet ➔ 札幌市區採購尾聲", km: 85, driveTime: "約 1 小時 40 分鐘 (來回跨城車程)", tag: "SHOPPING", hub: "furano", targetHub: "sapporo", weather: "札幌晴天", spots: "從小樽獨立屋出發，突擊三井 Outlet Park 北廣島：全室內型 Outlet 瘋狂掃貨血拼！傍晚快閃回狸小路，進行免稅手信最後大規模搜捕！", b: "小樽獨立屋自製海鮮吐司餐。", l: "Outlet 美食廣場：十勝名物「豚丼之豬太」（現烤炭火燒肉，醬汁焦香）。", d: "「燒肉 德壽」：大啖北海道頂級白老牛燒肉拼盤，油花分布完美。", title: "💸 Outlet 限時手信盲盒賽", desc: "在三井 Outlet 現場，拍下爸爸換上兩位囡囡親自挑選嘅「爆笑日系潮流感」穿搭照！" },
         { day: 13, route: "小樽 ➔ 支笏湖火山湖散策 ➔ 小樽獨立屋", km: 160, driveTime: "約 2 小時 50 分鐘", tag: "CHITOSE", hub: "sapporo", targetHub: "chitose", weather: "支笏湖多雲", spots: "支笏湖：日本透明度第一嘅火山湖。租隻透明底觀光船，直接望穿幾十米深嘅清澈湖底。黃昏返回小樽獨立屋大本營，收拾行囊，準備迎接最終戰結算！", b: "小樽在地咖啡與歐式軟麵包。", l: "支笏湖畔餐廳：享用當地名物「姬鱒魚 (Chip)」鹽烤定食 or 炸鱒魚漢堡，超鮮美。", d: "千歲市區當地人愛店「旬之味 鶴」：低調居酒屋嘅鹽烤章魚、炸雞唐揚。", title: "🚣 支笏湖超透明清澈鑑定", desc: "利用湖水透視錯位，拍下一張小船漂浮在虛空中、全家凌空盤坐嘅「魔幻奇蹟照」上傳！" },
-        { day: 14, route: "小樽獨立屋退房 ➔ 還車 ➔ 機場返港", km: 60, driveTime: "約 1 小時 10 分鐘", tag: "AIRPORT", hub: "chitose", targetHub: "airport", weather: "千歲晴天", spots: "早上 10:00 前從小樽獨立屋辦理退房。自駕回千歲機場還車。衝入新千歲機場國內線大樓最後血拼：Royce朱古力工廠、LeTAO、多啦A夢天空樂園！搭乘長榮 BR165 (13:00) 飛台北轉 BR857 (18:10) 快樂返港！", b: "直奔機場烘焙坊食限定起司巨塔麵包。", l: "機場內「白樺山莊」最後拉車大進補，甜點直攻 LeTAO 雙層起司蛋糕！", d: "台北轉機快閃牛肉麵或返港享用港式大餐，開啟終結面板結算總積分！", title: "✈️ 空港免稅品最後大搜捕", desc: "【最終戰】在新千歲機場多啦A夢天空樂園前，拍下一張全家大團圓、手拎滿滿戰利品嘅大結局合照提交！" }
+        { day: 14, route: "小樽獨立屋退房 ➔ 還車 ➔ 機場返港", km: 60, driveTime: "約 1 小時 10 分鐘", tag: "AIRPORT", hub: "chitose", targetHub: "airport", weather: "千歲晴天", spots: "早上 10:00 前從小樽獨立屋辦理退房。自駕回千歲機場還車。衝入新千歲機場國內線大樓最後血拼：Royce朱古力工廠、LeTAO、多啦A夢天空樂園！搭乘長榮 BR165 (13:00) 飛台北轉 BR857 (18:10) 快樂返港！", b: "直奔機場烘焙坊食限定起司巨塔麵包。", l: "機場內「白樺山莊」最後拉車大進補，甜點直攻 LeTAO 雙層起司蛋糕！", d: "台北轉機快閃牛肉麵 or 返港享用港式大餐，開啟終結面板結算總積分！", title: "✈️ 空港免稅品最後大搜捕", desc: "【最終戰】在新千歲機場多啦A夢天空樂園前，拍下一張全家大團圓、手拎滿滿戰利品嘅大結局合照提交！" }
     ];
 
     const mapHubs = {
@@ -716,6 +714,22 @@
     let lfMap, lfCarMarker, lfRadarMarker, lfTreasureMarker;
     let lfMarkersGroup = {};
     let lfPolylinesArray = [];
+
+    // 🗺️ 智慧路徑重組腳本：偵測並優化 GitHub Pages 環境的 BGM 真實 Raw 來源位置
+    function resolveRealAudioPath() {
+        const bgmDom = document.getElementById('bgm');
+        if (!bgmDom) return;
+        
+        // 如果偵測到使用者正在運行 GitHub Pages 生態系
+        if (window.location.hostname.includes('github.io')) {
+            // 自動動態映射至真實 Raw 音檔存放的極速 CDN 節點，破解瀏覽器相對路徑盲音緩存
+            bgmDom.src = "https://raw.githubusercontent.com/ironijkl-LCL/lahas-care-familytravelplan/main/summer.mp3";
+        } else {
+            // 本地運行則維持原點
+            bgmDom.src = "summer.mp3";
+        }
+        bgmDom.load();
+    }
 
     function initLeafletMapSystem() {
         lfMap = L.map('leafletMap', {
@@ -879,7 +893,6 @@
         document.getElementById('map-card-km').innerText = `~${data.km}km`;
         document.getElementById('det-route').innerText = data.route;
         
-        // ⏱️ 同步動態更新預計架車車程時間
         document.getElementById('det-drivetime').innerText = data.driveTime;
         
         document.getElementById('det-spots').innerText = data.spots;
@@ -1092,6 +1105,7 @@
     }
 
     function initCanvasLoop() { 
+        resolveRealAudioPath(); // 優先激活路徑優化器
         buildTimeline(); 
         updateAllInterfaces();
         initLeafletMapSystem();
