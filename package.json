@@ -1,0 +1,14 @@
+{
+  "name": "hokkaido-rpg-backend",
+  "version": "5.0.0",
+  "description": "Lohas Family Hokkaido Summer RPG Backend Engine",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.0.0"
+  }
+}
