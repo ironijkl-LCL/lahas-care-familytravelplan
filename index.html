@@ -190,7 +190,6 @@
         .player-exp-fill { height: 100%; background: linear-gradient(90deg, #FFD93D, #FF8A00); width: 70%; transition: width 0.3s ease; }
 
         .lb-row { display: flex; justify-content: space-between; padding: 8px 10px; font-size: 0.85rem; font-weight: 500; border-bottom: 1px dashed #F1F5F9; align-items: center; }
-        .lb-row { display: flex; justify-content: space-between; padding: 8px 10px; font-size: 0.85rem; font-weight: 500; border-bottom: 1px dashed #F1F5F9; align-items: center; }
         .lb-top {
             background: linear-gradient(135deg, #FFD93D, #FFB703) !important;
             padding: 12px 10px !important;
@@ -279,7 +278,8 @@
         .btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: white; color: var(--text-light); border: 1px solid #CBD5E1; }
-        .check-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 0.8rem; text-align: left; }
+        .check-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 0.85rem; text-align: left; }
+        .check-item input { margin-top: 3px; transform: scale(1.1); }
         .check-item input:checked + span { text-decoration: line-through; color: var(--gray); }
 
         .end-game-overlay { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: #FFFFFF; z-index: 999; padding: 24px; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow-y: auto;}
@@ -296,6 +296,14 @@
         .photo-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; }
         .btn-quest-done { width: 100%; padding: 13px; border: none; background: var(--secondary); color: white; border-radius: 12px; font-weight: bold; cursor: pointer; display: none; font-size: 0.9rem; margin-top: 12px; }
         .chart-container { width: 100%; height: 160px; margin-top: 10px; }
+
+        /* 🎒 新增隨身資產美化排版樣式 */
+        .pack-warn-box { background: #FFF7ED; border: 1px solid #FFEDD5; border-radius: 12px; padding: 10px 12px; font-size: 0.8rem; line-height: 1.4; margin-bottom: 12px; color: #C2410C; }
+        .pack-grid-table { width: 100%; border-collapse: collapse; margin-top: 6px; margin-bottom: 12px; font-size: 0.78rem; }
+        .pack-grid-table th, .pack-grid-table td { border: 1px solid #E2E8F0; padding: 6px 8px; text-align: left; }
+        .pack-grid-table th { background: #F1F5F9; color: #334155; font-weight: bold; }
+        .pack-sub-title { font-size: 0.85rem; font-weight: bold; color: #0284C7; margin: 12px 0 6px 0; border-left: 3px solid #0284C7; padding-left: 6px; }
+        .pack-badge-red { background: #FEE2E2; color: #EF4444; padding: 1px 6px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; }
 
         @media print {
             body { background: white !important; color: black !important; padding: 0 !important; }
@@ -350,21 +358,7 @@
             </button>
         </div>
 
-        <!-- 🤖 全新擴充功能：Dify AI 隨機突發卡觸發中樞 -->
-        <div class="info-card" style="margin-top: -20px; margin-bottom: 15px; border: 2px solid var(--accent); background: #FFFDF5;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h4 style="margin:0; font-size:0.85rem; color:#B45309;">🤖 探索隱藏支線 (Dify AI 連動)</h4>
-                <button onclick="triggerDifyDynamicQuest()" style="background:var(--accent); color:#7C2D12; border:none; padding:4px 10px; border-radius:8px; font-size:0.7rem; font-weight:bold; cursor:pointer;">🎲 擲骰觸發</button>
-            </div>
-            <div id="dify-quest-container" style="display:none; margin-top:10px; padding-top:8px; border-top:1px dashed #F59E0B; font-size:0.8rem;">
-                <div id="dify-quest-title" style="font-weight:bold; color:var(--primary); margin-bottom:4px;"></div>
-                <div id="dify-quest-desc" style="color:var(--text-light); line-height:1.4; margin-bottom:6px;"></div>
-                <div style="font-size:0.72rem; color:var(--gray);">💰 支線獎勵：<span id="dify-quest-exp" style="color:var(--route-done); font-weight:bold;"></span></div>
-                <div id="dify-quest-penalty" style="font-size:0.72rem; color:#EF4444; margin-top:2px; font-weight:500;"></div>
-            </div>
-        </div>
-
-        <div class="info-card" style="margin-top: 0px; margin-bottom: 15px;">
+        <div class="info-card" style="margin-top: -15px; margin-bottom: 15px;">
             <h4 style="margin: 0 0 6px 0; font-size: 0.75rem; color: var(--gray);">📸 近期採集快照庫</h4>
             <div class="home-photo-carousel" id="homePhotoCarousel">
                 <div class="home-photo-slot"><div>📸</div><div>採集回憶</div></div>
@@ -473,20 +467,125 @@
         <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:10px;" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= 分頁 5: 隨身物資 ================= -->
+    <!-- ================= 分頁 5: 隨身物資 (🎒 8月加強優化版) ================= -->
     <div id="tab-packing" class="tab-content">
         <div class="info-card">
             <h3>📸 旅行快照相片牆</h3>
             <div class="album-grid" id="albumGridZone"></div>
         </div>
 
-        <div class="info-card" style="border-left: 4px solid var(--pack-color);">
-            <div class="info-title" style="color:var(--pack-color);">👗 衣物與防護</div>
-            <div class="detail-section" style="margin-top:8px;">
-                <div class="check-item"><input type="checkbox"><span>防曬用品、遮陽帽、輕便短袖衣物</span></div>
-                <div class="check-item"><input type="checkbox"><span><b>保暖防風防潑水外套</b>（出海睇野生鯨魚海風體感極寒！）</span></div>
+        <!-- ⚠️ 8月夏季特訓警示 -->
+        <div class="pack-warn-box">
+            ☀️ <b>📢 8月北海道盛夏特別防護提醒：</b><br>
+            很多香港人誤以為北海道全年偏涼，其實 8 月正值夏季，日間部分地區可達 <b>25-32°C</b>[cite: 1]！盛夏太陽極猛、紫外線強、且日夜溫差大[cite: 1]。請對照以下清單作戰：
+        </div>
+
+        <!-- 🌡️ 天氣特點速查 -->
+        <div class="info-card">
+            <div class="pack-sub-title">🇯🇵 8月北海道區域天氣特點</div>
+            <table class="pack-grid-table">
+                <thead>
+                    <tr><th>區域</th><th>預估氣溫</th><th>戰地環境特點</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><b>札幌</b></td><td>約 20-30°C</td><td>日間偏熱，早晚舒適[cite: 1]</td></tr>
+                    <tr><td><b>富良野/美瑛</b></td><td>約 18-30°C</td><td>紫外線極強，農田區少遮蔭[cite: 1]</td></tr>
+                    <tr><td><b>函館</b></td><td>約 20-28°C</td><td>沿海風力較大[cite: 1]</td></tr>
+                    <tr><td><b>道東 (知床/羅臼)</b></td><td>約 15-25°C</td><td>早晚體感偏涼[cite: 1]</td></tr>
+                </tbody>
+            </table>
+            <div style="font-size:0.75rem; color:var(--primary); font-weight:bold; text-align:center;">
+                🗣️ 核心口訣：「防曬、防雨、防蚊、防走失、防冇電」[cite: 1]
             </div>
         </div>
+
+        <!-- ⭐ 終極10寶 -->
+        <div class="info-card" style="background: linear-gradient(135deg, #FFFBEB, #FEF3C7); border: 1px solid #FDE68A;">
+            <div class="pack-sub-title" style="color:#92400E; border-left-color:#92400E;">⭐ 家族通關終極 10 寶</div>
+            <div class="detail-section" style="margin-top:6px; display:grid; grid-template-columns: repeat(2, 1fr); gap:6px;">
+                <div class="check-item"><input type="checkbox"><span> 護照</span></div>
+                <div class="check-item"><input type="checkbox"><span> 信用卡兩張</span></div>
+                <div class="check-item"><input type="checkbox"><span> 日圓現金</span></div>
+                <div class="check-item"><input type="checkbox"><span> eSIM 卡</span></div>
+                <div class="check-item"><input type="checkbox"><span> 行動電源 (尿袋)</span></div>
+                <div class="check-item"><input type="checkbox"><span> 防曬乳</span></div>
+                <div class="check-item"><input type="checkbox"><span> 太陽眼鏡</span></div>
+                <div class="check-item"><input type="checkbox"><span> 摺傘</span></div>
+                <div class="check-item"><input type="checkbox"><span> 防蚊液</span></div>
+                <div class="check-item"><input type="checkbox"><span> 薄外套</span></div>
+            </div>
+        </div>
+
+        <!-- 👕 衣物裝備與負面清單 -->
+        <div class="info-card" style="border-left: 4px solid var(--pack-color);">
+            <div class="pack-sub-title">👕 戰衣與防護物資</div>
+            <div class="detail-section" style="margin-top:8px;">
+                <div class="check-item"><input type="checkbox"><span> 短袖 T 恤 (4-6件)[cite: 1]</span></div>
+                <div class="check-item"><input type="checkbox"><span> 薄長袖 (1-2件)[cite: 1]</span></div>
+                <div class="check-item"><input type="checkbox"><span> 薄外套 + 輕便防風防潑水外套 (出海必備)[cite: 1]</span></div>
+                <div class="check-item"><input type="checkbox"><span> 長褲 (2條) + 短褲 (1-2條)[cite: 1]</span></div>
+                <div class="check-item"><input type="checkbox"><span> 襪子 + 舒適步行鞋[cite: 1]</span></div>
+                
+                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #E2E8F0;">
+                    <span class="pack-badge-red">❌ 絕不建議攜帶 (嚴防超重)</span>
+                    <div style="font-size:0.75rem; color:var(--gray); margin-top:4px; padding-left:4px;">
+                        🚫 厚羽絨、保暖內衣 (Heattech)、厚毛衣[cite: 1]
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ☀️ 防曬、防雨、防蚊三大防線 -->
+        <div class="info-card" style="border-left: 4px solid var(--secondary);">
+            <div class="pack-sub-title">🛡️ 盛夏三大野外防線</div>
+            
+            <div style="font-weight:bold; font-size:0.8rem; margin:6px 0 2px 0; color:#EA580C;">☀️ 1. 抗強烈烈日防線：</div>
+            <div class="check-item"><input type="checkbox"><span> 防曬乳 SPF50+[cite: 1]</span></div>
+            <div class="check-item"><input type="checkbox"><span> 太陽眼鏡 + 遮陽大帽子[cite: 1]</span></div>
+            <div class="check-item"><input type="checkbox"><span> 冰感毛巾 + 小風扇 + 防曬外套[cite: 1]</span></div>
+
+            <div style="font-weight:bold; font-size:0.8rem; margin:8px 0 2px 0; color:#2563EB;">🌧️ 2. 突發陣雨/颱風防線：</div>
+            <div class="check-item"><input type="checkbox"><span> 摺傘 + 輕便雨衣[cite: 1]</span></div>
+            <div class="check-item"><input type="checkbox"><span> 防水背包套 + 防水手機套[cite: 1]</span></div>
+
+            <div style="font-weight:bold; font-size:0.8rem; margin:8px 0 2px 0; color:#16A34A;">🦟 3. 田野叢林防蚊防線 (美瑛/富良野/知床生態區)：</div>
+            <div class="check-item"><input type="checkbox"><span> 強效防蚊液[cite: 1]</span></div>
+            <div class="check-item"><input type="checkbox"><span> 日本著名止癢膏[cite: 1]</span></div>
+            <div class="check-item"><input type="checkbox"><span> 戶外長袖薄衫[cite: 1]</span></div>
+        </div>
+
+        <!-- 📸 拍照與自駕注意 -->
+        <div class="info-card" style="border-left: 4px solid var(--edit-color);">
+            <div class="pack-sub-title">📸 捕捉盛夏向日葵與花海裝備</div>
+            <div class="check-item"><input type="checkbox"><span> 大容量記憶卡 (爆影彩色花田)[cite: 1]</span></div>
+            <div class="check-item"><input type="checkbox"><span> 高容量行動電源 + 相機備用電池[cite: 1]</span></div>
+            <div class="check-item"><input type="checkbox"><span> 家族大合照自拍腳架[cite: 1]</span></div>
+
+            <div class="pack-sub-title" style="color:#A855F7; border-left-color:#A855F7;">🚗 北海道車神自駕必備 (爸爸核對)</div>
+            <div class="check-item"><input type="checkbox"><span> 國際駕駛許可證 (國際牌)[cite: 1]</span></div>
+            <div class="check-item"><input type="checkbox"><span> 香港駕駛執照正本[cite: 1]</span></div>
+            <div class="check-item"><input type="checkbox"><span> 日本 KEP/ETC 實體卡 (如有)[cite: 1]</span></div>
+            <div class="check-item"><input type="checkbox"><span> Google Maps 離線地圖包 (防斷網)[cite: 1]</span></div>
+            <div class="check-item"><input type="checkbox"><span> 獨立屋/酒店電話號碼 (日文版輸入 GPS)[cite: 1]</span></div>
+        </div>
+
+        <!-- 🍈 8月爆食盛宴指南 -->
+        <div class="info-card" style="background:#FFF1F2; border:1px solid #FFE4E6;">
+            <div class="pack-sub-title" style="color:#E11D48; border-left-color:#E11D48;">🍈 8月盛夏限定爆食清單 (當造捕獲)</div>
+            <div class="detail-section" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:4px; font-size:0.78rem;">
+                <div>🟢 夕張/富良野哈密瓜[cite: 1]</div>
+                <div>🟡 鮮甜爆汁即燒粟米[cite: 1]</div>
+                <div>🍑 夏季鮮甜白桃[cite: 1]</div>
+                <div>🧡 8月極品現撈海膽[cite: 1]</div>
+                <div>🐚 肥美生猛帆立貝[cite: 1]</div>
+                <div>🦀 帝王蟹/長腳蟹大餐[cite: 1]</div>
+                <div>🐑 成吉思汗烤羊肉[cite: 1]</div>
+                <div>🍛 札幌名物湯咖喱[cite: 1]</div>
+                <div>🍜 濃厚札幌拉麵[cite: 1]</div>
+                <div style="color:var(--gray);">💴 備用金建議: ¥30k-50k現金[cite: 1]</div>
+            </div>
+        </div>
+
         <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:10px;" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
@@ -501,10 +600,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // ================= 🛰️ 5.1 精確後端與地理配置變更校正 =================
-    // 🛡️ 實體 Render 生產環境後端 API 路由配置防線
-    const backendApiUrl = 'https://lahas-care-familytravelplan-1.onrender.com/api/generate-dynamic-quest';
-
+    // ================= 🛰️ 5.1 精確網址變更校正陣列 =================
     const masterData = [
         { day: 1, route: "抵達台北 ➔ 晴光商圈 ➔ 寧夏夜市", km: 15, driveTime: "約 30 分鐘", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "下午抵達台北，解鎖入住中山區「晴美公寓酒店」。下樓即是晴光市場商圈，必吃紅豆餅與脆皮鮮奶甜甜圈！晚上直奔寧夏夜市爆食蚵仔煎、地瓜球、大腸包小腸！", b: "自理", l: "自理", d: "寧夏夜市在地小吃大激食", title: "晴美公寓酒店解鎖", desc: "順利抵達台北並成功 Check-in，上傳全家第一張台式快閃合照！", addr: "10491台灣臺北市中山區林森北路568號", url: "https://www.jolleyhotels.com/" },
         { day: 2, route: "西門町潮流購物 ➔ 鼎泰豐晚餐", km: 10, driveTime: "約 20 分鐘", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "帶領兩位青少年狂掃西門町商圈！潮流服飾、萬年大樓潮玩極合孩子口味。晚上前往鼎泰豐（新生店）享用世界級小籠包與排骨炒飯大餐。", b: "酒店內享用", l: "西門町在地美食", d: "鼎泰豐 新生店頂級麵點", title: "西門町潮流捕獲", desc: "拍下青少年在西門町萬年大樓買到心儀潮玩的開心合照提交！", addr: "106台灣臺北市大安區信義路二段277號 (鼎泰豐)", url: "https://www.dintaifung.com.tw" },
@@ -517,7 +613,7 @@
         { day: 9, route: "三井 OUTLET PARK 北廣島（運動品牌爆買日）", km: 45, driveTime: "約 1 小時", tag: "SHOPPING", hub: "sapporo", targetHub: "sapporo", weather: "札幌多雲", spots: "自駕前往三井 OUTLET PARK 札幌北廣島。這裡匯集大量國際運動品牌、服飾與戶外裝備，全室內免受天氣影響，全家開展限時大血拼！晚餐回市區享用頂級日式料理。", b: "大本營自製", l: "Outlet 美食廣場", d: "札幌頂級成吉思汗烤肉", title: "💸 運動品牌戰利品大開箱", desc: "拍下全車後車廂被運動品牌及免稅大包小包塞滿的震撼畫面提交！", addr: "北廣島市大曲幸町3丁目7-6", url: "https://mitsui-shopping-park.com/mop/sapporo/" },
         { day: 10, route: "富良野富田農場（夏日彩色向日葵花田）", km: 130, driveTime: "約 2 小時 15 分鐘", tag: "FURANO", hub: "sapporo", targetHub: "furano", weather: "富良野大晴天", spots: "挺進中富良野【富田農場】！飽覽盛夏盛開的向日葵彩色花田與薰衣草餘韻，狂嗑爆汁夕張哈密瓜。晚上回到札幌，前往名店「冰雪之門」享用極致奢華的帝王蟹與松葉蟹大餐！", b: "大本營自製", l: "富良野在地咖哩飯", d: "冰雪之門 螃蟹盛宴 (中央區南5條西2丁目)", title: "🌻 沉醉夏日向日葵彩色花田", desc: "在無邊際的金色向日葵花海前拍下一家四口的完美陽光合照！", addr: "空知郡中富良野町基線北15號", url: "https://www.farm-tomita.co.jp" },
         { day: 11, route: "移居小樽新基地 ➔ 小樽運河散步 ➔ 爆汁炸雞", km: 45, driveTime: "約 50 分鐘", tag: "OTARU", hub: "furano", targetHub: "otaru", weather: "小樽微風", spots: "早上從小樽獨立屋辦理進駐新基地。黃昏前往懷舊的小樽運河散步。晚餐朝聖青少年的最愛——「若雞時代 Naruto」，品嚐外脆內嫩、咬下去瘋狂爆汁的招牌半身炸雞！", b: "大本營自製", l: "小樽街頭小吃", d: "若雞時代 Naruto (小樽市稻穗3丁目16-13)", title: "🏠 小樽石山町新據點解鎖", desc: "自駕進駐小樽石山町獨立屋，拍下這個極具空間感的新客廳基地合照！", addr: "19-4 Ishiyamachō, 小樽市, 北海道 047-0038", url: "https://maps.app.goo.gl/Vp6yPAarJ9JnLbpg9?g_st=ic" },
-        { day: 12, route: "積丹半島夏日限定「積丹藍」海景自駕", km: 130, driveTime: "約 2 小時 20 分鐘", tag: "OTARU", hub: "otaru", targetHub: "shakotan", weather: "積丹藍大晴天", spots: "自駕衝向積丹半島神威岬！徒步走在壯麗的海脊步道上，飽覽 360 度震撼澄澈的寶藍色寶藏大海。中午在積丹半島漁夫餐廳享用 8 月最肥美、限時現撈的極品海膽丼！", b: "小樽大本營自製", l: "積丹現撈肥美海膽丼", d: "小樽港新鮮壽司", title: "🌊 征服 360 度夢幻積丹藍", desc: "在神威岬步道極限頂點，拍下背景為純粹「積丹藍」的絕美海景大片！", addr: "積丹郡積丹町大字神威岬", url: "https://www.kanko-shakotan.jp" },
+        { day: 12, route: "積丹半島夏日限定「積丹藍」海景自駕", km: 130, driveTime: "約 2 小時 20 分鐘", tag: "OTARU", hub: "otaru", targetHub: "shakotan", weather: "積丹藍大晴天", spots: "自駕衝向積丹半島神威岬！徒步走在壯麗的海脊步道上，飽覽 360 度震撼澄澈的寶藍色寶藏大海。中午在積丹半島漁夫餐廳享用 8 月最肥美、限時現撈的極品海膽丼！", b: "小樽大本營自製", l: "積丹現撈肥美海膽丼", d: "小樽港新鮮壽司", title: "🌊 征服 360 度夢幻積丹藍", desc: "在神威岬步道極限頂點，拍下背景為純粹「積丹藍’」的絕美海景大片！", addr: "積丹郡積丹町大字神威岬", url: "https://www.kanko-shakotan.jp" },
         { day: 13, route: "三角市場海鮮挑選 ➔ 天狗山夜景纜車", km: 15, driveTime: "約 30 分鐘", tag: "OTARU", hub: "shakotan", targetHub: "otaru", weather: "小樽晴天", spots: "早上直奔三角市場（武田鮮魚店），當場挑選生猛巨型長腳蟹現煮現吃！傍邊前往天狗山搭乘索道纜車登頂，俯瞰完美的弧形海岸線夜景，為旅程倒數完美乾杯。", b: "自理", l: "三角市場生猛鮮蟹大餐", d: "小樽在地浪漫洋食", title: "🚡 天狗山俯瞰浪漫海岸線", desc: "在天狗山觀觀景台拍下俯瞰小樽完美弧形海岸夜景的經典照片提交！", addr: "小樽市最上2丁目16-15 (天狗山索道)", url: "https://tenguyama.ckk.chuo-bus.co.jp" },
         { day: 14, route: "小樽退房 ➔ 新千歲機場國內線爆買 ➔ 啟程返港", km: 85, driveTime: "約 1 小時 15 分鐘", tag: "AIRPORT", hub: "otaru", targetHub: "airport", weather: "千歲晴天", spots: "清晨從小樽獨立屋退房並自駕前往機場還車。預留充足時間狂掃新千歲機場國內線航廈2/3樓！衝刺多啦A夢空中樂園，買齊六花亭、北菓樓與 Royce 巧克力。搭乘 13:00 的 BR165 航班回港！", b: "機場限定起司巨塔麵包", l: "機場內札幌拉麵道場", d: "飛機餐 / 返港", title: "✈️ 空港免稅品最後大搜捕", desc: "【最終戰】在新千歲機場多啦A夢天空樂園前，拍下一家手拎滿滿戰利品的大團圓照片結算！", addr: "千歲市美美 (新千歲機場)", url: "https://www.new-chitose-airport.jp" }
     ];
@@ -590,54 +686,6 @@
         if(confirm("確定要清除緩存的冒險紀錄嗎？")) {
             localStorage.removeItem('hokkaidoSave_v5_0');
             window.location.reload();
-        }
-    }
-
-    // ================= 🤖 核心擴充：非同步觸發與調用後端 Render API 防線 =================
-    async function triggerDifyDynamicQuest() {
-        const currentData = masterData[activeDay - 1];
-        const targetHubObj = mapHubs[currentData.targetHub];
-        
-        const requestPayload = {
-            familyId: "lohas_family_2026",
-            activeDay: activeDay,
-            triggerReason: "user_manual_roll",
-            currentLocation: targetHubObj ? targetHubObj.name : "未知荒野",
-            familyStatus: rpgPlayers
-        };
-
-        try {
-            // 📡 直連 Render 雲端後端，轉發 Dify 並安全寫入 MongoDB Atlas 數據庫
-            const response = await fetch(backendApiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestPayload)
-            });
-
-            if (!response.ok) throw new Error("後端安全閘口回應異常");
-            const result = await response.json();
-
-            if (result.status === "success") {
-                document.getElementById('dify-quest-title').innerText = `💥 突發事件卡：${result.questTitle}`;
-                document.getElementById('dify-quest-desc').innerText = result.questDesc;
-                document.getElementById('dify-quest-exp').innerText = `+${result.bonusExp} EXP (全體增加)`;
-                document.getElementById('dify-quest-penalty').innerText = `🚨 失敗懲罰：${result.penalty}`;
-                document.getElementById('dify-quest-container').style.display = 'block';
-                
-                // 🔊 額外附加體驗：動態為全家人灌注突發事件獎勵
-                for (let key in rpgPlayers) { rpgPlayers[key].exp += Math.round(result.bonusExp / 4); }
-                renderPlayerStats();
-                initOrUpdateChart();
-                saveGame();
-            }
-        } catch (error) {
-            console.error("Dify 熔斷防線生效:", error);
-            // 🛡️ 熔斷降級機制 (Fallback)：若無網路或伺服器睡著，自動提供本地備用任務卡，確保極端環境下絕不崩潰
-            document.getElementById('dify-quest-title').innerText = `🎲 本地隨機支線：便利店尋寶奇旅`;
-            document.getElementById('dify-quest-desc').innerText = `在當地 Seicomart 或 7-11 尋找並購買限定哈密瓜冰淇淋！`;
-            document.getElementById('dify-quest-exp').innerText = `+50 EXP (全體增加)`;
-            document.getElementById('dify-quest-penalty').innerText = `🚨 失敗懲罰：無，純屬娛樂`;
-            document.getElementById('dify-quest-container').style.display = 'block';
         }
     }
 
@@ -815,54 +863,37 @@
         saveGame();
     }
 
-    function updateAllInterfaces() {
-        const data = masterData[activeDay - 1];
-        const targetHubObj = mapHubs[data.targetHub];
-        
-        if (document.getElementById('top-day-badge')) document.getElementById('top-day-badge').innerText = `DAY ${data.day}`;
-        if (document.getElementById('apple-chapter-id')) document.getElementById('apple-chapter-id').innerText = `DAY ${data.day}`;
-        if (document.getElementById('apple-loc-title')) document.getElementById('apple-loc-title').innerText = targetHubObj.name;
-        if (document.getElementById('apple-weather-text')) document.getElementById('apple-weather-text').innerText = `☀️ ${data.day <= 2 ? '32' : '22'}°C • ${data.weather}`;
-        if (document.getElementById('apple-m-box')) document.getElementById('apple-m-box').innerText = data.title;
-
-        if (document.getElementById('map-card-day')) document.getElementById('map-card-day').innerText = `📅 Day ${data.day} - ${data.tag}`;
-        if (document.getElementById('map-card-km')) document.getElementById('map-card-km').innerText = `~${data.km}km`;
-        if (document.getElementById('det-route')) document.getElementById('det-route').innerText = data.route;
-        if (document.getElementById('det-drivetime')) document.getElementById('det-drivetime').innerText = data.driveTime;
-        if (document.getElementById('det-spots')) document.getElementById('det-spots').innerText = data.spots;
-        if (document.getElementById('det-b')) document.getElementById('det-b').innerText = data.b;
-        if (document.getElementById('det-l')) document.getElementById('det-l').innerText = data.l;
-        if (document.getElementById('det-d')) document.getElementById('det-d').innerText = data.d;
-        
-        if (document.getElementById('det-link')) {
-            document.getElementById('det-link').innerHTML = `📍 地址: ${data.addr}<br>🔗 官網: <a href="${data.url}" target="_blank" class="detail-link">點擊打開官方網站</a>`;
-        }
-
-        let progressPercent = Math.round((data.day / 14) * 100);
-        if (document.getElementById('top-progress-text')) document.getElementById('top-progress-text').innerText = `旅程進度 ${progressPercent}%`;
-        if (document.getElementById('top-progress-bar')) document.getElementById('top-progress-bar').style.width = `${progressPercent}%`;
-
-        if (document.getElementById('q-title')) document.getElementById('q-title').innerText = data.title;
-        if (document.getElementById('q-desc')) document.getElementById('q-desc').innerText = data.desc;
-        if (document.getElementById('photo-preview-img')) document.getElementById('photo-preview-img').style.display = 'none';
-        if (document.getElementById('btn-submit-quest')) document.getElementById('btn-submit-quest').style.display = 'none';
-        document.getElementById('dify-quest-container').style.display = 'none'; // 切換日期時重設突發面板
-
-        renderPlayerStats();
-        renderAchievementsUI();
-        initOrUpdateChart();
-        renderAlbumWall();
-        renderHomeCarousel();
-    }
-
+    // ================= 📸 照片 Canvas 高效等比壓縮機制 =================
     function handlePhotoUpload(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                const preview = document.getElementById('photo-preview-img');
-                if (preview) { preview.src = e.target.result; preview.style.display = 'block'; }
-                currentUploadedPhotoUrl = e.target.result; 
-                if (document.getElementById('btn-submit-quest')) document.getElementById('btn-submit-quest').style.display = 'block';
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800; 
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // 壓縮為 JPEG，品質 0.6，避免破壞手機的 5MB localStorage 限制[cite: 1]
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+
+                    const preview = document.getElementById('photo-preview-img');
+                    if (preview) { preview.src = compressedDataUrl; preview.style.display = 'block'; }
+                    currentUploadedPhotoUrl = compressedDataUrl; 
+                    if (document.getElementById('btn-submit-quest')) document.getElementById('btn-submit-quest').style.display = 'block';
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(input.files[0]);
         }
@@ -984,6 +1015,54 @@
                 }
             });
         }
+    }
+
+    // ================= 🗺️ 多景點精確中途站導航呈現 =================
+    function updateAllInterfaces() {
+        const data = masterData[activeDay - 1];
+        const targetHubObj = mapHubs[data.targetHub];
+        
+        if (document.getElementById('top-day-badge')) document.getElementById('top-day-badge').innerText = `DAY ${data.day}`;
+        if (document.getElementById('apple-chapter-id')) document.getElementById('apple-chapter-id').innerText = `DAY ${data.day}`;
+        if (document.getElementById('apple-loc-title')) document.getElementById('apple-loc-title').innerText = targetHubObj.name;
+        if (document.getElementById('apple-weather-text')) document.getElementById('apple-weather-text').innerText = `☀️ ${data.day <= 2 ? '32' : '22'}°C • ${data.weather}`;
+        if (document.getElementById('apple-m-box')) document.getElementById('apple-m-box').innerText = data.title;
+
+        if (document.getElementById('map-card-day')) document.getElementById('map-card-day').innerText = `📅 Day ${data.day} - ${data.tag}`;
+        if (document.getElementById('map-card-km')) document.getElementById('map-card-km').innerText = `~${data.km}km`;
+        if (document.getElementById('det-route')) document.getElementById('det-route').innerText = data.route;
+        if (document.getElementById('det-drivetime')) document.getElementById('det-drivetime').innerText = data.driveTime;
+        if (document.getElementById('det-spots')) document.getElementById('det-spots').innerText = data.spots;
+        if (document.getElementById('det-b')) document.getElementById('det-b').innerText = data.b;
+        if (document.getElementById('det-l')) document.getElementById('det-l').innerText = data.l;
+        if (document.getElementById('det-d')) document.getElementById('det-d').innerText = data.d;
+        
+        if (document.getElementById('det-link')) {
+            const encodedAddr = encodeURIComponent(data.addr);
+            const geoNavUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddr}`;
+            
+            document.getElementById('det-link').innerHTML = `
+                📍 <b>精確地址</b>: ${data.addr} 
+                <a href="${geoNavUrl}" target="_blank" style="color:var(--primary); font-weight:bold; margin-left:8px;">[🗺️ 導航至此景點]</a>
+                <br>
+                🔗 <b>官方網站</b>: <a href="${data.url}" target="_blank" class="detail-link">點擊打開官方網站</a>
+            `;
+        }
+
+        let progressPercent = Math.round((data.day / 14) * 100);
+        if (document.getElementById('top-progress-text')) document.getElementById('top-progress-text').innerText = `旅程進度 ${progressPercent}%`;
+        if (document.getElementById('top-progress-bar')) document.getElementById('top-progress-bar').style.width = `${progressPercent}%`;
+
+        if (document.getElementById('q-title')) document.getElementById('q-title').innerText = data.title;
+        if (document.getElementById('q-desc')) document.getElementById('q-desc').innerText = data.desc;
+        if (document.getElementById('photo-preview-img')) document.getElementById('photo-preview-img').style.display = 'none';
+        if (document.getElementById('btn-submit-quest')) document.getElementById('btn-submit-quest').style.display = 'none';
+
+        renderPlayerStats();
+        renderAchievementsUI();
+        initOrUpdateChart();
+        renderAlbumWall();
+        renderHomeCarousel();
     }
 
     function addIndividualExp(playerKey) { 
