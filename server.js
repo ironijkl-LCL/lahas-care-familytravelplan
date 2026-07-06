@@ -8,7 +8,7 @@ app.use(cors()); // 允許 GitHub Pages 的前端跨網域訪問 API
 
 // ================= 🌐 1. MongoDB Atlas 雲端實體連線 =================
 // ⚠️ 記得將下方 <db_password> 改為您在 Atlas 建立 ironijkl_db_user 時的真實密碼！
-const dbURI = 'mongodb+srv://ironijkl_db_user:db_jobeely0419@cluster0.glspnfb.mongodb.net/hokkaido_rpg_v5?appName=Cluster0';
+const dbURI = 'mongodb+srv://ironijkl_db_user:dbjobeely0419@cluster0.glspnfb.mongodb.net/hokkaido_rpg_v5?appName=Cluster0';
 
 mongoose.connect(dbURI)
     .then(() => console.log("🌐 [MongoDB Atlas] 雲端資料庫連線成功！Lohas 家族數據防線已就緒。"))
