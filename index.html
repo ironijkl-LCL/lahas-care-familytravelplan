@@ -190,6 +190,7 @@
         .player-exp-fill { height: 100%; background: linear-gradient(90deg, #FFD93D, #FF8A00); width: 70%; transition: width 0.3s ease; }
 
         .lb-row { display: flex; justify-content: space-between; padding: 8px 10px; font-size: 0.85rem; font-weight: 500; border-bottom: 1px dashed #F1F5F9; align-items: center; }
+        .lb-row { display: flex; justify-content: space-between; padding: 8px 10px; font-size: 0.85rem; font-weight: 500; border-bottom: 1px dashed #F1F5F9; align-items: center; }
         .lb-top {
             background: linear-gradient(135deg, #FFD93D, #FFB703) !important;
             padding: 12px 10px !important;
@@ -349,7 +350,21 @@
             </button>
         </div>
 
-        <div class="info-card" style="margin-top: -15px; margin-bottom: 15px;">
+        <!-- 🤖 全新擴充功能：Dify AI 隨機突發卡觸發中樞 -->
+        <div class="info-card" style="margin-top: -20px; margin-bottom: 15px; border: 2px solid var(--accent); background: #FFFDF5;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="margin:0; font-size:0.85rem; color:#B45309;">🤖 探索隱藏支線 (Dify AI 連動)</h4>
+                <button onclick="triggerDifyDynamicQuest()" style="background:var(--accent); color:#7C2D12; border:none; padding:4px 10px; border-radius:8px; font-size:0.7rem; font-weight:bold; cursor:pointer;">🎲 擲骰觸發</button>
+            </div>
+            <div id="dify-quest-container" style="display:none; margin-top:10px; padding-top:8px; border-top:1px dashed #F59E0B; font-size:0.8rem;">
+                <div id="dify-quest-title" style="font-weight:bold; color:var(--primary); margin-bottom:4px;"></div>
+                <div id="dify-quest-desc" style="color:var(--text-light); line-height:1.4; margin-bottom:6px;"></div>
+                <div style="font-size:0.72rem; color:var(--gray);">💰 支線獎勵：<span id="dify-quest-exp" style="color:var(--route-done); font-weight:bold;"></span></div>
+                <div id="dify-quest-penalty" style="font-size:0.72rem; color:#EF4444; margin-top:2px; font-weight:500;"></div>
+            </div>
+        </div>
+
+        <div class="info-card" style="margin-top: 0px; margin-bottom: 15px;">
             <h4 style="margin: 0 0 6px 0; font-size: 0.75rem; color: var(--gray);">📸 近期採集快照庫</h4>
             <div class="home-photo-carousel" id="homePhotoCarousel">
                 <div class="home-photo-slot"><div>📸</div><div>採集回憶</div></div>
@@ -486,7 +501,10 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // ================= 🛰️ 5.1 精確網址變更校正陣列 =================
+    // ================= 🛰️ 5.1 精確後端與地理配置變更校正 =================
+    // 🛡️ 實體 Render 生產環境後端 API 路由配置防線
+    const backendApiUrl = 'https://lahas-care-familytravelplan-1.onrender.com/api/generate-dynamic-quest';
+
     const masterData = [
         { day: 1, route: "抵達台北 ➔ 晴光商圈 ➔ 寧夏夜市", km: 15, driveTime: "約 30 分鐘", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "下午抵達台北，解鎖入住中山區「晴美公寓酒店」。下樓即是晴光市場商圈，必吃紅豆餅與脆皮鮮奶甜甜圈！晚上直奔寧夏夜市爆食蚵仔煎、地瓜球、大腸包小腸！", b: "自理", l: "自理", d: "寧夏夜市在地小吃大激食", title: "晴美公寓酒店解鎖", desc: "順利抵達台北並成功 Check-in，上傳全家第一張台式快閃合照！", addr: "10491台灣臺北市中山區林森北路568號", url: "https://www.jolleyhotels.com/" },
         { day: 2, route: "西門町潮流購物 ➔ 鼎泰豐晚餐", km: 10, driveTime: "約 20 分鐘", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "帶領兩位青少年狂掃西門町商圈！潮流服飾、萬年大樓潮玩極合孩子口味。晚上前往鼎泰豐（新生店）享用世界級小籠包與排骨炒飯大餐。", b: "酒店內享用", l: "西門町在地美食", d: "鼎泰豐 新生店頂級麵點", title: "西門町潮流捕獲", desc: "拍下青少年在西門町萬年大樓買到心儀潮玩的開心合照提交！", addr: "106台灣臺北市大安區信義路二段277號 (鼎泰豐)", url: "https://www.dintaifung.com.tw" },
@@ -572,6 +590,54 @@
         if(confirm("確定要清除緩存的冒險紀錄嗎？")) {
             localStorage.removeItem('hokkaidoSave_v5_0');
             window.location.reload();
+        }
+    }
+
+    // ================= 🤖 核心擴充：非同步觸發與調用後端 Render API 防線 =================
+    async function triggerDifyDynamicQuest() {
+        const currentData = masterData[activeDay - 1];
+        const targetHubObj = mapHubs[currentData.targetHub];
+        
+        const requestPayload = {
+            familyId: "lohas_family_2026",
+            activeDay: activeDay,
+            triggerReason: "user_manual_roll",
+            currentLocation: targetHubObj ? targetHubObj.name : "未知荒野",
+            familyStatus: rpgPlayers
+        };
+
+        try {
+            // 📡 直連 Render 雲端後端，轉發 Dify 並安全寫入 MongoDB Atlas 數據庫
+            const response = await fetch(backendApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestPayload)
+            });
+
+            if (!response.ok) throw new Error("後端安全閘口回應異常");
+            const result = await response.json();
+
+            if (result.status === "success") {
+                document.getElementById('dify-quest-title').innerText = `💥 突發事件卡：${result.questTitle}`;
+                document.getElementById('dify-quest-desc').innerText = result.questDesc;
+                document.getElementById('dify-quest-exp').innerText = `+${result.bonusExp} EXP (全體增加)`;
+                document.getElementById('dify-quest-penalty').innerText = `🚨 失敗懲罰：${result.penalty}`;
+                document.getElementById('dify-quest-container').style.display = 'block';
+                
+                // 🔊 額外附加體驗：動態為全家人灌注突發事件獎勵
+                for (let key in rpgPlayers) { rpgPlayers[key].exp += Math.round(result.bonusExp / 4); }
+                renderPlayerStats();
+                initOrUpdateChart();
+                saveGame();
+            }
+        } catch (error) {
+            console.error("Dify 熔斷防線生效:", error);
+            // 🛡️ 熔斷降級機制 (Fallback)：若無網路或伺服器睡著，自動提供本地備用任務卡，確保極端環境下絕不崩潰
+            document.getElementById('dify-quest-title').innerText = `🎲 本地隨機支線：便利店尋寶奇旅`;
+            document.getElementById('dify-quest-desc').innerText = `在當地 Seicomart 或 7-11 尋找並購買限定哈密瓜冰淇淋！`;
+            document.getElementById('dify-quest-exp').innerText = `+50 EXP (全體增加)`;
+            document.getElementById('dify-quest-penalty').innerText = `🚨 失敗懲罰：無，純屬娛樂`;
+            document.getElementById('dify-quest-container').style.display = 'block';
         }
     }
 
@@ -780,6 +846,7 @@
         if (document.getElementById('q-desc')) document.getElementById('q-desc').innerText = data.desc;
         if (document.getElementById('photo-preview-img')) document.getElementById('photo-preview-img').style.display = 'none';
         if (document.getElementById('btn-submit-quest')) document.getElementById('btn-submit-quest').style.display = 'none';
+        document.getElementById('dify-quest-container').style.display = 'none'; // 切換日期時重設突發面板
 
         renderPlayerStats();
         renderAchievementsUI();
