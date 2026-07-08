@@ -296,10 +296,26 @@
         .btn-quest-done { width: 100%; padding: 13px; border: none; background: var(--secondary); color: white; border-radius: 12px; font-weight: bold; cursor: pointer; display: none; font-size: 0.9rem; margin-top: 12px; }
         .chart-container { width: 100%; height: 160px; margin-top: 10px; }
 
+        /* 隨身資產加強排版樣式 */
+        .pack-badge { font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; color: white; font-weight: bold; display: inline-block; margin-bottom: 4px; }
+        .pack-badge.warn { background: #EF4444; }
+        .pack-sub-title { font-weight: bold; font-size: 0.85rem; color: #1E293B; margin: 10px 0 6px 0; border-left: 3px solid var(--pack-color); padding-left: 6px; }
+
+        /* Google 三寶工具箱排版樣式 */
+        .google-tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+        .google-tool-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 10px 4px; border: 2px solid #E2E8F0; border-radius: 14px; background: white;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: all 0.2s ease;
+        }
+        .google-tool-btn:hover { transform: translateY(-2px); border-color: var(--switch-blue); }
+        .google-tool-emoji { font-size: 1.35rem; margin-bottom: 2px; }
+        .google-tool-label { font-size: 0.65rem; font-weight: bold; color: #334155; text-align: center; }
+
         @media print {
             body { background: white !important; color: black !important; padding: 0 !important; }
             .phone-container { width: 100% !important; max-width: 100% !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; display: block !important; }
-            .sky-cloud, .rpg-header, .switch-grid, .map-timeline, .map-box, #btn-trigger-edit, .photo-upload-zone, .btn, .end-game-overlay { display: none !important; }
+            .sky-cloud, .rpg-header, .switch-grid, .map-timeline, .map-box, #btn-trigger-edit, .photo-upload-zone, .btn, .end-game-overlay, .google-tool-grid { display: none !important; }
             .tab-content { display: block !important; max-height: none !important; overflow: visible !important; padding: 0 !important; page-break-after: always; }
             .info-card { border: 1px solid #CCC !important; box-shadow: none !important; page-break-inside: avoid; margin-bottom: 20px !important; }
             .album-grid { grid-template-columns: repeat(3, 1fr) !important; page-break-inside: auto; }
@@ -344,6 +360,7 @@
             <div class="apple-mission-title">TODAY'S MISSION</div>
             <div class="apple-mission-box" id="apple-m-box">入住晴美公寓酒店</div>
             
+            <!-- 🚀 保留的主頁 Google 導航核心大鍵 -->
             <button class="apple-nav-btn" onclick="launchGoogleMapsNavigation()">
                 <span>🚀 啟動即時導航</span>
             </button>
@@ -414,7 +431,7 @@
 
     <!-- ================= 分頁 3: 任務提交 ================= -->
     <div id="tab-quest" class="tab-content">
-        <div class="info-card" style="background: #FAFAFA; border-color: var(--primary);">
+        <div class="info-card" style="background: #FAFAFA; border-color: var(--primary); margin-bottom: 4px;">
             <h2>🎯 今日冒險任務提交中心</h2>
             <h3 id="q-title" style="color:var(--primary); margin:6px 0;">-</h3>
             <p id="q-desc" style="font-size:0.85rem; line-height:1.4; color:var(--gray);">-</p>
@@ -426,6 +443,23 @@
             </div>
             <button class="btn-quest-done" id="btn-submit-quest" onclick="validateQuestCompletion()">✅ 任務達成 +200 EXP</button>
         </div>
+
+        <!-- Google 三寶整合按鈕工具箱 -->
+        <div class="google-tool-grid">
+            <div class="google-tool-btn" onclick="window.open('https://www.google.com/maps', '_blank')">
+                <span class="google-tool-emoji">🗺️</span>
+                <span class="google-tool-label">Google Map</span>
+            </div>
+            <div class="google-tool-btn" onclick="window.open('https://translate.google.com', '_blank')">
+                <span class="google-tool-emoji">🔤</span>
+                <span class="google-tool-label">Google 翻譯</span>
+            </div>
+            <div class="google-tool-btn" onclick="window.open('https://gemini.google.com', '_blank')">
+                <span class="google-tool-emoji">✨</span>
+                <span class="google-tool-label">Gemini AI</span>
+            </div>
+        </div>
+
         <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
@@ -458,94 +492,99 @@
         <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:10px;" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= 🎒 分頁 5: 隨身資產 (8月台日大作戰加強版) ================= -->
+    <!-- ================= 分頁 5: 隨身物資 ================= -->
     <div id="tab-packing" class="tab-content">
-        <div class="info-card" style="background: linear-gradient(135deg, #FFF9E6, #FFF1C2); border-left: 5px solid #F59E0B;">
-            <h3 style="margin:0 0 4px 0; color:#B45309;">☀️ 8月台日夏日防禦口訣</h3>
-            <p style="margin:0; font-size:0.85rem; font-weight:bold; color:#7C2D12; line-height:1.4;">
-                「防曬、防雨、防蚊、防走失（離線地圖）、防冇電（尿袋）」<br>
-                <small>⚠️ 絕非全日涼爽！日間部分地區可達 25-32°C，日夜溫差極大！</small>
-            </p>
+        <div class="info-card">
+            <h3>📸 旅行快照相片牆</h3>
+            <div class="album-grid" id="albumGridZone"></div>
         </div>
 
-        <div class="info-card">
-            <h3 style="margin: 0 0 10px 0; font-size: 0.95rem; color: var(--primary);">⭐ 北海道8月終極10寶</h3>
-            <div class="detail-section">
-                <div class="check-item"><input type="checkbox"><span>🪪 護照正本</span></div>
-                <div class="check-item"><input type="checkbox"><span>💳 信用卡兩張 (海外刷卡備用)</span></div>
-                <div class="check-item"><input type="checkbox"><span>💴 日圓現金 (建議準備 ¥30,000-50,000)</span></div>
-                <div class="check-item"><input type="checkbox"><span>📶 eSIM / 上網卡</span></div>
-                <div class="check-item"><input type="checkbox"><span>🔋 行動電源 (防冇電尿袋)</span></div>
-                <div class="check-item"><input type="checkbox"><span>🧴 防曬乳 SPF50+ (防曬傷)</span></div>
-                <div class="check-item"><input type="checkbox"><span>🕶️ 太陽眼鏡</span></div>
-                <div class="check-item"><input type="checkbox"><span>🌧️ 摺傘 (防突發陣雨)</span></div>
-                <div class="check-item"><input type="checkbox"><span>🦟 防蚊液 (防農田/森林蚊叮)</span></div>
-                <div class="check-item"><input type="checkbox"><span>🧥 薄外套 (防早晚冷熱溫差)</span></div>
+        <div class="info-card" style="background: #FFFBEB; border-left: 4px solid #F59E0B;">
+            <div class="pack-badge warn">🌡️ 8月夏日特訓警告</div>
+            <p style="font-size:0.78rem; margin:4px 0; line-height:1.4; color:#B45309;">
+                <b>香港人盲區校正：</b>北海道夏天最常見不是凍，而是<b>曬傷、蚊叮、突然落雨、手機冇電</b>！日間部分地區可達 25-32°C，紫外線強、日夜溫差較大。
+            </p>
+            <div style="background:rgba(255,255,255,0.6); border-radius:8px; padding:6px; margin-top:6px; font-size:0.7rem; color:#78350F;">
+                <b>💡 8月盛夏五字口訣：</b><br>
+                <span style="color:#EA580C; font-weight:bold;">「防曬、防雨、防蚊、防走失（離線地圖）、防冇電（尿袋）」</span>
             </div>
         </div>
 
         <div class="info-card" style="border-left: 4px solid #10B981;">
-            <div class="info-title" style="color:#10B981;">👕 戰衣與防禦（每人份）</div>
+            <div class="info-title" style="color:#10B981;">⭐ 盛夏出征終極10寶 (全體必備)</div>
             <div class="detail-section" style="margin-top:8px;">
-                <div class="check-item"><input type="checkbox"><span>👕 短袖T恤 4-6 件 (日間悶熱替換)</span></div>
-                <div class="check-item"><input type="checkbox"><span>🥼 薄長袖 1-2 件 / 長袖薄衫</span></div>
-                <div class="check-item"><input type="checkbox"><span>🧥 薄外套 1 件 + 輕便防風外套 1 件 (出海或早晚防風)</span></div>
-                <div class="check-item"><input type="checkbox"><span>👖 長褲 2 條 + 短褲 1-2 條</span></div>
-                <div class="check-item"><input type="checkbox"><span>🧦 襪子 + 👟 舒適步行鞋</span></div>
-                <div style="font-size:0.75rem; color:#EF4444; font-weight:bold; margin-top:4px;">❌ 嚴禁攜帶：厚羽絨、保暖內衣、厚毛衣</div>
+                <div class="check-item"><input type="checkbox"><span>🛂 護照正本</span></div>
+                <div class="check-item"><input type="checkbox"><span>💳 信用卡兩張 (海外刷卡暢通)</span></div>
+                <div class="check-item"><input type="checkbox"><span>💴 日圓現金 (建議準備 ¥30,000-50,000 備用)</span></div>
+                <div class="check-item"><input type="checkbox"><span>📱 eSIM / 上網卡 (台日雙區)</span></div>
+                <div class="check-item"><input type="checkbox"><span>🔋 行動電源 (防冇電尿袋)</span></div>
+                <div class="check-item"><input type="checkbox"><span>☀️ 防曬乳 SPF50+</span></div>
+                <div class="check-item"><input type="checkbox"><span>🕶️ 太陽眼鏡</span></div>
+                <div class="check-item"><input type="checkbox"><span>🌧️ 輕便摺傘</span></div>
+                <div class="check-item"><input type="checkbox"><span>🦟 強效防蚊液</span></div>
+                <div class="check-item"><input type="checkbox"><span>🧥 薄外套 (防冷氣/溫差)</span></div>
             </div>
         </div>
 
-        <div class="info-card" style="border-left: 4px solid var(--accent);">
-            <div class="info-title" style="color:#D97706;">☀️ 猛烈防曬與酷暑裝備</div>
-            <div class="detail-section" style="margin-top:8px;">
-                <div class="check-item"><input type="checkbox"><span>🧴 防曬乳 SPF50+</span></div>
-                <div class="check-item"><input type="checkbox"><span>🕶️ 太陽眼鏡 + 👒 帽子 (遮陽防曬)</span></div>
-                <div class="check-item"><input type="checkbox"><span>🧣 冰感毛巾 + 💨 小風扇 (富良野、美瑛農田極少遮蔭)</span></div>
-                <div class="check-item"><input type="checkbox"><span>🧥 抗UV防曬外套</span></div>
+        <div class="info-card" style="border-left: 4px solid var(--pack-color);">
+            <div class="info-title" style="color:var(--pack-color);">👕 4人服裝資產庫 (8/8 - 8/21 台灣3日+北海道11日)</div>
+            <div class="pack-sub-title">建議帶備</div>
+            <div class="detail-section">
+                <div class="check-item"><input type="checkbox"><span>短袖T恤 4-6件 (日間偏熱透氣)</span></div>
+                <div class="check-item"><input type="checkbox"><span>薄長袖 1-2件 (道東知床防涼)</span></div>
+                <div class="check-item"><input type="checkbox"><span>防曬外套 / 薄外套 1件</span></div>
+                <div class="check-item"><input type="checkbox"><span>輕便防風外套 1件 (羅臼出海/沿海防風)</span></div>
+                <div class="check-item"><input type="checkbox"><span>長褲 2條 / 短褲 1-2條</span></div>
+                <div class="check-item"><input type="checkbox"><span>襪子與舒適步行鞋</span></div>
+            </div>
+            <div class="pack-sub-title" style="color:#EF4444; border-left-color:#EF4444;">❌ 拓荒不建議攜帶 (佔行李空間)</div>
+            <div class="detail-section" style="font-size:0.75rem; color:var(--gray);">
+                <div class="check-item"><input type="checkbox" disabled><span style="text-decoration: line-through;">厚羽絨、保暖內衣、厚毛衣</span></div>
             </div>
         </div>
 
-        <div class="info-card" style="border-left: 4px solid #3B82F6;">
-            <div class="info-title" style="color:#3B82F6;">🌧️ 突發防雨（防颱風外圍影響）</div>
-            <div class="detail-section" style="margin-top:8px;">
-                <div class="check-item"><input type="checkbox"><span>☂️ 輕便摺傘</span></div>
-                <div class="check-item"><input type="checkbox"><span>🌧️ 輕便雨衣 (空出雙手進行關卡冒險)</span></div>
-                <div class="check-item"><input type="checkbox"><span>🎒 防水背包套 + 📱 防水手機套</span></div>
+        <div class="info-card" style="border-left: 4px solid #F59E0B;">
+            <div class="info-title" style="color:#D97706;">☀️ 盛夏防護與極限對策</div>
+            <div class="pack-sub-title">☀️ 烈日防曬 (農田區/花田極少遮蔭)</div>
+            <div class="detail-section">
+                <div class="check-item"><input type="checkbox"><span>遮陽帽子、太陽眼鏡、防曬乳</span></div>
+                <div class="check-item"><input type="checkbox"><span>冰感毛巾、隨身手持小風扇</span></div>
+            </div>
+            <div class="pack-sub-title">🌧️ 防雨裝備 (8月偶有陣雨/颱風外圍)</div>
+            <div class="detail-section">
+                <div class="check-item"><input type="checkbox"><span>輕便雨衣、耐用摺傘</span></div>
+                <div class="check-item"><input type="checkbox"><span>防水背包套、手機防水袋</span></div>
+            </div>
+            <div class="pack-sub-title">🦟 森林防蟲 (富良野/美瑛/知床蚊蟲猛烈)</div>
+            <div class="detail-section">
+                <div class="check-item"><input type="checkbox"><span>戶外專用防蚊液 (含DEET/派卡瑞丁)</span></div>
+                <div class="check-item"><input type="checkbox"><span>無比膏 / 止癢膏、長袖薄衫防叮咬</span></div>
             </div>
         </div>
 
-        <div class="info-card" style="border-left: 4px solid #8B5CF6;">
-            <div class="info-title" style="color:#8B5CF6;">🦟 森林/農田野生防蟲（富良野、美瑛、知床專用）</div>
-            <div class="detail-section" style="margin-top:8px;">
-                <div class="check-item"><input type="checkbox"><span>🧪 強效防蚊液</span></div>
-                <div class="check-item"><input type="checkbox"><span>🧪 止癢膏 / 蚊叮特效藥</span></div>
+        <div class="info-card" style="border-left: 4px solid #6366F1;">
+            <div class="info-title" style="color:#4F46E5;">🚗 爸爸車神開路與大囡細囡拍照裝備</div>
+            <div class="pack-sub-title">🚗 自駕開路必驗 (爸爸必備)</div>
+            <div class="detail-section">
+                <div class="check-item"><input type="checkbox"><span>香港駕駛執照正本 + 國際駕駛許可證 (IDP)</span></div>
+                <div class="check-item"><input type="checkbox"><span>ETC卡（若有租借）、酒店日文電話清單</span></div>
+                <div class="check-item"><input type="checkbox"><span>Google Maps 離線地圖 (以防郊區完全斷網)</span></div>
             </div>
-        </div>
-
-        <div class="info-card" style="border-left: 4px solid #F43F5E;">
-            <div class="info-title" style="color:#F43F5E;">🚗 爸爸（車神）自駕必備裝備</div>
-            <div class="detail-section" style="margin-top:8px;">
-                <div class="check-item"><input type="checkbox"><span>🪪 國際駕駛許可證 (IDP)</span></div>
-                <div class="check-item"><input type="checkbox"><span>🪪 香港駕駛執照正本</span></div>
-                <div class="check-item"><input type="checkbox"><span>💳 ETC卡 (自駕過路費專用)</span></div>
-                <div class="check-item"><input type="checkbox"><span>🗺️ Google Maps 離線地圖 (防郊區斷網走失)</span></div>
-                <div class="check-item"><input type="checkbox"><span>📞 目的地酒店電話（日文紀錄方便導航輸入 Mapcode）</span></div>
+            <div class="pack-sub-title">🌻 捕捉夏日花海 (向日葵/薰衣草尾季)</div>
+            <div class="detail-section">
+                <div class="check-item"><input type="checkbox"><span>大容量高速記憶卡、自拍三腳架</span></div>
+                <div class="check-item"><input type="checkbox"><span>高容量行動電源、相機備用電池</span></div>
             </div>
         </div>
 
         <div class="info-card" style="border-left: 4px solid #EC4899;">
-            <div class="info-title" style="color:#EC4899;">📸 高能拍照與回憶採集庫裝備</div>
+            <div class="info-title" style="color:#DB2777;">🍈 8月盛夏極致味蕾清單 (全家爆食目標)</div>
             <div class="detail-section" style="margin-top:8px;">
-                <div class="check-item"><input type="checkbox"><span>💾 大容量記憶卡 (準備拍攝向日葵花海、尾季薰衣草)</span></div>
-                <div class="check-item"><input type="checkbox"><span>🔋 行動電源 / 相機備用電池</span></div>
-                <div class="check-item"><input type="checkbox"><span>🤳 自拍腳架 (全家8人大合照必備)</span></div>
+                <div class="check-item"><input type="checkbox"><span>🍈 富良野/夕張當造爆汁哈密瓜、盛夏甜粟米、白桃</span></div>
+                <div class="check-item"><input type="checkbox"><span>🐋 羅臼/積丹限時現撈極品海膽、肥美帆立貝</span></div>
+                <div class="check-item"><input type="checkbox"><span>🦀 冰雪之門/三角市場 帝王蟹與長腳蟹盛宴</span></div>
+                <div class="check-item"><input type="checkbox"><span>🍛 札幌湯咖喱 Suage+、成吉思汗烤羊肉、在地拉麵</span></div>
             </div>
-        </div>
-
-        <div class="info-card" style="background:#F0F9FF;">
-            <h4 style="margin: 0 0 10px 0; font-size: 0.9rem; color: #0284C7;">📸 旅行快照相片牆</h4>
-            <div class="album-grid" id="albumGridZone"></div>
         </div>
 
         <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:10px;" onclick="switchTab('home')">🎮 返回主選單</button>
@@ -562,7 +601,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // ================= 🛰️ 5.1 精確網址變更校正陣列 =================
+    // ================= 🛰️ 行程核心數據庫 =================
     const masterData = [
         { day: 1, route: "抵達台北 ➔ 晴光商圈 ➔ 寧夏夜市", km: 15, driveTime: "約 30 分鐘", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "下午抵達台北，解鎖入住中山區「晴美公寓酒店」。下樓即是晴光市場商圈，必吃紅豆餅與脆皮鮮奶甜甜圈！晚上直奔寧夏夜市爆食蚵仔煎、地瓜球、大腸包小腸！", b: "自理", l: "自理", d: "寧夏夜市在地小吃大激食", title: "晴美公寓酒店解鎖", desc: "順利抵達台北並成功 Check-in，上傳全家第一張台式快閃合照！", addr: "10491台灣臺北市中山區林森北路568號", url: "https://www.jolleyhotels.com/" },
         { day: 2, route: "西門町潮流購物 ➔ 鼎泰豐晚餐", km: 10, driveTime: "約 20 分鐘", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "帶領兩位青少年狂掃西門町商圈！潮流服飾、萬年大樓潮玩極合孩子口味。晚上前往鼎泰豐（新生店）享用世界級小籠包與排骨炒飯大餐。", b: "酒店內享用", l: "西門町在地美食", d: "鼎泰豐 新生店頂級麵點", title: "西門町潮流捕獲", desc: "拍下青少年在西門町萬年大樓買到心儀潮玩的開心合照提交！", addr: "106台灣臺北市大安區信義路二段277號 (鼎泰豐)", url: "https://www.dintaifung.com.tw" },
@@ -572,7 +611,7 @@
         { day: 6, route: "羅臼賞鯨船（震撼睇殺人鯨） ➔ 旭川拉麵村 ➔ 返札幌", km: 430, driveTime: "約 5 小時 45 分鐘 (跨區遠征 Day 2)", tag: "WILDLIFE", hub: "rausu", targetHub: "sapporo", weather: "羅臼出海大晴天", spots: "【全旅程最高價值觀光亮點】！早上 08:30 登上【知床羅臼賞鯨船】出海。8月是觀賞野生殺人鯨（Orca）家族的黃金季節！看巨型黑白殺人鯨破浪而出甚至躍出海面，震撼力舉世無雙！回程順路爆食旭川拉麵村，深夜返札幌獨立屋。", b: "知床自理", l: "羅臼在地漁夫料理", d: "旭川拉麵村 (旭川市永山11條4丁目119-48)", title: "🐋 霸氣解鎖！夏日限定野生殺人鯨", desc: "成功拍下黑白殺人鯨家族破浪而出、或是抹香鯨噴水的極限震撼畫面！", addr: "日本〒086-1833 Menashi District, Rausu, Honchō, 27-1", url: "https://www.e-shiretoko.com" },
         { day: 7, route: "登別地獄谷 ➔ 登別熊牧場（喂熊與梅花鹿）", km: 140, driveTime: "約 2 小時", tag: "WILDLIFE", hub: "sapporo", targetHub: "noboribetsu", weather: "登別火山硫磺天", spots: "開車前往登別地獄谷感受震撼火山白煙。隨後搭乘空中纜車直達【登別熊牧場】。除了可以購買特製食糧餵飼會招手要食物的龐大蝦夷棕熊外，還能進入「蝦夷鹿牧場」親手餵飼溫潤的日本梅花鹿！", b: "大本營自製", l: "登別溫泉街拉麵", d: "日式傳統燒肉", title: "🐻 熊與梅花鹿雙重餵飼達成", desc: "上傳孩子親手餵飼梅花鹿，或是棕熊精明招手要食物的生動照片！", addr: "224 Noboribetsuonsenchō, Noboribetsu, Hokkaido 059-0551", url: "https://bearpark.jp" },
         { day: 8, route: "札幌車站潮流爆買（寶可夢、Jump Shop）", km: 15, driveTime: "約 40 分鐘", tag: "SHOPPING", hub: "noboribetsu", targetHub: "sapporo", weather: "札幌晴天", spots: "今天全面滿足青少年的動漫潮流魂！衝進 JR Tower Stellaplace 狂掃寶可夢中心（Pokemon Center）與 Jump Shop 購買限定周邊。晚餐在 6 樓享用產地直送的高性價比根室花丸迴轉壽司。", b: "大本營自製", l: "車站地下街美食", d: "根室花丸迴轉壽司 (Stellar Place 6樓)", title: "🎮 動漫周邊與寶可夢大爆發", desc: "拍下青少年手提寶可夢中心或Jump Shop戰利品大滿貫的開心照片！", addr: "札幌市中央區北5條西2丁目 (JR Tower)", url: "https://www.stellarplace.net" },
-        { day: 9, route: "三井 OUTLET PARK 北廣島（運動品牌爆買日）", km: 45, driveTime: "約 1 小時", tag: "SHOPPING", hub: "sapporo", targetHub: "sapporo", weather: "札幌多雲", spots: "自駕前往三井 OUTLET PARK 札幌北廣島。這裡匯集大量國際運動品牌、服飾與戶外裝備，全室內免受天氣影響，全家開展限時大血拼！晚餐回市區享用頂級日式料理。", b: "大本營自製", l: "Outlet 美食廣場", d: "札幌頂級成吉思汗烤肉", title: "💸 運動品牌戰利品大開箱", desc: "拍下全車後車廂被運動品牌及免稅大包小包塞滿的震撼畫面提交！", addr: "北廣島市大曲幸町3丁目7-6", url: "https://mitsui-shopping-park.com/mop/sapporo/" },
+        { day: 9, route: "三井 OUTLET PARK 北廣島（運動品牌爆買日）", km: 45, driveTime: "約 1 小時", tag: "SHOPPING", hub: "sapporo", targetHub: "sapporo", weather: "札幌多雲", spots: "自駕前往三井 OUTLET PARK 札幌北廣島。這裡匯集大量國際運動品牌、服飾與戶外裝裝備，全室內免受天氣影響，全家開展限時大血拼！晚餐回市區享用頂級日式料理。", b: "大本營自製", l: "Outlet 美食廣場", d: "札幌頂級成吉思汗烤肉", title: "💸 運動品牌戰利品大開箱", desc: "拍下全車後車廂被運動品牌及免稅大包小包塞滿的震撼畫面提交！", addr: "北廣島市大曲幸町3丁目7-6", url: "https://mitsui-shopping-park.com/mop/sapporo/" },
         { day: 10, route: "富良野富田農場（夏日彩色向日葵花田）", km: 130, driveTime: "約 2 小時 15 分鐘", tag: "FURANO", hub: "sapporo", targetHub: "furano", weather: "富良野大晴天", spots: "挺進中富良野【富田農場】！飽覽盛夏盛開的向日葵彩色花田與薰衣草餘韻，狂嗑爆汁夕張哈密瓜。晚上回到札幌，前往名店「冰雪之門」享用極致奢華的帝王蟹與松葉蟹大餐！", b: "大本營自製", l: "富良野在地咖哩飯", d: "冰雪之門 螃蟹盛宴 (中央區南5條西2丁目)", title: "🌻 沉醉夏日向日葵彩色花田", desc: "在無邊際的金色向日葵花海前拍下一家四口的完美陽光合照！", addr: "空知郡中富良野町基線北15號", url: "https://www.farm-tomita.co.jp" },
         { day: 11, route: "移居小樽新基地 ➔ 小樽運河散步 ➔ 爆汁炸雞", km: 45, driveTime: "約 50 分鐘", tag: "OTARU", hub: "furano", targetHub: "otaru", weather: "小樽微風", spots: "早上從小樽獨立屋辦理進駐新基地。黃昏前往懷舊的小樽運河散步。晚餐朝聖青少年的最愛——「若雞時代 Naruto」，品嚐外脆內嫩、咬下去瘋狂爆汁的招牌半身炸雞！", b: "大本營自製", l: "小樽街頭小吃", d: "若雞時代 Naruto (小樽市稻穗3丁目16-13)", title: "🏠 小樽石山町新據點解鎖", desc: "自駕進駐小樽石山町獨立屋，拍下這個極具空間感的新客廳基地合照！", addr: "19-4 Ishiyamachō, 小樽市, 北海道 047-0038", url: "https://maps.app.goo.gl/Vp6yPAarJ9JnLbpg9?g_st=ic" },
         { day: 12, route: "積丹半島夏日限定「積丹藍」海景自駕", km: 130, driveTime: "約 2 小時 20 分鐘", tag: "OTARU", hub: "otaru", targetHub: "shakotan", weather: "積丹藍大晴天", spots: "自駕衝向積丹半島神威岬！徒步走在壯麗的海脊步道上，飽覽 360 度震撼澄澈的寶藍色寶藏大海。中午在積丹半島漁夫餐廳享用 8 月最肥美、限時現撈的極品海膽丼！", b: "小樽大本營自製", l: "積丹現撈肥美海膽丼", d: "小樽港新鮮壽司", title: "🌊 征服 360 度夢幻積丹藍", desc: "在神威岬步道極限頂點，拍下背景為純粹「積丹藍」的絕美海景大片！", addr: "積丹郡積丹町大字神威岬", url: "https://www.kanko-shakotan.jp" },
@@ -786,6 +825,7 @@
         }
     }
 
+    // 🚀 保留並修正的 Google 導航核心邏輯（主頁及各大導航鍵綁定）
     function launchGoogleMapsNavigation() {
         const data = masterData[activeDay - 1];
         const targetHubObj = mapHubs[data.targetHub];
@@ -825,7 +865,7 @@
         saveGame();
     }
 
-    // ================= 📸 照片 Canvas 高效等比壓縮補丁 =================
+    // 照片 Canvas 高效等比壓縮防爆補丁
     function handlePhotoUpload(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
@@ -978,7 +1018,7 @@
         }
     }
 
-    // ================= 🗺️ 多景點精確中途站導航補丁 =================
+    // 精確中途點導航與接口更新
     function updateAllInterfaces() {
         const data = masterData[activeDay - 1];
         const targetHubObj = mapHubs[data.targetHub];
