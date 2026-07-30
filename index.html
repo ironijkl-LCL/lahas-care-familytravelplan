@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 北海道冒險作戰中心 - RPG Travel Master 10.1 (Member Dynamic Control)</title>
+    <title>🎮 北海道冒險作戰中心 - RPG Travel Master 11.0 Ultimate</title>
     
     <link rel="manifest" href='data:application/json,{"name":"RPG Travel Master","short_name":"冒險中心","start_url":".","display":"standalone","background_color":"#87CEEB","theme_color":"#4FC3F7","orientation":"portrait","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -67,6 +67,7 @@
             border: 4px solid #FFFFFF; position: relative; z-index: 1;
         }
 
+        /* 🧙‍♂️ 開局嚮導 Wizard Modal */
         .wizard-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: #FFFFFF; z-index: 1000; display: flex;
@@ -136,11 +137,13 @@
             background: white; border: 1px solid #CBD5E1; box-shadow: 0 6px 20px rgba(0,0,0,.04); 
             border-radius: 18px; padding: 12px 10px; text-align: center; cursor: pointer; position: relative; 
         }
-        /* ✨ 新增：卡片右上角刪除成員按鈕 */
+        
+        /* 💡 放大至 32px 防誤觸刪除按鈕 (Bug 6 修正) */
         .player-card-del-btn {
-            position: absolute; top: 6px; right: 8px; background: rgba(220,38,38,0.1); 
-            color: #DC2626; border: none; border-radius: 50%; width: 22px; height: 22px;
-            font-size: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            position: absolute; top: 6px; right: 6px; background: rgba(220,38,38,0.12); 
+            color: #DC2626; border: none; border-radius: 50%; width: 32px; height: 32px;
+            font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            z-index: 10;
         }
         .player-card-del-btn:hover { background: #DC2626; color: white; }
 
@@ -158,6 +161,7 @@
             border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.08);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             font-size: 0.65rem; color: #475569; font-weight: bold; text-align: center; overflow: hidden;
+            cursor: pointer;
         }
         .home-photo-slot img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -203,7 +207,7 @@
         .chart-container { width: 100%; height: 150px; margin-top: 8px; }
 
         .album-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .album-card { background: white; padding: 6px 6px 18px 6px; box-shadow: 0 6px 12px rgba(0,0,0,.06); border-radius: 4px; }
+        .album-card { background: white; padding: 6px 6px 18px 6px; box-shadow: 0 6px 12px rgba(0,0,0,.06); border-radius: 4px; position: relative; cursor: pointer; }
         .album-img { width: 100%; height: 90px; object-fit: cover; display: block; background: #E2E8F0; }
         .album-meta { padding: 4px 2px 0 2px; font-size: 0.62rem; color: var(--gray); font-weight: bold; text-align: center; }
 
@@ -222,6 +226,17 @@
         .google-tool-label { font-size: 0.65rem; font-weight: bold; color: #0F172A; text-align: center; }
 
         .edit-input-field { width: 100%; padding: 6px 8px; margin-bottom: 6px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.8rem; }
+        
+        /* Modal 通用大圖與總覽彈窗 */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.75); z-index: 2000; display: none;
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-content {
+            background: white; border-radius: 20px; max-width: 380px; width: 100%;
+            max-height: 85vh; overflow-y: auto; padding: 18px; position: relative;
+        }
     </style>
 </head>
 <body>
@@ -230,7 +245,13 @@
 <div class="sky-cloud cloud2">☁️</div>
 <div class="sky-cloud cloud3">☁️</div>
 
+<!-- 全局通用 Modal（大圖檢視與總覽模式，Bug 8 & 9 修正） -->
+<div class="modal-overlay" id="genericModalOverlay" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()" id="modalContentBox"></div>
+</div>
+
 <div class="phone-container" role="main">
+    <!-- PWA 安裝提示條 -->
     <div class="pwa-install-banner" id="pwaInstallBanner">
         <span>📲 將「冒險中心」加至手機主頁面</span>
         <button class="pwa-install-btn" id="pwaInstallBtn">立即安裝</button>
@@ -318,7 +339,10 @@
     <div id="tab-map" class="tab-content" role="tabpanel">
         <div class="map-timeline-wrapper">
             <div class="map-timeline" id="map-timeline-bar" role="tablist" aria-label="日期時間軸"></div>
-            <button class="btn-today-jump" onclick="jumpToCurrentDay()">📍 回到今日</button>
+            <!-- 💡 修正 3：明確改為「回到 Day 1」標籤 -->
+            <button class="btn-today-jump" onclick="jumpToFirstDay()">📍 回到 Day 1</button>
+            <!-- 💡 修正 8：新增「總覽模式」按鈕 -->
+            <button class="btn-today-jump" style="background:#0369A1;" onclick="openOverviewModal()">📋 總覽</button>
         </div>
 
         <div class="map-box"><div id="leafletMap"></div></div>
@@ -356,22 +380,34 @@
             </div>
         </div>
 
+        <!-- 💡 修正 4：編輯當天行程面板（新增 Waypoints Lat/Lng 座標輸入） -->
         <div class="info-card" id="editDayItineraryPanel" style="display:none; background:#F8FAFC; border:1px dashed #0284C7;">
-            <h4 style="margin:0 0 8px 0;">✏️ 編輯 Day <span id="editDayNumLabel">1</span> 行程細節</h4>
+            <h4 style="margin:0 0 8px 0;">✏️ 編輯 Day <span id="editDayNumLabel">1</span> 細節與地圖座標</h4>
             <input type="text" class="edit-input-field" id="editInputRoute" placeholder="路線描述">
             <input type="text" class="edit-input-field" id="editInputDriveTime" placeholder="預計車程時間">
             <textarea class="edit-input-field" id="editInputSpots" rows="2" placeholder="景點深度說明"></textarea>
             <input type="text" class="edit-input-field" id="editInputAddr" placeholder="目的地地號/地址">
+            
             <div style="display:flex; gap:6px;">
+                <input type="number" step="0.0001" class="edit-input-field" id="editInputLat" placeholder="緯度 Lat (例如: 25.064)">
+                <input type="number" step="0.0001" class="edit-input-field" id="editInputLng" placeholder="經度 Lng (例如: 121.526)">
+            </div>
+
+            <div style="display:flex; gap:6px; margin-top:4px;">
                 <button class="btn btn-primary" onclick="saveCurrentDayEdits()">💾 儲存修改</button>
                 <button class="btn btn-outline" onclick="toggleEditDayPanel(false)">取消</button>
             </div>
         </div>
 
-        <div style="display:flex; gap:6px;">
-            <button class="btn btn-outline" style="flex:1;" onclick="toggleEditDayPanel(true)">✏️ 編輯當日行程</button>
-            <button class="btn btn-outline" style="flex:1;" onclick="addNewDayToItinerary()">➕ 新增一日</button>
+        <!-- 💡 修正 7：調換日序與刪除當日行程控制列 -->
+        <div style="display:flex; gap:6px; margin-bottom:6px;">
+            <button class="btn btn-outline" style="flex:1;" onclick="toggleEditDayPanel(true)">✏️ 編輯當日</button>
+            <button class="btn btn-outline" style="flex:1;" onclick="moveDayOrder(-1)">⬆️ 上移</button>
+            <button class="btn btn-outline" style="flex:1;" onclick="moveDayOrder(1)">⬇️ 下移</button>
+            <button class="btn btn-outline" style="color:#DC2626; border-color:#DC2626;" onclick="deleteCurrentDay()">🗑️ 刪除</button>
         </div>
+        
+        <button class="btn btn-outline" onclick="addNewDayToItinerary()">➕ 新增一日行程</button>
         <button class="btn btn-primary" style="background:var(--switch-blue);" aria-label="返回主選單" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
@@ -415,11 +451,11 @@
         
         <div class="info-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <h4 style="margin:0;">📸 冒險相簿牆</h4>
+                <h4 style="margin:0;">📸 冒險相簿牆 (可點擊單張放大/刪除)</h4>
                 <span style="font-size:0.65rem; color:var(--gray);" id="indexedDbSizeLabel">已存取: 計算中...</span>
             </div>
             <div class="album-grid" id="albumGridZone"></div>
-            <button class="btn btn-outline" style="margin-top:8px; font-size:0.7rem; color:#DC2626; border-color:#DC2626;" onclick="clearPhotosIndexedDBAndReload()">🗑️ 清理相簿照片 (釋放空間)</button>
+            <button class="btn btn-outline" style="margin-top:8px; font-size:0.7rem; color:#DC2626; border-color:#DC2626;" onclick="clearPhotosIndexedDBAndReload()">🗑️ 清理全數相片照片</button>
         </div>
         
         <button class="btn btn-primary" style="background:var(--switch-blue);" aria-label="返回主選單" onclick="switchTab('home')">🎮 返回主選單</button>
@@ -448,7 +484,7 @@
         <div class="info-card" style="background:#F8FAFC;">
             <h3>⚙️ 冒險數據管理與進階工具</h3>
             
-            <button class="btn btn-primary" style="background:#0284C7;" aria-label="預下載離線地圖" onclick="prefetchOfflineMapTiles()">📥 預下載全旅程離線地圖 Tiles</button>
+            <button class="btn btn-primary" style="background:#0284C7;" aria-label="預下載離線地圖" onclick="prefetchOfflineMapTiles()">📥 預下載離線地圖 Tiles (Zoom 10-14)</button>
             <button class="btn btn-primary" style="background:#0D9488;" aria-label="生成一鍵分享連結" onclick="shareTripViaLightweightURL()">🔗 生成輕量分享連結 (輕量版無相片)</button>
             
             <div style="display:flex; gap:6px; margin:6px 0;">
@@ -478,11 +514,11 @@
 </div>
 
 <script>
-    // IndexedDB 相簿資料庫
+    // IndexedDB 相簿資料庫與單張刪除支援 (Bug 9 修正)
     function openImageDB() {
         return new Promise((resolve, reject) => {
             try {
-                const request = indexedDB.open("TravelAppPhotosDB_v10", 1);
+                const request = indexedDB.open("TravelAppPhotosDB_v11", 1);
                 request.onupgradeneeded = (e) => {
                     const db = e.target.result;
                     if (!db.objectStoreNames.contains("photos")) {
@@ -516,21 +552,40 @@
         } catch(e) { return []; }
     }
 
+    // 💡 單張照片刪除
+    async function deleteSinglePhotoFromIndexedDB(id) {
+        try {
+            const db = await openImageDB();
+            const tx = db.transaction("photos", "readwrite");
+            tx.objectStore("photos").delete(id);
+            tx.oncomplete = () => {
+                closeModal();
+                updateAllInterfaces();
+            };
+        } catch(e) {}
+    }
+
+    // 💡 靜默清空 IndexedDB（專供開局嚮導使用，不跳出的 Confirm、不崩潰，Bug 1 修正）
+    async function silentClearPhotosIndexedDB() {
+        try {
+            const db = await openImageDB();
+            const tx = db.transaction("photos", "readwrite");
+            tx.objectStore("photos").clear();
+        } catch(e) {}
+    }
+
     async function clearPhotosIndexedDBAndReload() {
         if (confirm("確定要清空相簿中的照片釋放手機空間嗎？")) {
-            try {
-                const db = await openImageDB();
-                const tx = db.transaction("photos", "readwrite");
-                tx.objectStore("photos").clear();
-                tx.oncomplete = () => window.location.reload();
-            } catch(e){}
+            await silentClearPhotosIndexedDB();
+            window.location.reload();
         }
     }
 
+    // Cache-First 真離線 Service Worker
     function registerRealOfflineServiceWorker() {
         if ('serviceWorker' in navigator) {
             const swScript = `
-                const CACHE_NAME = 'travel-rpg-v10';
+                const CACHE_NAME = 'travel-rpg-v11';
                 const ASSETS = [
                     './',
                     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
@@ -549,7 +604,7 @@
                             return fetch(e.request).then(res => {
                                 if (e.request.url.includes('tile.openstreetmap.org')) {
                                     const resClone = res.clone();
-                                    caches.open('map-tiles-v10').then(c => c.put(e.request, resClone));
+                                    caches.open('map-tiles-v11').then(c => c.put(e.request, resClone));
                                 }
                                 return res;
                             });
@@ -597,6 +652,7 @@
     let activeDay = 1;
     let currentUploadedPhotoUrl = ""; 
     let completedDays = []; 
+    let manualCheckinDays = []; // 💡 修正 2: 手動打卡持久化數組
     let rpgPlayers = {};
     let isGpsPowerSaving = false;
 
@@ -657,7 +713,8 @@
         renderWizardMemberInputs();
     }
 
-    function finishWizardAndStart() {
+    // 💡 修正 1: Wizard 完結後，靜默清空照片、不叫 Confirm、不 Reload，流暢啟動！
+    async function finishWizardAndStart() {
         rpgPlayers = {};
         tempWizardMembers.forEach((_, idx) => {
             const av = document.getElementById(`w-av-${idx}`).value || "🧑";
@@ -674,11 +731,11 @@
             ];
         }
 
-        activeDay = 1; completedDays = [];
-        clearPhotosIndexedDBAndReload();
+        activeDay = 1; completedDays = []; manualCheckinDays = [];
+        await silentClearPhotosIndexedDB(); // 靜默清空
         saveGame();
-        document.getElementById('wizardOverlay').style.display = 'none';
         
+        document.getElementById('wizardOverlay').style.display = 'none';
         initLeafletMapSystem();
         buildTimeline();
         updateAllInterfaces();
@@ -687,19 +744,20 @@
 
     function saveGame() {
         try {
-            const state = { activeDay, rpgPlayers, completedDays, masterData };
-            localStorage.setItem('rpg_travel_master_v10', JSON.stringify(state));
+            const state = { activeDay, rpgPlayers, completedDays, manualCheckinDays, masterData };
+            localStorage.setItem('rpg_travel_master_v11', JSON.stringify(state));
         } catch(e) { console.error("LocalStorage Save Fail:", e); }
     }
 
     function loadGame() {
         try {
-            const saved = localStorage.getItem('rpg_travel_master_v10');
+            const saved = localStorage.getItem('rpg_travel_master_v11');
             if (saved) {
                 const parsed = JSON.parse(saved);
                 activeDay = parsed.activeDay || 1;
                 rpgPlayers = parsed.rpgPlayers || {};
                 completedDays = parsed.completedDays || [];
+                manualCheckinDays = parsed.manualCheckinDays || [];
                 masterData = parsed.masterData || [];
                 return true;
             }
@@ -735,7 +793,7 @@
                 const parsed = JSON.parse(jsonStr);
                 if (parsed && parsed.masterData) {
                     if (confirm("🔗 偵測到來自分享的行程資料！是否載入並覆蓋當前行程？")) {
-                        localStorage.setItem('rpg_travel_master_v10', JSON.stringify(parsed));
+                        localStorage.setItem('rpg_travel_master_v11', JSON.stringify(parsed));
                         window.location.hash = "";
                         return true;
                     }
@@ -803,6 +861,7 @@
         }
     }
 
+    // 💡 修正 4: 支援 Waypoints Lat/Lng 座標編輯
     function toggleEditDayPanel(show) {
         const panel = document.getElementById('editDayItineraryPanel');
         if (show) {
@@ -812,6 +871,11 @@
             document.getElementById('editInputDriveTime').value = data.driveTime || "";
             document.getElementById('editInputSpots').value = data.spots || "";
             document.getElementById('editInputAddr').value = data.addr || "";
+            
+            const firstWp = (data.waypoints && data.waypoints[0]) ? data.waypoints[0] : {lat: 25.064, lng: 121.526};
+            document.getElementById('editInputLat').value = firstWp.lat;
+            document.getElementById('editInputLng').value = firstWp.lng;
+            
             panel.style.display = "block";
         } else {
             panel.style.display = "none";
@@ -824,36 +888,89 @@
         data.driveTime = document.getElementById('editInputDriveTime').value;
         data.spots = document.getElementById('editInputSpots').value;
         data.addr = document.getElementById('editInputAddr').value;
+        
+        const newLat = parseFloat(document.getElementById('editInputLat').value) || 25.064;
+        const newLng = parseFloat(document.getElementById('editInputLng').value) || 121.526;
+        
+        if (!data.waypoints || data.waypoints.length === 0) {
+            data.waypoints = [{name: data.route, lat: newLat, lng: newLng}];
+        } else {
+            data.waypoints[0].lat = newLat;
+            data.waypoints[0].lng = newLng;
+        }
+
         saveGame();
         toggleEditDayPanel(false);
         updateAllInterfaces();
-        alert("💾 已儲存此日行程修改！");
+        drawDailyRouteOnMap();
+        alert("💾 已儲存此日行程細節與地圖座標！");
     }
 
+    // 💡 修正 7: 行程順序調換與刪除當天
+    function moveDayOrder(direction) {
+        const index = activeDay - 1;
+        const targetIndex = index + direction;
+        
+        if (targetIndex < 0 || targetIndex >= masterData.length) {
+            alert("⚠️ 已到達行程邊界，無法再移動！");
+            return;
+        }
+
+        const temp = masterData[index];
+        masterData[index] = masterData[targetIndex];
+        masterData[targetIndex] = temp;
+
+        masterData.forEach((d, idx) => d.day = idx + 1);
+        
+        activeDay = targetIndex + 1;
+        saveGame();
+        buildTimeline();
+        updateAllInterfaces();
+        drawDailyRouteOnMap();
+    }
+
+    function deleteCurrentDay() {
+        if (masterData.length <= 1) {
+            alert("⚠️ 旅程至少需保留 1 天！");
+            return;
+        }
+        if (confirm(`確定要刪除 Day ${activeDay} 的行程嗎？`)) {
+            masterData.splice(activeDay - 1, 1);
+            masterData.forEach((d, idx) => d.day = idx + 1);
+            activeDay = Math.min(activeDay, masterData.length);
+            saveGame();
+            buildTimeline();
+            updateAllInterfaces();
+            drawDailyRouteOnMap();
+        }
+    }
+
+    // 💡 修正 5: 離線地圖多層級 (Zoom 10-14) 預下載
     async function prefetchOfflineMapTiles() {
         if (!('caches' in window)) { alert("瀏覽器不支援 Cache API"); return; }
-        alert("📥 開始為全旅程預下載離線地圖切片，請稍候...");
+        alert("📥 開始為全旅程預下載離線地圖切片 (Zoom 10-14)，請稍候...");
         try {
-            const cache = await caches.open('map-tiles-v10');
+            const cache = await caches.open('map-tiles-v11');
             let count = 0;
             for (let d of masterData) {
                 if (d.waypoints) {
                     for (let wp of d.waypoints) {
-                        const zoom = 10;
-                        const x = Math.floor((wp.lng + 180) / 360 * Math.pow(2, zoom));
-                        const y = Math.floor((1 - Math.log(Math.tan(wp.lat * Math.PI / 180) + 1 / Math.cos(wp.lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
-                        const tileUrl = `https://a.tile.openstreetmap.org/${zoom}/${x}/${y}.png`;
-                        try { await cache.add(tileUrl); count++; } catch(e){}
+                        for (let z = 10; z <= 14; z++) {
+                            const x = Math.floor((wp.lng + 180) / 360 * Math.pow(2, z));
+                            const y = Math.floor((1 - Math.log(Math.tan(wp.lat * Math.PI / 180) + 1 / Math.cos(wp.lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, z));
+                            const tileUrl = `https://a.tile.openstreetmap.org/${z}/${x}/${y}.png`;
+                            try { await cache.add(tileUrl); count++; } catch(e){}
+                        }
                     }
                 }
             }
-            alert(`✅ 離線地圖預載完成！已成功快取 ${count} 個區域切片！`);
+            alert(`✅ 離線地圖預載完成！已快取 ${count} 個區域切片！\n提示：詳細街道請在有網路時開啟瀏覽過一次即可完整快取。`);
         } catch(e) { alert("❌ 預載過程受阻"); }
     }
 
     function resetLocalStorageData() {
         if (confirm("確定要清空存檔與所有 IndexedDB 相片嗎？")) {
-            localStorage.removeItem('rpg_travel_master_v10');
+            localStorage.removeItem('rpg_travel_master_v11');
             clearPhotosIndexedDBAndReload();
         }
     }
@@ -900,12 +1017,17 @@
         switchTab('home');
     }
 
+    // 💡 修正 2: 手動打卡持久化寫入 manualCheckinDays
     function manualForceCheckin() {
+        if (!manualCheckinDays.includes(activeDay)) {
+            manualCheckinDays.push(activeDay);
+            saveGame();
+        }
         document.getElementById('gps-proximity-alert').style.display = 'block';
         document.getElementById('gps-proximity-alert').style.background = '#16A34A';
-        document.getElementById('gps-proximity-alert').innerHTML = `📍 已透過手動備援機制完成座標打卡！`;
+        document.getElementById('gps-proximity-alert').innerHTML = `📍 已解鎖手動座標打卡！`;
         document.getElementById('btn-submit-quest').style.display = 'block';
-        alert("📍 已手動備援核對座標！請點擊上方按鈕提交任務。");
+        alert("📍 已解鎖座標打卡！請點擊上方按鈕提交任務。");
     }
 
     function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
@@ -1052,10 +1174,11 @@
         });
     }
 
-    function jumpToCurrentDay() {
+    // 💡 修正 3: 明確定位為「回到 Day 1」
+    function jumpToFirstDay() {
         activeDay = 1;
         selectDay(activeDay);
-        alert("📍 已跳轉至行程首日！");
+        alert("📍 已切換返回 Day 1 首日行程！");
     }
 
     function selectDay(dayNum) {
@@ -1076,7 +1199,6 @@
         window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.addr)}`, '_blank');
     }
 
-    // ✨ 新增：彈出 Prompt 讓使用者即時加入新隊員
     function promptAddNewMember() {
         const name = prompt("請輸入新隊員名稱：", "隊員" + (Object.keys(rpgPlayers).length + 1));
         if (!name) return;
@@ -1092,7 +1214,6 @@
         alert(`🎉 歡迎【${name}】加入冒險隊伍！`);
     }
 
-    // ✨ 新增：刪除成員功能
     function removeMember(key) {
         const keys = Object.keys(rpgPlayers);
         if (keys.length <= 1) {
@@ -1119,7 +1240,6 @@
             let lv = Math.floor(p.exp / 100) + 1;
             let fill = p.exp % 100;
             
-            // ✨ 渲染帶有右上角 ❌ 刪除按鈕的成員卡片
             grid.innerHTML += `
                 <div class="player-card" tabindex="0">
                     <button class="player-card-del-btn" aria-label="刪除 ${p.name}" onclick="event.stopPropagation(); removeMember('${k}')">❌</button>
@@ -1197,9 +1317,53 @@
         document.getElementById('q-title').innerText = data.title;
         document.getElementById('q-desc').innerText = data.desc;
 
+        // 💡 修正 2: 檢查手動打卡記憶數組，若曾手動打卡，一律還原「完成任務」按鈕！
+        if (manualCheckinDays.includes(activeDay)) {
+            document.getElementById('btn-submit-quest').style.display = 'block';
+        } else {
+            document.getElementById('btn-submit-quest').style.display = 'none';
+        }
+
         renderPlayerStats();
         initOrUpdateChart();
         await renderAlbumWallAndCarousel();
+    }
+
+    // 💡 修正 9: 相簿大圖彈窗與單張刪除
+    function openPhotoModal(url, id, name, day) {
+        const overlay = document.getElementById('genericModalOverlay');
+        const content = document.getElementById('modalContentBox');
+        content.innerHTML = `
+            <img src="${url}" style="width:100%; border-radius:12px; margin-bottom:10px;">
+            <div style="font-weight:bold; font-size:0.9rem; margin-bottom:4px;">Day ${day} · ${name}</div>
+            <button class="btn btn-outline" style="color:#DC2626; border-color:#DC2626;" onclick="deleteSinglePhotoFromIndexedDB(${id})">🗑️ 刪除此張相片</button>
+            <button class="btn btn-primary" style="margin-top:6px; background:var(--switch-blue);" onclick="closeModal()">關閉</button>
+        `;
+        overlay.style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('genericModalOverlay').style.display = 'none';
+    }
+
+    // 💡 修正 8: 14 天總覽模式 Modal
+    function openOverviewModal() {
+        const overlay = document.getElementById('genericModalOverlay');
+        const content = document.getElementById('modalContentBox');
+        let listHtml = `<h3 style="margin:0 0 10px 0;">📋 全行程 14 天總覽</h3><div style="max-height:60vh; overflow-y:auto;">`;
+        
+        masterData.forEach(d => {
+            listHtml += `
+                <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:8px; text-align:left;">
+                    <div style="font-weight:bold; color:var(--primary); font-size:0.85rem;">Day ${d.day}: ${d.title}</div>
+                    <div style="font-size:0.75rem; color:#0F172A; margin:2px 0;"><b>路線:</b> ${d.route}</div>
+                    <div style="font-size:0.72rem; color:var(--gray);">🍱 早: ${d.b} | 午: ${d.l} | 晚: ${d.d}</div>
+                </div>
+            `;
+        });
+        listHtml += `</div><button class="btn btn-primary" style="margin-top:10px; background:var(--switch-blue);" onclick="closeModal()">關閉總覽</button>`;
+        content.innerHTML = listHtml;
+        overlay.style.display = 'flex';
     }
 
     async function renderAlbumWallAndCarousel() {
@@ -1213,8 +1377,12 @@
         const carousel = document.getElementById('homePhotoCarousel');
         if (carousel) {
             let html = "";
-            for (let i = 0; i < Math.min(3, photos.length); i++) { html += `<div class="home-photo-slot"><img src="${photos[i].url}" alt="照片"></div>`; }
-            for (let j = photos.length; j < 3; j++) { html += `<div class="home-photo-slot">📸<br>採集回憶</div>`; }
+            for (let i = 0; i < Math.min(3, photos.length); i++) { 
+                html += `<div class="home-photo-slot" onclick="openPhotoModal('${photos[i].url}', ${photos[i].id}, '${photos[i].name}', ${photos[i].day})"><img src="${photos[i].url}" alt="照片"></div>`; 
+            }
+            for (let j = photos.length; j < 3; j++) { 
+                html += `<div class="home-photo-slot">📸<br>採集回憶</div>`; 
+            }
             carousel.innerHTML = html;
         }
 
@@ -1222,7 +1390,12 @@
         if (grid) {
             grid.innerHTML = "";
             photos.forEach(p => {
-                grid.innerHTML += `<div class="album-card"><img class="album-img" src="${p.url}" alt="照片"><div class="album-meta">Day ${p.day} · ${p.name}</div></div>`;
+                grid.innerHTML += `
+                    <div class="album-card" onclick="openPhotoModal('${p.url}', ${p.id}, '${p.name}', ${p.day})">
+                        <img class="album-img" src="${p.url}" alt="照片">
+                        <div class="album-meta">Day ${p.day} · ${p.name}</div>
+                    </div>
+                `;
             });
         }
     }
@@ -1260,7 +1433,7 @@
     }
 
     function exportTripData() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem('rpg_travel_master_v10'));
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem('rpg_travel_master_v11'));
         const anchor = document.createElement('a');
         anchor.setAttribute("href", dataStr);
         anchor.setAttribute("download", `rpg_travel_backup.json`);
@@ -1276,7 +1449,7 @@
             reader.onload = function(e) {
                 try {
                     const parsed = JSON.parse(e.target.result);
-                    localStorage.setItem('rpg_travel_master_v10', JSON.stringify(parsed));
+                    localStorage.setItem('rpg_travel_master_v11', JSON.stringify(parsed));
                     alert("✅ 數據載入成功！即將重新整理...");
                     window.location.reload();
                 } catch(err) { alert("❌ JSON 格式不正確。"); }
