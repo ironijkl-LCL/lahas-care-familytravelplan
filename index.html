@@ -3,30 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 北海道冒險作戰中心 - Summer RPG 5.1 終極拓荒版</title>
+    <title>🎮 北海道冒險作戰中心 - RPG Travel Master 10.1 (Member Dynamic Control)</title>
     
-    <!-- PWA Manifest 動態 Data URI 內嵌配置文件 -->
-    <link rel="manifest" href='data:application/json,{"name":"Hokkaido Summer RPG 5.1","short_name":"北海道冒險","start_url":".","display":"standalone","background_color":"#87CEEB","theme_color":"#4FC3F7","orientation":"portrait","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
+    <link rel="manifest" href='data:application/json,{"name":"RPG Travel Master","short_name":"冒險中心","start_url":".","display":"standalone","background_color":"#87CEEB","theme_color":"#4FC3F7","orientation":"portrait","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="北海道冒險">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary: #FF6B6B;
-            --switch-blue: #4FC3F7;
+            --primary: #D93838;
+            --switch-blue: #0284C7;
             --switch-dark: #F8FAFC;
             --switch-panel: #FFFFFF;
-            --secondary: #4ECDC4;
-            --accent: #FFD93D;
-            --text-light: #1E293B;
-            --gray: #64748B;
-            --route-done: #22C55E;
-            --route-future: #CBD5E1;
-            --edit-color: #A855F7;
-            --pack-color: #0284C7;
+            --secondary: #0D9488;
+            --accent: #D97706;
+            --text-light: #0F172A;
+            --gray: #475569;
+            --route-done: #16A34A;
+            --pack-color: #0369A1;
         }
 
         * {
@@ -47,14 +44,14 @@
         }
 
         a { text-decoration: none; color: inherit; }
+        button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+            outline: 3px solid #0284C7;
+            outline-offset: 2px;
+        }
 
         .sky-cloud {
-            position: fixed;
-            font-size: 32px;
-            opacity: .35;
-            animation: cloudMove 30s linear infinite;
-            pointer-events: none;
-            z-index: 0;
+            position: fixed; font-size: 32px; opacity: .35;
+            animation: cloudMove 30s linear infinite; pointer-events: none; z-index: 0;
         }
         .cloud2 { top: 120px; animation-duration: 40s; }
         .cloud3 { top: 260px; animation-duration: 50s; }
@@ -64,40 +61,49 @@
         }
 
         .phone-container {
-            width: 100%;
-            max-width: 420px;
-            background: var(--switch-dark);
-            border-radius: 40px;
-            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            border: 4px solid #FFFFFF;
-            position: relative;
-            z-index: 1;
+            width: 100%; max-width: 420px; background: var(--switch-dark);
+            border-radius: 40px; box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15);
+            overflow: hidden; display: flex; flex-direction: column;
+            border: 4px solid #FFFFFF; position: relative; z-index: 1;
         }
 
-        .memoir-mode-banner {
-            display: none;
-            background: linear-gradient(90deg, #F59E0B, #D97706);
-            color: white;
-            text-align: center;
-            padding: 6px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            letter-spacing: 1px;
+        .wizard-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #FFFFFF; z-index: 1000; display: flex;
+            flex-direction: column; padding: 24px 18px; overflow-y: auto;
         }
+        .wizard-title { font-size: 1.4rem; font-weight: 900; color: #0F172A; text-align: center; margin-bottom: 4px; }
+        .wizard-subtitle { font-size: 0.8rem; color: var(--gray); text-align: center; margin-bottom: 20px; }
+        .wizard-step { display: none; }
+        .wizard-step.active { display: block; }
+        
+        .template-card {
+            background: #F8FAFC; border: 2px solid #E2E8F0; border-radius: 16px;
+            padding: 14px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .template-card.selected { border-color: var(--primary); background: #FFF; box-shadow: 0 4px 12px rgba(217,56,56,0.15); }
+        .template-title { font-weight: bold; font-size: 0.95rem; color: #0F172A; display: flex; align-items: center; justify-content: space-between; }
+        .template-desc { font-size: 0.78rem; color: var(--gray); margin-top: 4px; line-height: 1.3; }
+
+        .member-input-row {
+            display: flex; gap: 8px; align-items: center; margin-bottom: 8px;
+            background: #F8FAFC; padding: 8px; border-radius: 12px; border: 1px solid #E2E8F0;
+        }
+        .member-input-row input { flex: 1; padding: 6px 8px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.8rem; }
+        .member-avatar-select { width: 45px; padding: 6px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.9rem; text-align: center; }
+
+        .pwa-install-banner {
+            display: none; background: #0F172A; color: white; padding: 8px 12px;
+            font-size: 0.75rem; font-weight: bold; align-items: center; justify-content: space-between;
+        }
+        .pwa-install-btn { background: #38BDF8; color: #0F172A; border: none; padding: 4px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
         .rpg-header {
-            background: linear-gradient(135deg, #4FC3F7, #81D4FA);
-            color: #0F172A;
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: linear-gradient(135deg, #38BDF8, #81D4FA); color: #0F172A;
+            padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
         }
-        .progress-wrapper { font-size: 0.7rem; color: #334155; font-weight: bold; width: 140px; }
-        .progress { height: 8px; background: rgba(255,255,255,0.4); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+        .progress-wrapper { font-size: 0.7rem; color: #1E293B; font-weight: bold; width: 130px; }
+        .progress { height: 8px; background: rgba(255,255,255,0.6); border-radius: 4px; overflow: hidden; margin-top: 4px; }
         .progress-bar { width: 7%; height: 100%; background: var(--primary); transition: width 0.4s ease; }
         .day-badge { background: var(--primary); color: white; padding: 4px 10px; border-radius: 999px; font-weight: bold; font-size: 0.78rem; text-align: center; }
 
@@ -105,229 +111,117 @@
         .tab-content.active { display: block; }
 
         .apple-hero-center {
-            text-align: center;
-            padding: 20px 14px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 320px;
+            text-align: center; padding: 16px 14px; display: flex;
+            flex-direction: column; align-items: center; justify-content: center; min-height: 260px;
         }
-        .apple-day {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: #0284C7;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
-        .apple-location {
-            font-size: 2.3rem;
-            font-weight: 900;
-            color: #0F172A;
-            letter-spacing: -1px;
-            margin-bottom: 14px;
-        }
-        .apple-mission-title {
-            font-size: 0.82rem;
-            font-weight: bold;
-            color: var(--gray);
-            letter-spacing: 2px;
-            margin-bottom: 4px;
-        }
-        .apple-mission-box {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: #1E293B;
-            line-height: 1.3;
-            max-width: 95%;
-            margin-bottom: 24px;
-        }
+        .apple-day { font-size: 1.1rem; font-weight: 800; color: #0369A1; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 4px; }
+        .apple-location { font-size: 2.1rem; font-weight: 900; color: #0F172A; letter-spacing: -1px; margin-bottom: 10px; }
+        .apple-mission-title { font-size: 0.8rem; font-weight: bold; color: var(--gray); letter-spacing: 2px; margin-bottom: 4px; }
+        .apple-mission-box { font-size: 1.2rem; font-weight: 800; color: #0F172A; line-height: 1.3; max-width: 95%; margin-bottom: 20px; }
         .apple-nav-btn {
-            background: #0284C7;
-            color: white;
-            border: none;
-            padding: 14px 32px;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 10px 30px rgba(2, 132, 199, 0.3);
-            transition: all 0.25s ease;
-        }
-        .apple-nav-btn:hover { transform: translateY(-2px); }
-
-        .apple-weather-pill {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(4px);
-            padding: 6px 16px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: #334155;
-            margin-bottom: 16px;
-            border: 1px solid rgba(255,255,255,0.5);
+            background: #0284C7; color: white; border: none; padding: 12px 28px;
+            border-radius: 50px; font-size: 0.95rem; font-weight: bold; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 10px 30px rgba(2, 132, 199, 0.3);
         }
 
-        .switch-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 10px; }
+        .switch-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
         .switch-item {
-            background: var(--switch-panel); border: 3px solid #E2E8F0; border-radius: 20px;
-            padding: 16px 8px; text-align: center; cursor: pointer; transition: all 0.2s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.04); position: relative;
+            background: var(--switch-panel); border: 2px solid #CBD5E1; border-radius: 16px;
+            padding: 14px 8px; text-align: center; cursor: pointer; transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); font-weight: bold; color: #0F172A;
         }
-        .switch-item::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: var(--gray); border-top-left-radius: 20px; border-bottom-left-radius: 20px; }
-        .switch-item.active-tab::before { background: var(--primary); }
-        .switch-item.active-tab { border-color: var(--primary); background: #FFF; transform: scale(1.02); }
         
         .player-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
-        .player-card { background: white; border: 1px solid #E2E8F0; box-shadow: 0 6px 20px rgba(0,0,0,.04); border-radius: 20px; padding: 12px 10px; text-align: center; cursor: pointer; }
+        .player-card { 
+            background: white; border: 1px solid #CBD5E1; box-shadow: 0 6px 20px rgba(0,0,0,.04); 
+            border-radius: 18px; padding: 12px 10px; text-align: center; cursor: pointer; position: relative; 
+        }
+        /* ✨ 新增：卡片右上角刪除成員按鈕 */
+        .player-card-del-btn {
+            position: absolute; top: 6px; right: 8px; background: rgba(220,38,38,0.1); 
+            color: #DC2626; border: none; border-radius: 50%; width: 22px; height: 22px;
+            font-size: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .player-card-del-btn:hover { background: #DC2626; color: white; }
+
         .player-title-tag { display: block; font-size: 0.68rem; color: var(--gray); font-weight: bold; margin: 1px 0 4px 0; }
         .player-lv { font-size: 0.65rem; background: var(--switch-blue); color: white; padding: 1px 6px; border-radius: 10px; display: inline-block; font-weight: bold; }
-        .player-exp-bar { height: 6px; background: #E5E7EB; border-radius: 99px; overflow: hidden; margin-top: 6px; }
-        .player-exp-fill { height: 100%; background: linear-gradient(90deg, #FFD93D, #FF8A00); width: 70%; transition: width 0.3s ease; }
+        .player-exp-bar { height: 6px; background: #E2E8F0; border-radius: 99px; overflow: hidden; margin-top: 6px; }
+        .player-exp-fill { height: 100%; background: linear-gradient(90deg, #D97706, #EA580C); width: 0%; transition: width 0.3s ease; }
 
-        .lb-row { display: flex; justify-content: space-between; padding: 8px 10px; font-size: 0.85rem; font-weight: 500; border-bottom: 1px dashed #F1F5F9; align-items: center; }
-        .lb-top {
-            background: linear-gradient(135deg, #FFD93D, #FFB703) !important;
-            padding: 12px 10px !important;
-            border-radius: 16px !important;
-            color: #7C2D12 !important;
-            box-shadow: 0 6px 18px rgba(255, 183, 3, 0.35);
-            font-weight: bold;
-            border: 1px solid #FFF;
-        }
+        .lb-row { display: flex; justify-content: space-between; padding: 8px 10px; font-size: 0.85rem; font-weight: 500; border-bottom: 1px dashed #E2E8F0; align-items: center; }
+        .lb-top { background: linear-gradient(135deg, #F59E0B, #D97706) !important; padding: 10px !important; border-radius: 12px !important; color: #FFFFFF !important; font-weight: bold; }
 
         .home-photo-carousel { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; scrollbar-width: none; }
         .home-photo-slot {
-            flex: 0 0 100px; height: 110px; background: #F1F5F9; border-radius: 8px;
-            border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            flex: 0 0 90px; height: 95px; background: #E2E8F0; border-radius: 8px;
+            border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.08);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: 0.65rem; color: #94A3B8; font-weight: bold; text-align: center; overflow: hidden;
+            font-size: 0.65rem; color: #475569; font-weight: bold; text-align: center; overflow: hidden;
         }
         .home-photo-slot img { width: 100%; height: 100%; object-fit: cover; }
 
-        .achievement-scroll { display: flex; overflow-x: auto; gap: 8px; padding: 4px 0; scrollbar-width: none; }
-        .ach-badge {
-            background: #E2E8F0; border: 1px solid #CBD5E1; padding: 6px 12px;
-            border-radius: 999px; font-size: 0.75rem; font-weight: bold; white-space: nowrap;
-            color: #64748B; transition: all 0.3s ease;
-        }
-        .ach-badge.unlocked {
-            background: linear-gradient(135deg, #FBBF24, #F59E0B);
-            border-color: #D97706;
-            color: #7C2D12;
-            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
-        }
-
-        .map-box {
-            width: 100%; height: 280px;
-            border: 3px solid #7dd3fc; border-radius: 22px; position: relative; overflow: hidden;
-            box-shadow: 0 8px 25px rgba(3, 105, 161, 0.12);
-        }
+        .map-box { width: 100%; height: 270px; border: 3px solid #7dd3fc; border-radius: 18px; position: relative; overflow: hidden; }
         #leafletMap { width: 100%; height: 100%; z-index: 1; }
-        .leaflet-tile-container { filter: sepia(0.1) saturate(1.1) hue-rotate(185deg); }
-        .radar-ping-icon { background: transparent; }
-        .radar-wave-glow {
-            width: 36px; height: 30px; border: 3px solid #0EA5E9; border-radius: 50%;
-            position: absolute; top: -15px; left: -18px; animation: leafletPing 1.8s infinite ease-out;
-        }
-        @keyframes leafletPing {
-            0% { transform: scale(0.3); opacity: 1; }
-            100% { transform: scale(2.2); opacity: 0; }
-        }
-        .game-marker-label {
-            background: white; color: #0F172A; font-weight: 900; font-size: 0.65rem;
-            padding: 2px 6px; border-radius: 4px; border: 1px solid #CBD5E1;
-            white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.12);
-            text-align: center; display: inline-block;
-        }
 
-        .map-timeline { 
-            display: flex; flex-direction: row; flex-wrap: nowrap; 
-            overflow-x: auto; gap: 6px; padding-bottom: 6px; margin-bottom: 8px; 
-            scrollbar-width: none; 
+        .leaflet-tile-container img { filter: contrast(102%) brightness(98%) saturate(90%); }
+        @keyframes dash { to { stroke-dashoffset: -20; } }
+        .rpg-route-line { stroke-dasharray: 8, 8; animation: dash 1.5s linear infinite; }
+        .rpg-marker-pin {
+            width: 28px; height: 28px; border-radius: 50% 50% 50% 0; background: var(--primary);
+            position: absolute; transform: rotate(-45deg); left: 50%; top: 50%;
+            margin: -20px 0 0 -14px; box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+            display: flex; align-items: center; justify-content: center;
         }
-        .map-timeline::-webkit-scrollbar { display: none; }
-        .day-node { flex: 0 0 46px; height: 35px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; color: var(--gray); cursor: pointer; border: 1px solid #E2E8F0; }
+        .rpg-marker-pin::after { content: ''; width: 12px; height: 12px; margin: 7px 0 0 7px; background: #FFF; border-radius: 50%; }
+        .rpg-marker-num { position: absolute; transform: rotate(45deg); font-weight: 900; font-size: 11px; color: var(--primary); top: 4px; left: 9px; z-index: 10; }
+
+        .map-timeline-wrapper { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+        .map-timeline { display: flex; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; gap: 6px; flex: 1; scrollbar-width: none; }
+        .day-node { flex: 0 0 42px; height: 32px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; color: var(--gray); cursor: pointer; border: 1px solid #CBD5E1; }
         .day-node.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .detail-section { display: flex; flex-direction: column; gap: 6px; }
-        .detail-row { display: flex; flex-direction: column; padding: 4px 0; border-bottom: 1px dashed #F1F5F9; font-size: 0.82rem; }
-        .detail-label { font-weight: bold; color: var(--gray); margin-bottom: 2px; }
-        .detail-text { color: var(--text-light); line-height: 1.4; }
-        .detail-link { color: #0284C7; font-weight: bold; text-decoration: underline; margin-top: 2px; display: inline-block; }
+        .btn-today-jump { background: #0D9488; color: white; border: none; padding: 0 10px; height: 32px; border-radius: 8px; font-size: 0.72rem; font-weight: bold; cursor: pointer; white-space: nowrap; }
 
-        .nav-btn {
-            background: #0284C7; color: white; border: none;
-            padding: 8px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: bold;
-            cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
-        }
-
-        .edit-panel { display: none; margin-top: 10px; background: #F8FAFC; padding: 12px; border-radius: 14px; border: 1px dashed var(--edit-color); }
-        .custom-input, .edit-textarea { width: 100%; margin-bottom: 6px; padding: 8px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.8rem; }
-        .edit-textarea { resize: none; }
-        
-        .info-card { background: white; border-radius: 18px; padding: 14px; margin-bottom: 12px; border: 1px solid #E2E8F0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .info-card { background: white; border-radius: 16px; padding: 12px; margin-bottom: 10px; border: 1px solid #CBD5E1; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .info-header { display: flex; justify-content: space-between; border-bottom: 1px solid #F1F5F9; padding-bottom: 6px; margin-bottom: 8px; }
-        .info-title { font-weight: bold; font-size: 0.9rem; color: var(--text-light); }
-        .info-meta { font-size: 0.75rem; color: var(--primary); font-weight: bold; }
+        .info-title { font-weight: bold; font-size: 0.88rem; color: var(--text-light); }
         
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn { width: 100%; padding: 10px; border: none; border-radius: 10px; font-size: 0.82rem; font-weight: bold; cursor: pointer; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: white; color: var(--text-light); border: 1px solid #CBD5E1; }
+        
+        .accordion-item { border-bottom: 1px solid #F1F5F9; }
+        .accordion-header { padding: 8px 0; font-size: 0.82rem; font-weight: bold; color: var(--gray); cursor: pointer; display: flex; justify-content: space-between; }
+        .accordion-body { display: none; padding: 6px 0 10px 0; font-size: 0.8rem; line-height: 1.4; color: var(--text-light); }
+        .accordion-item.open .accordion-body { display: block; }
+
+        .photo-upload-zone { background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: 14px; padding: 16px 10px; text-align: center; margin-top: 10px; position: relative; }
+        .photo-input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+        .photo-preview { width: 100%; max-height: 140px; object-fit: cover; border-radius: 10px; margin-top: 8px; display: none; }
+        .btn-quest-done { width: 100%; padding: 12px; border: none; background: var(--secondary); color: white; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 0.88rem; margin-top: 10px; }
+        .chart-container { width: 100%; height: 150px; margin-top: 8px; }
+
+        .album-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .album-card { background: white; padding: 6px 6px 18px 6px; box-shadow: 0 6px 12px rgba(0,0,0,.06); border-radius: 4px; }
+        .album-img { width: 100%; height: 90px; object-fit: cover; display: block; background: #E2E8F0; }
+        .album-meta { padding: 4px 2px 0 2px; font-size: 0.62rem; color: var(--gray); font-weight: bold; text-align: center; }
+
+        .pack-badge { font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; color: white; font-weight: bold; display: inline-block; margin-bottom: 4px; }
+        .pack-badge.warn { background: #DC2626; }
         .check-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 0.8rem; text-align: left; }
         .check-item input:checked + span { text-decoration: line-through; color: var(--gray); }
 
-        .end-game-overlay { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: #FFFFFF; z-index: 999; padding: 24px; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow-y: auto;}
-        .end-title-banner { font-size: 1.35rem; font-weight: bold; color: #B45309; border-top: 2px solid #B45309; border-bottom: 2px solid #B45309; padding: 12px 0; margin: 18px 0; width: 100%; }
-        
-        .album-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 4px; }
-        .album-card { background: white; padding: 6px 6px 24px 6px; box-shadow: 0 10px 20px rgba(0,0,0,.08); transform: rotate(-1.5deg); border-radius: 4px; }
-        .album-card:nth-child(even) { transform: rotate(1.5deg); }
-        .album-img { width: 100%; height: 100px; object-fit: cover; display: block; background: #F1F5F9; }
-        .album-meta { padding: 6px 2px 0 2px; font-size: 0.65rem; color: var(--gray); font-weight: bold; text-align: center; }
-        
-        .photo-upload-zone { background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: 16px; padding: 20px 14px; text-align: center; margin-top: 12px; position: relative; }
-        .photo-input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
-        .photo-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; }
-        .btn-quest-done { width: 100%; padding: 13px; border: none; background: var(--secondary); color: white; border-radius: 12px; font-weight: bold; cursor: pointer; display: none; font-size: 0.9rem; margin-top: 12px; }
-        .chart-container { width: 100%; height: 160px; margin-top: 10px; }
-
-        /* 隨身資產加強排版樣式 */
-        .pack-badge { font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; color: white; font-weight: bold; display: inline-block; margin-bottom: 4px; }
-        .pack-badge.warn { background: #EF4444; }
-        .pack-sub-title { font-weight: bold; font-size: 0.85rem; color: #1E293B; margin: 10px 0 6px 0; border-left: 3px solid var(--pack-color); padding-left: 6px; }
-
-        /* Google 三寶工具箱排版樣式 */
         .google-tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
         .google-tool-btn {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 10px 4px; border: 2px solid #E2E8F0; border-radius: 14px; background: white;
-            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: all 0.2s ease;
+            padding: 10px 4px; border: 2px solid #CBD5E1; border-radius: 14px; background: white;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03);
         }
-        .google-tool-btn:hover { transform: translateY(-2px); border-color: var(--switch-blue); }
         .google-tool-emoji { font-size: 1.35rem; margin-bottom: 2px; }
-        .google-tool-label { font-size: 0.65rem; font-weight: bold; color: #334155; text-align: center; }
+        .google-tool-label { font-size: 0.65rem; font-weight: bold; color: #0F172A; text-align: center; }
 
-        /* 新增：手風琴 UI (Accordion) 解決資訊過載 */
-        .accordion-item { border-bottom: 1px dashed #E2E8F0; margin-bottom: 4px; }
-        .accordion-header { padding: 8px 0; font-size: 0.82rem; font-weight: bold; color: var(--gray); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .accordion-body { display: none; padding: 4px 0 8px 0; font-size: 0.8rem; line-height: 1.4; color: var(--text-light); }
-        .accordion-item.open .accordion-body { display: block; }
-
-        @media print {
-            body { background: white !important; color: black !important; padding: 0 !important; }
-            .phone-container { width: 100% !important; max-width: 100% !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; display: block !important; }
-            .sky-cloud, .rpg-header, .switch-grid, .map-timeline, .map-box, #btn-trigger-edit, .photo-upload-zone, .btn, .end-game-overlay, .google-tool-grid { display: none !important; }
-            .tab-content { display: block !important; max-height: none !important; overflow: visible !important; padding: 0 !important; page-break-after: always; }
-            .info-card { border: 1px solid #CCC !important; box-shadow: none !important; page-break-inside: avoid; margin-bottom: 20px !important; }
-            .album-grid { grid-template-columns: repeat(3, 1fr) !important; page-break-inside: auto; }
-            .album-card { page-break-inside: avoid; transform: none !important; border: 1px solid #EEE !important; }
-            .chart-container { page-break-inside: avoid; height: 250px !important; }
-        }
+        .edit-input-field { width: 100%; padding: 6px 8px; margin-bottom: 6px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -336,322 +230,359 @@
 <div class="sky-cloud cloud2">☁️</div>
 <div class="sky-cloud cloud3">☁️</div>
 
-<div class="phone-container">
-    <div class="memoir-mode-banner" id="memoir-banner">📖 珍貴紀錄：北海道家庭冒險回憶錄 📖</div>
+<div class="phone-container" role="main">
+    <div class="pwa-install-banner" id="pwaInstallBanner">
+        <span>📲 將「冒險中心」加至手機主頁面</span>
+        <button class="pwa-install-btn" id="pwaInstallBtn">立即安裝</button>
+    </div>
 
-    <!-- 常駐狀態條 -->
+    <!-- 🧙‍♂️ 開局嚮導 Wizard -->
+    <div class="wizard-overlay" id="wizardOverlay" role="dialog" aria-label="開局嚮導">
+        <div class="wizard-title">🎮 冒險作戰中心</div>
+        <div class="wizard-subtitle">請選擇你的旅行 RPG 拓荒模式</div>
+
+        <div class="wizard-step active" id="wizardStep1">
+            <h4>第 1 步：選擇旅程模板</h4>
+            <div class="template-card selected" tabindex="0" role="button" aria-label="選擇北海道模板" onclick="selectTemplate('hokkaido', this)">
+                <div class="template-title"><span>🌻 北海道夏日 14 日拓荒版</span><span>官方</span></div>
+                <div class="template-desc">包含札幌獨立屋、知床羅臼賞鯨船、美瑛青池、北狐牧場、登別熊牧場。</div>
+            </div>
+            <div class="template-card" tabindex="0" role="button" aria-label="選擇空白模板" onclick="selectTemplate('blank', this)">
+                <div class="template-title"><span>⚡ 自建全新空白冒險</span><span>自訂</span></div>
+                <div class="template-desc">從 Day 1 開始自訂你的目的地、任務、美食與景點。</div>
+            </div>
+            <div class="template-card" tabindex="0" role="button" aria-label="匯入 JSON 檔" onclick="triggerImportJSON()">
+                <div class="template-title"><span>📥 匯入好友的冒險 JSON 檔</span><span>檔案</span></div>
+                <div class="template-desc">載入已匯出的 `.json` 行程備份。</div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 15px;" aria-label="下一步設定隊伍" onclick="goToWizardStep(2)">下一步：設定隊伍成員 ➔</button>
+        </div>
+
+        <div class="wizard-step" id="wizardStep2">
+            <h4>第 2 步：組建冒險隊伍</h4>
+            <div id="wizardMemberList"></div>
+            <button class="btn btn-outline" style="font-size:0.75rem; margin-bottom:12px;" aria-label="新增隊員" onclick="addWizardMemberInput()">➕ 新增隊員</button>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+                <button class="btn btn-outline" aria-label="返回上一步" onclick="goToWizardStep(1)">⬅️ 上一步</button>
+                <button class="btn btn-primary" aria-label="啟動冒險" onclick="finishWizardAndStart()">🚀 啟動冒險！</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主介面 Header -->
     <div class="rpg-header">
         <div class="progress-wrapper">
-            <span id="top-progress-text">旅程進度 7%</span>
+            <span id="top-progress-text">旅程進度 0%</span>
             <div class="progress"><div class="progress-bar" id="top-progress-bar"></div></div>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <div id="gps-status-pill" style="background: rgba(0,0,0,0.15); color: white; padding: 3px 8px; border-radius: 8px; font-size: 0.62rem; font-weight: bold; display: none;">📡 GPS 監測中</div>
-            <div onclick="toggleAudioMute()" style="cursor: pointer; background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold;">
-                <span id="audio-wave">🎵 PLAY</span>
-            </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+            <div id="gps-status-pill" style="background: rgba(0,0,0,0.2); color: white; padding: 3px 6px; border-radius: 6px; font-size: 0.6rem; font-weight: bold; display: none;">📡 GPS 監測中</div>
+            <button onclick="toggleAudioMute()" aria-label="切換背景音樂" style="border:none; cursor: pointer; background: rgba(255,255,255,0.3); padding: 4px 8px; border-radius: 10px; font-size: 0.65rem; font-weight: bold; color:#0F172A;">
+                <span id="audio-wave">🎵 BGM</span>
+            </button>
             <div class="day-badge" id="top-day-badge">DAY 1</div>
         </div>
     </div>
 
-    <!-- ================= 分頁 1: 主儀表板 ================= -->
-    <div id="tab-home" class="tab-content active" style="max-height:81vh;">
+    <!-- 分頁 1: 主儀表板 -->
+    <div id="tab-home" class="tab-content active" role="tabpanel">
         <div class="apple-hero-center">
             <div class="apple-day" id="apple-chapter-id">DAY 1</div>
-            <div class="apple-location" id="apple-loc-title">台北</div>
-            <div class="apple-weather-pill" id="apple-weather-text">☀️ 32°C • 台北晴天</div>
+            <div class="apple-location" id="apple-loc-title">目的地</div>
             
+            <button onclick="openLiveWeatherQuery()" style="background:none; border:none; cursor:pointer;" aria-label="查詢即時天氣">
+                <div style="font-size:0.78rem; font-weight:bold; color:#0F172A; margin-bottom:12px; text-decoration:underline;" id="apple-weather-text">☀️ 點擊查詢實時天氣 ➔</div>
+            </button>
+
             <div class="apple-mission-title">TODAY'S MISSION</div>
-            <div class="apple-mission-box" id="apple-m-box">入住晴美公寓酒店</div>
-            
-            <!-- 🚀 保留的主頁 Google 導航核心大鍵 -->
-            <button class="apple-nav-btn" onclick="launchGoogleMapsNavigation()">
+            <div class="apple-mission-box" id="apple-m-box">載入今日任務...</div>
+            <button class="apple-nav-btn" aria-label="啟動即時導航" onclick="launchGoogleMapsNavigation()">
                 <span>🚀 啟動即時導航</span>
             </button>
         </div>
 
-        <div class="info-card" style="margin-top: -15px; margin-bottom: 15px;">
-            <h4 style="margin: 0 0 6px 0; font-size: 0.75rem; color: var(--gray);">📸 近期採集快照庫</h4>
-            <div class="home-photo-carousel" id="homePhotoCarousel">
-                <div class="home-photo-slot"><div>📸</div><div>採集回憶</div></div>
-                <div class="home-photo-slot"><div>📸</div><div>採集回憶</div></div>
-                <div class="home-photo-slot"><div>📸</div><div>採集回憶</div></div>
-            </div>
+        <div class="info-card" style="margin-top: -10px;">
+            <h4 style="margin: 0 0 6px 0; font-size: 0.72rem; color: var(--gray);">📸 最近採集快照 (IndexedDB 儲存)</h4>
+            <div class="home-photo-carousel" id="homePhotoCarousel"></div>
         </div>
 
         <div class="switch-grid">
-            <div class="switch-item" id="menu-map" onclick="navigateTo('map')"><span class="switch-icon">🗺️</span><span class="switch-label">探索地圖</span></div>
-            <div class="switch-item" id="menu-quest" onclick="navigateTo('quest')"><span class="switch-icon">🎯</span><span class="switch-label">任務提交</span></div>
-            <div class="switch-item" id="menu-rpg-status" onclick="navigateTo('rpg-status')"><span class="switch-icon">🏆</span><span class="switch-label">戰力排行</span></div>
-            <div class="switch-item" id="menu-packing" onclick="navigateTo('packing')"><span class="switch-icon">🎒</span><span class="switch-label">隨身資產</span></div>
+            <button class="switch-item" aria-label="切換至地圖" onclick="navigateTo('map')">🗺️ 探索地圖</button>
+            <button class="switch-item" aria-label="切換至任務提交" onclick="navigateTo('quest')">🎯 任務提交</button>
+            <button class="switch-item" aria-label="切換至戰力排行" onclick="navigateTo('rpg-status')">🏆 戰力排行</button>
+            <button class="switch-item" aria-label="切換至隨身物資與設定" onclick="navigateTo('packing')">🎒 隨身資產</button>
         </div>
     </div>
 
-    <!-- ================= 分頁 2: 地圖與時程 ================= -->
-    <div id="tab-map" class="tab-content">
-        <div class="map-timeline" id="map-timeline-bar"></div>
+    <!-- 分頁 2: 地圖與時程 -->
+    <div id="tab-map" class="tab-content" role="tabpanel">
+        <div class="map-timeline-wrapper">
+            <div class="map-timeline" id="map-timeline-bar" role="tablist" aria-label="日期時間軸"></div>
+            <button class="btn-today-jump" onclick="jumpToCurrentDay()">📍 回到今日</button>
+        </div>
+
         <div class="map-box"><div id="leafletMap"></div></div>
 
-        <div id="gps-proximity-alert" style="display: none; background: linear-gradient(90deg, #22C55E, #10B981); color: white; padding: 10px; border-radius: 12px; margin-top: 8px; font-size: 0.8rem; font-weight: bold; text-align: center; box-shadow: 0 4px 12px rgba(34,197,94,0.3);">
-            🎉 偵測到真實 GPS 坐標定位！已成功到達冒險任務指定區域！
+        <div id="gps-proximity-alert" style="display: none; background: #16A34A; color: white; padding: 8px; border-radius: 10px; margin-top: 8px; font-size: 0.75rem; font-weight: bold; text-align: center;">
+            📡 GPS 定位搜尋中...
         </div>
 
-        <!-- 使用 Accordion 摺疊排版，避免閱讀體驗過載 -->
-        <div class="info-card" id="display-itinerary-card" style="margin-top: 10px; border-left: 4px solid var(--primary);">
-            <div class="info-header"><span class="info-title" id="map-card-day">Day 1</span><span class="info-meta" id="map-card-km">~0km</span></div>
-            
-            <div class="detail-section">
-                <div class="detail-row" style="background: #F8FAFC; border-radius: 12px; padding: 10px 12px; margin: 4px 0; display: flex; flex-direction: row; justify-content: space-between; align-items: center; border: 1px solid #E2E8F0;">
-                    <div>
-                        <div class="detail-label" style="color: var(--pack-color); margin-bottom: 2px;">⏱️ 預計開車車程時間</div>
-                        <div class="detail-text" id="det-drivetime" style="font-weight: bold; color: var(--pack-color); font-size: 0.9rem;">-</div>
-                    </div>
-                    <button class="nav-btn" onclick="launchGoogleMapsNavigation()">
-                        <span>🚀 導航</span>
-                    </button>
+        <div class="info-card" style="margin-top: 10px; border-left: 4px solid var(--primary);">
+            <div class="info-header">
+                <span class="info-title" id="map-card-day">Day 1</span>
+                <span style="font-size:0.75rem; color:var(--primary); font-weight:bold;" id="map-card-km">~0km</span>
+            </div>
+            <div style="margin-bottom: 8px; font-size: 0.8rem;">
+                <b>⏱️ 車程時間：</b><span id="det-drivetime" style="color:var(--pack-color); font-weight:bold;">-</span>
+            </div>
+            <div class="accordion-item open" onclick="toggleAccordion(this)">
+                <div class="accordion-header" tabindex="0" role="button"><span>流域與景點深度</span><span>▼</span></div>
+                <div class="accordion-body">
+                    <div><b>🛣️ 路線：</b><span id="det-route">-</span></div>
+                    <div style="margin-top:4px;"><b>🎯 細節：</b><span id="det-spots">-</span></div>
                 </div>
-
-                <div class="accordion-item open" onclick="toggleAccordion(this)">
-                    <div class="accordion-header"><span>🎯 景點深度與路線</span><span>▼</span></div>
-                    <div class="accordion-body">
-                        <div><b>🛣️ 路線：</b><span id="det-route">-</span></div>
-                        <div style="margin-top:4px;"><b>🎯 細節：</b><span id="det-spots">-</span></div>
-                    </div>
+            </div>
+            <div class="accordion-item" onclick="toggleAccordion(this)">
+                <div class="accordion-header" tabindex="0" role="button"><span>🍱 美食提案</span><span>▼</span></div>
+                <div class="accordion-body">
+                    <div><b>🌅 早餐：</b><span id="det-b">-</span></div>
+                    <div><b>🍱 午餐：</b><span id="det-l">-</span></div>
+                    <div><b>🌌 晚餐：</b><span id="det-d">-</span></div>
                 </div>
-
-                <div class="accordion-item" onclick="toggleAccordion(this)">
-                    <div class="accordion-header"><span>🍱 美食提案 (早/午/晚)</span><span>▼</span></div>
-                    <div class="accordion-body">
-                        <div><b>🌅 早餐：</b><span id="det-b">-</span></div>
-                        <div><b>🍱 午餐：</b><span id="det-l">-</span></div>
-                        <div><b>🌌 晚餐：</b><span id="det-d">-</span></div>
-                    </div>
-                </div>
-
-                <div class="accordion-item" onclick="toggleAccordion(this)">
-                    <div class="accordion-header"><span>📍 地址與官方網站</span><span>▼</span></div>
-                    <div class="accordion-body" id="det-link">
-                        -
-                    </div>
-                </div>
+            </div>
+            <div class="accordion-item" onclick="toggleAccordion(this)">
+                <div class="accordion-header" tabindex="0" role="button"><span>📍 地址與連結</span><span>▼</span></div>
+                <div class="accordion-body" id="det-link-body">-</div>
             </div>
         </div>
 
-        <div class="edit-panel" id="edit-itinerary-panel">
-            <h4>⚙️ 修改內置資料</h4>
-            <input type="text" id="edit-route" class="custom-input">
-            <input type="text" id="edit-drivetime" class="custom-input">
-            <textarea id="edit-spots" class="edit-textarea" rows="3"></textarea>
-            <input type="text" id="edit-b" class="custom-input">
-            <input type="text" id="edit-l" class="custom-input">
-            <input type="text" id="edit-d" class="custom-input">
-            <button class="btn btn-primary" style="background:var(--secondary);" onclick="saveDayEdits()">💾 儲存修改</button>
+        <div class="info-card" id="editDayItineraryPanel" style="display:none; background:#F8FAFC; border:1px dashed #0284C7;">
+            <h4 style="margin:0 0 8px 0;">✏️ 編輯 Day <span id="editDayNumLabel">1</span> 行程細節</h4>
+            <input type="text" class="edit-input-field" id="editInputRoute" placeholder="路線描述">
+            <input type="text" class="edit-input-field" id="editInputDriveTime" placeholder="預計車程時間">
+            <textarea class="edit-input-field" id="editInputSpots" rows="2" placeholder="景點深度說明"></textarea>
+            <input type="text" class="edit-input-field" id="editInputAddr" placeholder="目的地地號/地址">
+            <div style="display:flex; gap:6px;">
+                <button class="btn btn-primary" onclick="saveCurrentDayEdits()">💾 儲存修改</button>
+                <button class="btn btn-outline" onclick="toggleEditDayPanel(false)">取消</button>
+            </div>
         </div>
-        <button class="btn btn-outline" id="btn-trigger-edit" style="margin-top:8px;" onclick="toggleEditMode(true)">⚙️ 修改此日行程細節</button>
-        <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:6px;" onclick="switchTab('home')">🎮 返回主選單</button>
+
+        <div style="display:flex; gap:6px;">
+            <button class="btn btn-outline" style="flex:1;" onclick="toggleEditDayPanel(true)">✏️ 編輯當日行程</button>
+            <button class="btn btn-outline" style="flex:1;" onclick="addNewDayToItinerary()">➕ 新增一日</button>
+        </div>
+        <button class="btn btn-primary" style="background:var(--switch-blue);" aria-label="返回主選單" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= 分頁 3: 任務提交 ================= -->
-    <div id="tab-quest" class="tab-content">
-        <div class="info-card" style="background: #FAFAFA; border-color: var(--primary); margin-bottom: 4px;">
-            <h2>🎯 今日冒險任務提交中心</h2>
-            <h3 id="q-title" style="color:var(--primary); margin:6px 0;">-</h3>
-            <p id="q-desc" style="font-size:0.85rem; line-height:1.4; color:var(--gray);">-</p>
+    <!-- 分頁 3: 任務提交 -->
+    <div id="tab-quest" class="tab-content" role="tabpanel">
+        <div class="info-card" style="background: #FAFAFA; border-color: var(--primary);">
+            <h3 style="margin:0;">🎯 今日冒險任務提交</h3>
+            <h4 id="q-title" style="color:var(--primary); margin:6px 0;">-</h4>
+            <p id="q-desc" style="font-size:0.8rem; line-height:1.4; color:var(--gray);">-</p>
 
             <div class="photo-upload-zone">
-                <span style="font-size:0.82rem; font-weight:bold; color:var(--pack-color);">📷 點擊此處上傳現場打卡照片 (Canvas 高效壓縮)</span>
-                <input type="file" accept="image/*" class="photo-input" onchange="handlePhotoUpload(this)">
-                <img class="photo-preview" id="photo-preview-img" src="">
+                <span style="font-size:0.78rem; font-weight:bold; color:var(--pack-color);">📷 點擊上傳打卡照片 (IndexedDB 大容量)</span>
+                <input type="file" accept="image/*" class="photo-input" aria-label="上傳打卡照片" onchange="handlePhotoUpload(this)">
+                <img class="photo-preview" id="photo-preview-img" src="" alt="預覽照片">
             </div>
-            <button class="btn-quest-done" id="btn-submit-quest" onclick="validateQuestCompletion()">✅ 任務達成 +200 EXP</button>
-            <button class="btn btn-outline" style="margin-top:8px; font-size:0.75rem;" onclick="manualForceCheckin()">📍 GPS 訊號弱？手動打卡備援</button>
+            
+            <button class="btn-quest-done" id="btn-submit-quest" aria-label="完成任務" onclick="validateQuestCompletion()">✅ 完成任務 +200 EXP</button>
+            <button class="btn btn-outline" style="margin-top:8px; font-size:0.75rem;" aria-label="手動打卡" onclick="manualForceCheckin()">📍 GPS 訊號弱？手動打卡解鎖</button>
         </div>
 
-        <!-- Google 三寶整合按鈕工具箱 -->
         <div class="google-tool-grid">
-            <div class="google-tool-btn" onclick="window.open('https://www.google.com/maps', '_blank')">
-                <span class="google-tool-emoji">🗺️</span>
-                <span class="google-tool-label">Google Map</span>
-            </div>
-            <div class="google-tool-btn" onclick="window.open('https://translate.google.com', '_blank')">
-                <span class="google-tool-emoji">🔤</span>
-                <span class="google-tool-label">Google 翻譯</span>
-            </div>
-            <div class="google-tool-btn" onclick="window.open('https://gemini.google.com', '_blank')">
-                <span class="google-tool-emoji">✨</span>
-                <span class="google-tool-label">Gemini AI</span>
-            </div>
+            <div class="google-tool-btn" role="button" aria-label="開啟 Google Map" onclick="window.open('https://www.google.com/maps', '_blank')"><span class="google-tool-emoji">🗺️</span><span class="google-tool-label">Google Map</span></div>
+            <div class="google-tool-btn" role="button" aria-label="開啟 Google 翻譯" onclick="window.open('https://translate.google.com', '_blank')"><span class="google-tool-emoji">🔤</span><span class="google-tool-label">Google 翻譯</span></div>
+            <div class="google-tool-btn" role="button" aria-label="開啟 Gemini AI" onclick="window.open('https://gemini.google.com', '_blank')"><span class="google-tool-emoji">✨</span><span class="google-tool-label">Gemini AI</span></div>
         </div>
 
-        <button class="btn btn-primary" style="background:var(--switch-blue);" onclick="switchTab('home')">🎮 返回主選單</button>
+        <button class="btn btn-primary" style="background:var(--switch-blue);" aria-label="返回主選單" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= 分頁 4: 戰力排行 ================= -->
-    <div id="tab-rpg-status" class="tab-content">
-        <div class="player-grid">
-            <div class="player-card" onclick="addIndividualExp('dad')"><span>👨</span><strong>爸爸</strong><span class="player-title-tag">🚗 北海道車神</span><div class="player-lv" id="lv-dad">LV.7</div><div class="player-exp-bar"><div class="player-exp-fill" id="bar-dad"></div></div></div>
-            <div class="player-card" onclick="addIndividualExp('mom')"><span>👩</span><strong>媽媽</strong><span class="player-title-tag">🍜 拉麵獵人</span><div class="player-lv" id="lv-mom">LV.6</div><div class="player-exp-bar"><div class="player-exp-fill" id="bar-mom"></div></div></div>
-            <div class="player-card" onclick="addIndividualExp('sis1')"><span>👧</span><strong>大囡</strong><span class="player-title-tag">🐎 森林騎士</span><div class="player-lv" id="lv-sis1">LV.8</div><div class="player-exp-bar"><div class="player-exp-fill" id="bar-sis1"></div></div></div>
-            <div class="player-card" onclick="addIndividualExp('sis2')"><span>👶</span><strong>細囡</strong><span class="player-title-tag">🐋 殺人鯨觀測員</span><div class="player-lv" id="lv-sis2">LV.9</div><div class="player-exp-bar"><div class="player-exp-fill" id="bar-sis2"></div></div></div>
+    <!-- 分頁 4: 戰力排行與相簿 -->
+    <div id="tab-rpg-status" class="tab-content" role="tabpanel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h4 style="margin:0; font-size:0.9rem;">👥 冒險隊伍成員</h4>
+            <button class="btn-today-jump" style="background:#0D9488;" onclick="promptAddNewMember()">➕ 新增隊員</button>
         </div>
 
+        <div class="player-grid" id="playerGridZone"></div>
+        
+        <div class="info-card"><h4 style="margin:0 0 6px 0;">📈 戰力成長曲線</h4><div class="chart-container"><canvas id="rpgChart"></canvas></div></div>
+        <div class="info-card"><h4 style="margin:0 0 6px 0;">🏆 成員排行榜</h4><div id="leaderboard-zone"></div></div>
+        
         <div class="info-card">
-            <h3>📈 家族戰力成長圖表</h3>
-            <div class="chart-container">
-                <canvas id="rpgChart"></canvas>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <h4 style="margin:0;">📸 冒險相簿牆</h4>
+                <span style="font-size:0.65rem; color:var(--gray);" id="indexedDbSizeLabel">已存取: 計算中...</span>
             </div>
-        </div>
-
-        <div class="info-card">
-            <h3>🏆 家族動態排行榜</h3>
-            <div id="leaderboard-zone"></div>
-        </div>
-
-        <div class="info-card">
-            <h3>🏅 任務成就解鎖系統</h3>
-            <div class="achievement-scroll" id="achievement-scroll-zone"></div>
+            <div class="album-grid" id="albumGridZone"></div>
+            <button class="btn btn-outline" style="margin-top:8px; font-size:0.7rem; color:#DC2626; border-color:#DC2626;" onclick="clearPhotosIndexedDBAndReload()">🗑️ 清理相簿照片 (釋放空間)</button>
         </div>
         
-        <div class="info-card" style="background:#F8FAFC;">
-            <h4>📤 數據備份與轉移</h4>
-            <button class="btn btn-outline" onclick="exportTripData()">📤 匯出存檔 JSON</button>
-            <button class="btn btn-outline" onclick="triggerImportJSON()">📥 匯入存檔 JSON</button>
-            <input type="file" id="importFileInput" style="display:none;" accept=".json" onchange="importTripData(this)">
-        </div>
-
-        <button class="btn btn-outline" style="border-color:#EF4444; color:#EF4444;" onclick="resetLocalStorageData()">🔄 重置全體存檔資料</button>
-        <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:10px;" onclick="switchTab('home')">🎮 返回主選單</button>
+        <button class="btn btn-primary" style="background:var(--switch-blue);" aria-label="返回主選單" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 
-    <!-- ================= 分頁 5: 隨身物資 ================= -->
-    <div id="tab-packing" class="tab-content">
-        <div class="info-card">
-            <h3>📸 旅行快照相片牆</h3>
-            <div class="album-grid" id="albumGridZone"></div>
-        </div>
-
-        <div class="info-card" style="background: #FFFBEB; border-left: 4px solid #F59E0B;">
+    <!-- 分頁 5: 隨身物資與設定 -->
+    <div id="tab-packing" class="tab-content" role="tabpanel">
+        <div class="info-card" style="background: #FFFBEB; border-left: 4px solid #D97706;">
             <div class="pack-badge warn">🌡️ 8月夏日特訓警告</div>
-            <p style="font-size:0.78rem; margin:4px 0; line-height:1.4; color:#B45309;">
+            <p style="font-size:0.78rem; margin:4px 0; line-height:1.4; color:#78350F;">
                 <b>香港人盲區校正：</b>北海道夏天最常見不是凍，而是<b>曬傷、蚊叮、突然落雨、手機冇電</b>！日間部分地區可達 25-32°C，紫外線強、日夜溫差較大。
             </p>
-            <div style="background:rgba(255,255,255,0.6); border-radius:8px; padding:6px; margin-top:6px; font-size:0.7rem; color:#78350F;">
-                <b>💡 8月盛夏五字口訣：</b><br>
-                <span style="color:#EA580C; font-weight:bold;">「防曬、防雨、防蚊、防走失（離線地圖）、防冇電（尿袋）」</span>
-            </div>
         </div>
 
-        <div class="info-card" style="border-left: 4px solid #10B981;">
-            <div class="info-title" style="color:#10B981;">⭐ 盛夏出征終極10寶 (全體必備)</div>
+        <div class="info-card" style="border-left: 4px solid #0D9488;">
+            <div class="info-title" style="color:#0D9488;">⭐ 盛夏出征終極10寶 (全體必備)</div>
             <div class="detail-section" style="margin-top:8px;">
-                <div class="check-item"><input type="checkbox"><span>🛂 護照正本</span></div>
-                <div class="check-item"><input type="checkbox"><span>💳 信用卡兩張 (海外刷卡暢通)</span></div>
-                <div class="check-item"><input type="checkbox"><span>💴 日圓現金 (建議準備 ¥30,000-50,000 備用)</span></div>
-                <div class="check-item"><input type="checkbox"><span>📱 eSIM / 上網卡 (台日雙區)</span></div>
-                <div class="check-item"><input type="checkbox"><span>🔋 行動電源 (防冇電尿袋)</span></div>
-                <div class="check-item"><input type="checkbox"><span>☀️ 防曬乳 SPF50+</span></div>
-                <div class="check-item"><input type="checkbox"><span>🕶️ 太陽眼鏡</span></div>
-                <div class="check-item"><input type="checkbox"><span>🌧️ 輕便摺傘</span></div>
-                <div class="check-item"><input type="checkbox"><span>🦟 強效防蚊液</span></div>
-                <div class="check-item"><input type="checkbox"><span>🧥 薄外套 (防冷氣/溫差)</span></div>
+                <div class="check-item"><input type="checkbox"><span>護照正本 + 國際駕照 IDP</span></div>
+                <div class="check-item"><input type="checkbox"><span>信用卡兩張 + 日圓現金 (建議 ¥30,000-50,000)</span></div>
+                <div class="check-item"><input type="checkbox"><span>eSIM / 上網卡 + 隨身尿袋</span></div>
+                <div class="check-item"><input type="checkbox"><span>防曬乳 SPF50+ + 太陽眼鏡 + 輕便摺傘</span></div>
+                <div class="check-item"><input type="checkbox"><span>戶外強效防蚊液 + 薄外套</span></div>
             </div>
         </div>
 
-        <div class="info-card" style="border-left: 4px solid var(--pack-color);">
-            <div class="info-title" style="color:var(--pack-color);">👕 4人服裝資產庫 (8/8 - 8/21 台灣3日+北海道11日)</div>
-            <div class="pack-sub-title">建議帶備</div>
-            <div class="detail-section">
-                <div class="check-item"><input type="checkbox"><span>短袖T恤 4-6件 (日間偏熱透氣)</span></div>
-                <div class="check-item"><input type="checkbox"><span>薄長袖 1-2件 (道東知床防涼)</span></div>
-                <div class="check-item"><input type="checkbox"><span>防曬外套 / 薄外套 1件</span></div>
-                <div class="check-item"><input type="checkbox"><span>輕便防風外套 1件 (羅臼出海/沿海防風)</span></div>
-                <div class="check-item"><input type="checkbox"><span>長褲 2條 / 短褲 1-2條</span></div>
-                <div class="check-item"><input type="checkbox"><span>襪子與舒適步行鞋</span></div>
+        <div class="info-card" style="background:#F8FAFC;">
+            <h3>⚙️ 冒險數據管理與進階工具</h3>
+            
+            <button class="btn btn-primary" style="background:#0284C7;" aria-label="預下載離線地圖" onclick="prefetchOfflineMapTiles()">📥 預下載全旅程離線地圖 Tiles</button>
+            <button class="btn btn-primary" style="background:#0D9488;" aria-label="生成一鍵分享連結" onclick="shareTripViaLightweightURL()">🔗 生成輕量分享連結 (輕量版無相片)</button>
+            
+            <div style="display:flex; gap:6px; margin:6px 0;">
+                <button class="btn btn-outline" style="flex:1;" onclick="downloadCSVTemplate()">📥 下載 CSV 範本</button>
+                <button class="btn btn-outline" style="flex:1;" onclick="triggerImportCSV()">📊 匯入 CSV 行程</button>
             </div>
-            <div class="pack-sub-title" style="color:#EF4444; border-left-color:#EF4444;">❌ 拓荒不建議攜帶 (佔行李空間)</div>
-            <div class="detail-section" style="font-size:0.75rem; color:var(--gray);">
-                <div class="check-item"><input type="checkbox" disabled><span style="text-decoration: line-through;">厚羽絨、保暖內衣、厚毛衣</span></div>
+            <input type="file" id="importCSVInput" style="display:none;" accept=".csv" onchange="importTripDataFromCSV(this)">
+            
+            <hr style="border:none; border-top:1px dashed #CBD5E1; margin:10px 0;">
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:0.8rem;">
+                <b>⚡ GPS 省電切換模式</b>
+                <button class="btn-today-jump" id="gpsPowerToggleBtn" onclick="toggleGpsPowerSavingMode()">當前：高精準度</button>
             </div>
+
+            <button class="btn btn-outline" aria-label="開啟開局嚮導" onclick="openWizardOverlay()">🧙‍♂️ 開啟開局嚮導 (重選模板/隊員)</button>
+            <button class="btn btn-outline" aria-label="匯出 JSON 存檔" onclick="exportTripData()">📤 匯出行程與存檔 JSON</button>
+            <button class="btn btn-outline" aria-label="匯入 JSON 存檔" onclick="triggerImportJSON()">📥 匯入行程與存檔 JSON</button>
+            <input type="file" id="importFileInput" style="display:none;" accept=".json" onchange="importTripData(this)">
+            
+            <hr style="border:none; border-top:1px dashed #CBD5E1; margin:10px 0;">
+            <button class="btn btn-outline" style="border-color:#DC2626; color:#DC2626;" aria-label="重置存檔" onclick="resetLocalStorageData()">🔄 清空存檔重新開始</button>
         </div>
 
-        <div class="info-card" style="border-left: 4px solid #F59E0B;">
-            <div class="info-title" style="color:#D97706;">☀️ 盛夏防護與極限對策</div>
-            <div class="pack-sub-title">☀️ 烈日防曬 (農田區/花田極少遮蔭)</div>
-            <div class="detail-section">
-                <div class="check-item"><input type="checkbox"><span>遮陽帽子、太陽眼鏡、防曬乳</span></div>
-                <div class="check-item"><input type="checkbox"><span>冰感毛巾、隨身手持小風扇</span></div>
-            </div>
-            <div class="pack-sub-title">🌧️ 防雨裝備 (8月偶有陣雨/颱風外圍)</div>
-            <div class="detail-section">
-                <div class="check-item"><input type="checkbox"><span>輕便雨衣、耐用摺傘</span></div>
-                <div class="check-item"><input type="checkbox"><span>防水背包套、手機防水袋</span></div>
-            </div>
-            <div class="pack-sub-title">🦟 森林防蟲 (富良野/美瑛/知床蚊蟲猛烈)</div>
-            <div class="detail-section">
-                <div class="check-item"><input type="checkbox"><span>戶外專用防蚊液 (含DEET/派卡瑞丁)</span></div>
-                <div class="check-item"><input type="checkbox"><span>無比膏 / 止癢膏、長袖薄衫防叮咬</span></div>
-            </div>
-        </div>
-
-        <div class="info-card" style="border-left: 4px solid #6366F1;">
-            <div class="info-title" style="color:#4F46E5;">🚗 爸爸車神開路與大囡細囡拍照裝備</div>
-            <div class="pack-sub-title">🚗 自駕開路必驗 (爸爸必備)</div>
-            <div class="detail-section">
-                <div class="check-item"><input type="checkbox"><span>香港駕駛執照正本 + 國際駕駛許可證 (IDP)</span></div>
-                <div class="check-item"><input type="checkbox"><span>ETC卡（若有租借）、酒店日文電話清單</span></div>
-                <div class="check-item"><input type="checkbox"><span>Google Maps 離線地圖 (以防郊區完全斷網)</span></div>
-            </div>
-            <div class="pack-sub-title">🌻 捕捉夏日花海 (向日葵/薰衣草尾季)</div>
-            <div class="detail-section">
-                <div class="check-item"><input type="checkbox"><span>大容量高速記憶卡、自拍三腳架</span></div>
-                <div class="check-item"><input type="checkbox"><span>高容量行動電源、相機備用電池</span></div>
-            </div>
-        </div>
-
-        <div class="info-card" style="border-left: 4px solid #EC4899;">
-            <div class="info-title" style="color:#DB2777;">🍈 8月盛夏極致味蕾清單 (全家爆食目標)</div>
-            <div class="detail-section" style="margin-top:8px;">
-                <div class="check-item"><input type="checkbox"><span>🍈 富良野/夕張當造爆汁哈密瓜、盛夏甜粟米、白桃</span></div>
-                <div class="check-item"><input type="checkbox"><span>🐋 羅臼/積丹限時現撈極品海膽、肥美帆立貝</span></div>
-                <div class="check-item"><input type="checkbox"><span>🦀 冰雪之門/三角市場 帝王蟹與長腳蟹盛宴</span></div>
-                <div class="check-item"><input type="checkbox"><span>🍛 札幌湯咖喱 Suage+、成吉思汗烤羊肉、在地拉麵</span></div>
-            </div>
-        </div>
-
-        <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:10px;" onclick="switchTab('home')">🎮 返回主選單</button>
-    </div>
-
-    <!-- 大結尾面板 -->
-    <div class="end-game-overlay" id="endGameScreen">
-        <div class="end-title-banner">━━━━━━━━━━<br>全真章節冒節通關<br>━━━━━━━━━━</div>
-        <div class="champion-box" style="background: linear-gradient(135deg, #FFD93D, #FF8A00); color: #7C2D12; padding: 10px 20px; border-radius: 14px; font-weight: bold; font-size: 1rem; margin-bottom:15px;">🏆 北海道荒野王者通關！</div>
-        <button class="btn btn-primary" style="background:var(--secondary); width:85%;" onclick="exportTravelMemoir()">📄 一鍵匯出全家回憶錄 (PDF)</button>
-        <button class="btn btn-primary" style="margin-top:14px; background:var(--primary); width:85%; padding:14px;" onclick="enterMemoirMode()">📖 開啟家庭回憶錄模式</button>
+        <button class="btn btn-primary" style="background:var(--switch-blue);" aria-label="返回主選單" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // ================= 🛰️ 行程核心數據庫 =================
-    const masterData = [
-        { day: 1, route: "抵達台北 ➔ 晴光商圈 ➔ 寧夏夜市", km: 15, driveTime: "約 30 分鐘", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "下午抵達台北，解鎖入住中山區「晴美公寓酒店」。下樓即是晴光市場商圈，必吃紅豆餅與脆皮鮮奶甜甜圈！晚上直奔寧夏夜市爆食蚵仔煎、地瓜球、大腸包小腸！", b: "自理", l: "自理", d: "寧夏夜市在地小吃大激食", title: "晴美公寓酒店解鎖", desc: "順利抵達台北並成功 Check-in，上傳全家第一張台式快閃合照！", addr: "10491台灣臺北市中山區林森北路568號", url: "https://www.jolleyhotels.com/" },
-        { day: 2, route: "西門町潮流購物 ➔ 鼎泰豐晚餐", km: 10, driveTime: "約 20 分鐘", tag: "TAIPEI", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "帶領兩位青少年狂掃西門町商圈！潮流服飾、萬年大樓潮玩極合孩子口味。晚上前往鼎泰豐（新生店）享用世界級小籠包與排骨炒飯大餐。", b: "酒店內享用", l: "西門町在地美食", d: "鼎泰豐 新生店頂級麵點", title: "西門町潮流捕獲", desc: "拍下青少年在西門町萬年大樓買到心儀潮玩的開心合照提交！", addr: "106台灣臺北市大安區信義路二段277號 (鼎泰豐)", url: "https://www.dintaifung.com.tw" },
-        { day: 3, route: "台北 ➔ 新千歲機場 ➔ 北國優駿公園 ➔ 札幌獨立屋", km: 65, driveTime: "約 1 小時 30 分鐘", tag: "SAPPORO", hub: "taipei", targetHub: "sapporo", weather: "札幌微風", spots: "機票 10:10 起飛，清晨 07:00 前辦理退房前往桃園機場！抵達新千歲取車後，15分鐘直奔【北國優駿公園】！體驗專為家庭設計的「觀光牽馬」或深入森林的騎馬健行，欣賞小馬搞笑表演。晚上回札幌獨立屋並爆食湯咖哩！", b: "自理", l: "飛機餐", d: "湯咖哩 Suage+ (中央區南4條西5丁目)", title: "🐴 森林初試近距離騎馬", desc: "拍下全家或青少年跨上馬背、在森林步道漫步的帥氣瞬間上傳！", addr: "114-7 Misawa, Tomakomai, Hokkaido 059-1361日本", url: "https://www.conventionsapporo.jp/uv_and_tb/tch/unique_venue/detail.asp?id=328" },
-        { day: 4, route: "白色戀人公園 ➔ 狸小路爆買 ➔ 藻岩山百萬夜景", km: 30, driveTime: "約 1 小時", tag: "SAPPORO", hub: "sapporo", targetHub: "sapporo", weather: "札幌晴朗", spots: "上午造訪夢幻的白色戀人公園歐洲城堡。下午突擊狸小路商店街 MEGA Don Quijote 瘋狂採購。傍晚搭乘纜車登上藻岩山頂，俯瞰全日本新三大夜景的震撼璀璨燈海！", b: "大本營自製", l: "狸小路在地拉麵", d: "札幌特色居酒屋", title: "✨ 藻岩山百萬夜景降臨", desc: "在藻岩山觀景台以百萬燈海為背景，拍下全家高能量大合照提交！", addr: "日本北海道札幌市西區宮之澤2條2丁目11-36 (白色戀人)", url: "https://www.shiroikoibitopark.jp" },
-        { day: 5, route: "美瑛青池 ➔ 北狐牧場 ➔ 知床（宿知床/羅臼）", km: 410, driveTime: "約 5 小時 30 分鐘 (跨區遠征 Day 1)", tag: "WILDLIFE", hub: "sapporo", targetHub: "rausu", weather: "美瑛東海道晴天", spots: "今日開啟野生大自然遠征！先到美瑛白金青池賞夢幻蒂芬妮藍。隨後順路經北見市進入【北狐牧場】！全家走在自然放養步道上，幾厘米極近距離看著毛茸茸的北極狐散步、追逐！夜宿知床/羅臼一帶。", b: "大本營快閃", l: "美瑛在地洋食", d: "東北海道海鮮大餐", title: "🦊 零距離接觸毛茸茸北狐", desc: "成功捕捉狐狸在身邊散步、睡覺或互相追逐的超萌近鏡照片！", addr: "52-1 Rubeshibechō Hanaoka, Kitami, Hokkaido 091-0157", url: "https://kitakitsune-farm.com" },
-        { day: 6, route: "羅臼賞鯨船（震撼睇殺人鯨） ➔ 旭川拉麵村 ➔ 返札幌", km: 430, driveTime: "約 5 小時 45 分鐘 (跨區遠征 Day 2)", tag: "WILDLIFE", hub: "rausu", targetHub: "sapporo", weather: "羅臼出海大晴天", spots: "【全旅程最高價值觀光亮點】！早上 08:30 登上【知床羅臼賞鯨船】出海。8月是觀賞野生殺人鯨（Orca）家族的黃金季節！看巨型黑白殺人鯨破浪而出甚至躍出海面，震撼力舉世無雙！回程順路爆食旭川拉麵村，深夜返札幌獨立屋。", b: "知床自理", l: "羅臼在地漁夫料理", d: "旭川拉麵村 (旭川市永山11條4丁目119-48)", title: "🐋 霸氣解鎖！夏日限定野生殺人鯨", desc: "成功拍下黑白殺人鯨家族破浪而出、或是抹香鯨噴水的極限震撼畫面！", addr: "日本〒086-1833 Menashi District, Rausu, Honchō, 27-1", url: "https://www.e-shiretoko.com" },
-        { day: 7, route: "登別地獄谷 ➔ 登別熊牧場（喂熊與梅花鹿）", km: 140, driveTime: "約 2 小時", tag: "WILDLIFE", hub: "sapporo", targetHub: "noboribetsu", weather: "登別火山硫磺天", spots: "開車前往登別地獄谷感受震撼火山白煙。隨後搭乘空中纜車直達【登別熊牧場】。除了可以購買特製食糧餵飼會招手要食物的龐大蝦夷棕熊外，還能進入「蝦夷鹿牧場」親手餵飼溫潤的日本梅花鹿！", b: "大本營自製", l: "登別溫泉街拉麵", d: "日式傳統燒肉", title: "🐻 熊與梅花鹿雙重餵飼達成", desc: "上傳孩子親手餵飼梅花鹿，或是棕熊精明招手要食物的生動照片！", addr: "224 Noboribetsuonsenchō, Noboribetsu, Hokkaido 059-0551", url: "https://bearpark.jp" },
-        { day: 8, route: "札幌車站潮流爆買（寶可夢、Jump Shop）", km: 15, driveTime: "約 40 分鐘", tag: "SHOPPING", hub: "noboribetsu", targetHub: "sapporo", weather: "札幌晴天", spots: "今天全面滿足青少年的動漫潮流魂！衝進 JR Tower Stellaplace 狂掃寶可夢中心（Pokemon Center）與 Jump Shop 購買限定周邊。晚餐在 6 樓享用產地直送的高性價比根室花丸迴轉壽司。", b: "大本營自製", l: "車站地下街美食", d: "根室花丸迴轉壽司 (Stellar Place 6樓)", title: "🎮 動漫周邊與寶可夢大爆發", desc: "拍下青少年手提寶可夢中心或Jump Shop戰利品大滿貫的開心照片！", addr: "札幌市中央區北5條西2丁目 (JR Tower)", url: "https://www.stellarplace.net" },
-        { day: 9, route: "三井 OUTLET PARK 北廣島（運動品牌爆買日）", km: 45, driveTime: "約 1 小時", tag: "SHOPPING", hub: "sapporo", targetHub: "sapporo", weather: "札幌多雲", spots: "自駕前往三井 OUTLET PARK 札幌北廣島。這裡匯集大量國際運動品牌、服飾與戶外裝裝備，全室內免受天氣影響，全家開展限時大血拼！晚餐回市區享用頂級日式料理。", b: "大本營自製", l: "Outlet 美食廣場", d: "札幌頂級成吉思汗烤肉", title: "💸 運動品牌戰利品大開箱", desc: "拍下全車後車廂被運動品牌及免稅大包小包塞滿的震撼畫面提交！", addr: "北廣島市大曲幸町3丁目7-6", url: "https://mitsui-shopping-park.com/mop/sapporo/" },
-        { day: 10, route: "富良野富田農場（夏日彩色向日葵花田）", km: 130, driveTime: "約 2 小時 15 分鐘", tag: "FURANO", hub: "sapporo", targetHub: "furano", weather: "富良野大晴天", spots: "挺進中富良野【富田農場】！飽覽盛夏盛開的向日葵彩色花田與薰衣草餘韻，狂嗑爆汁夕張哈密瓜。晚上回到札幌，前往名店「冰雪之門」享用極致奢華的帝王蟹與松葉蟹大餐！", b: "大本營自製", l: "富良野在地咖哩飯", d: "冰雪之門 螃蟹盛宴 (中央區南5條西2丁目)", title: "🌻 沉醉夏日向日葵彩色花田", desc: "在無邊際的金色向日葵花海前拍下一家四口的完美陽光合照！", addr: "空知郡中富良野町基線北15號", url: "https://www.farm-tomita.co.jp" },
-        { day: 11, route: "移居小樽新基地 ➔ 小樽運河散步 ➔ 爆汁炸雞", km: 45, driveTime: "約 50 分鐘", tag: "OTARU", hub: "furano", targetHub: "otaru", weather: "小樽微風", spots: "早上從小樽獨立屋辦理進駐新基地。黃昏前往懷舊的小樽運河散步。晚餐朝聖青少年的最愛——「若雞時代 Naruto」，品嚐外脆內嫩、咬下去瘋狂爆汁的招牌半身炸雞！", b: "大本營自製", l: "小樽街頭小吃", d: "若雞時代 Naruto (小樽市稻穗3丁目16-13)", title: "🏠 小樽石山町新據點解鎖", desc: "自駕進駐小樽石山町獨立屋，拍下這個極具空間感的新客廳基地合照！", addr: "19-4 Ishiyamachō, 小樽市, 北海道 047-0038", url: "https://maps.app.goo.gl/Vp6yPAarJ9JnLbpg9?g_st=ic" },
-        { day: 12, route: "積丹半島夏日限定「積丹藍」海景自駕", km: 130, driveTime: "約 2 小時 20 分鐘", tag: "OTARU", hub: "otaru", targetHub: "shakotan", weather: "積丹藍大晴天", spots: "自駕衝向積丹半島神威岬！徒步走在壯麗的海脊步道上，飽覽 360 度震撼澄澈的寶藍色寶藏大海。中午在積丹半島漁夫餐廳享用 8 月最肥美、限時現撈的極品海膽丼！", b: "小樽大本營自製", l: "積丹現撈肥美海膽丼", d: "小樽港新鮮壽司", title: "🌊 征服 360 度夢幻積丹藍", desc: "在神威岬步道極限頂點，拍下背景為純粹「積丹藍」的絕美海景大片！", addr: "積丹郡積丹町大字神威岬", url: "https://www.kanko-shakotan.jp" },
-        { day: 13, route: "三角市場海鮮挑選 ➔ 天狗山夜景纜車", km: 15, driveTime: "約 30 分鐘", tag: "OTARU", hub: "shakotan", targetHub: "otaru", weather: "小樽晴天", spots: "早上直奔三角市場（武田鮮魚店），當場挑選生猛巨型長腳蟹現煮現吃！傍邊前往天狗山搭乘索道纜車登頂，俯瞰完美的弧形海岸線夜景，為旅程倒數完美乾杯。", b: "自理", l: "三角市場生猛鮮蟹大餐", d: "小樽在地浪漫洋食", title: "🚡 天狗山俯瞰浪漫海岸線", desc: "在天狗山觀觀景台拍下俯瞰小樽完美弧形海岸夜景的經典照片提交！", addr: "小樽市最上2丁目16-15 (天狗山索道)", url: "https://tenguyama.ckk.chuo-bus.co.jp" },
-        { day: 14, route: "小樽退房 ➔ 新千歲機場國內線爆買 ➔ 啟程返港", km: 85, driveTime: "約 1 小時 15 分鐘", tag: "AIRPORT", hub: "otaru", targetHub: "airport", weather: "千歲晴天", spots: "清晨從小樽獨立屋退房並自駕前往機場還車。預留充足時間狂掃新千歲機場國內線航廈2/3樓！衝刺多啦A夢空中樂園，買齊六花亭、北菓樓與 Royce 巧克力。搭乘 13:00 的 BR165 航班回港！", b: "機場限定起司巨塔麵包", l: "機場內札幌拉麵道場", d: "飛機餐 / 返港", title: "✈️ 空港免稅品最後大搜捕", desc: "【最終戰】在新千歲機場多啦A夢天空樂園前，拍下一家手拎滿滿戰利品的大團圓照片結算！", addr: "千歲市美美 (新千歲機場)", url: "https://www.new-chitose-airport.jp" }
+    // IndexedDB 相簿資料庫
+    function openImageDB() {
+        return new Promise((resolve, reject) => {
+            try {
+                const request = indexedDB.open("TravelAppPhotosDB_v10", 1);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains("photos")) {
+                        db.createObjectStore("photos", { keyPath: "id", autoIncrement: true });
+                    }
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject("IndexedDB 開啟失敗");
+            } catch(e) { reject(e); }
+        });
+    }
+
+    async function savePhotoToIndexedDB(base64Data, day, name) {
+        try {
+            const db = await openImageDB();
+            const tx = db.transaction("photos", "readwrite");
+            tx.objectStore("photos").add({ url: base64Data, day: day, name: name, timestamp: Date.now() });
+            return tx.complete;
+        } catch(e) { console.error("IndexedDB Save Fallback:", e); }
+    }
+
+    async function getAllPhotosFromIndexedDB() {
+        try {
+            const db = await openImageDB();
+            return new Promise((resolve) => {
+                const tx = db.transaction("photos", "readonly");
+                const req = tx.objectStore("photos").getAll();
+                req.onsuccess = () => resolve(req.result.reverse());
+                req.onerror = () => resolve([]);
+            });
+        } catch(e) { return []; }
+    }
+
+    async function clearPhotosIndexedDBAndReload() {
+        if (confirm("確定要清空相簿中的照片釋放手機空間嗎？")) {
+            try {
+                const db = await openImageDB();
+                const tx = db.transaction("photos", "readwrite");
+                tx.objectStore("photos").clear();
+                tx.oncomplete = () => window.location.reload();
+            } catch(e){}
+        }
+    }
+
+    function registerRealOfflineServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            const swScript = `
+                const CACHE_NAME = 'travel-rpg-v10';
+                const ASSETS = [
+                    './',
+                    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+                    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+                    'https://cdn.jsdelivr.net/npm/chart.js'
+                ];
+                self.addEventListener('install', e => {
+                    e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)));
+                    self.skipWaiting();
+                });
+                self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                self.addEventListener('fetch', e => {
+                    e.respondWith(
+                        caches.match(e.request).then(cached => {
+                            if (cached) return cached;
+                            return fetch(e.request).then(res => {
+                                if (e.request.url.includes('tile.openstreetmap.org')) {
+                                    const resClone = res.clone();
+                                    caches.open('map-tiles-v10').then(c => c.put(e.request, resClone));
+                                }
+                                return res;
+                            });
+                        }).catch(() => caches.match('./'))
+                    );
+                });
+            `;
+            try {
+                const blob = new Blob([swScript], { type: 'text/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(err => console.error("SW Err:", err));
+            } catch(e) {}
+        }
+    }
+
+    const hokkaidoTemplate = [
+        { day: 1, route: "抵達台北 ➔ 晴光商圈 ➔ 寧夏夜市", km: 15, driveTime: "約 30 分鐘", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "入住晴美公寓酒店，爆食蚵仔煎與甜甜圈！", b: "自理", l: "自理", d: "寧夏夜市", title: "晴美公寓酒店解鎖", desc: "拍攝第一站合照！", addr: "臺北市中山區林森北路568號", url: "https://www.jolleyhotels.com/", waypoints: [{name:"晴美酒店", lat: 25.064, lng: 121.526}, {name:"寧夏夜市", lat: 25.056, lng: 121.515}] },
+        { day: 2, route: "西門町潮流購物 ➔ 鼎泰豐晚餐", km: 10, driveTime: "約 20 分鐘", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "萬年大樓潮玩，享用鼎泰豐小籠包！", b: "酒店內", l: "西門町美食", d: "鼎泰豐", title: "西門町潮流捕獲", desc: "拍下萬年大樓戰利品合照！", addr: "臺北市大安區信義路二段277號", url: "https://www.dintaifung.com.tw", waypoints: [{name:"萬年大樓", lat: 25.043, lng: 121.506}, {name:"鼎泰豐", lat: 25.033, lng: 121.529}] },
+        { day: 3, route: "台北 ➔ 新千歲 ➔ 北國優駿公園 ➔ 札幌", km: 65, driveTime: "約 1 小時 30 分鐘", hub: "taipei", targetHub: "sapporo", weather: "札幌微風", spots: "北國優駿公園騎馬，入住札幌獨立屋！", b: "自理", l: "飛機餐", d: "湯咖哩 Suage+", title: "🐴 森林初試近距離騎馬", desc: "拍下跨上馬背的帥氣瞬間！", addr: "114-7 Misawa, Tomakomai, Hokkaido", url: "https://www.conventionsapporo.jp", waypoints: [{name:"新千歲機場", lat: 42.775, lng: 141.692}, {name:"北國優駿公園", lat: 42.650, lng: 141.670}, {name:"札幌獨立屋", lat: 43.062, lng: 141.354}] },
+        { day: 4, route: "白色戀人公園 ➔ 狸小路 ➔ 藻岩山夜景", km: 30, driveTime: "約 1 小時", hub: "sapporo", targetHub: "sapporo", weather: "札幌晴朗", spots: "白色戀人城堡，藻岩山頂俯瞰百萬夜景！", b: "自製", l: "狸小路拉麵", d: "居酒屋", title: "✨ 藻岩山百萬夜景降臨", desc: "在觀景台拍下百萬夜景大合照！", addr: "札幌市西區宮之澤2條2丁目", url: "https://www.shiroikoibitopark.jp", waypoints: [{name:"白色戀人", lat: 43.088, lng: 141.271}, {name:"藻岩山", lat: 43.023, lng: 141.333}] },
+        { day: 5, route: "美瑛青池 ➔ 北狐牧場 ➔ 知床", km: 410, driveTime: "約 5 小時 30 分鐘", hub: "sapporo", targetHub: "rausu", weather: "美瑛晴天", spots: "美瑛青池蒂芬妮藍，北狐牧場近距離看狐狸！", b: "快閃", l: "美瑛洋食", d: "海鮮大餐", title: "🦊 零距離接觸北狐", desc: "捕捉狐狸散步超萌照片！", addr: "Rubeshibechō Hanaoka, Kitami", url: "https://kitakitsune-farm.com", waypoints: [{name:"美瑛青池", lat: 43.493, lng: 142.613}, {name:"北狐牧場", lat: 43.706, lng: 143.611}, {name:"知床/羅臼", lat: 44.020, lng: 145.190}] },
+        { day: 6, route: "羅臼賞鯨船 ➔ 旭川 ➔ 返札幌", km: 430, driveTime: "約 5 小時 45 分鐘", hub: "rausu", targetHub: "sapporo", weather: "羅臼晴天", spots: "知床羅臼賞鯨船觀賞野生殺人鯨破浪而出！", b: "自理", l: "漁夫料理", d: "旭川拉麵", title: "🐋 野生殺人鯨大目擊", desc: "拍下殺人鯨破浪震撼照片！", addr: "Rausu, Menashi District, Hokkaido", url: "https://www.e-shiretoko.com", waypoints: [{name:"羅臼港", lat: 44.020, lng: 145.190}, {name:"旭川拉麵村", lat: 43.780, lng: 142.420}] },
+        { day: 7, route: "登別地獄谷 ➔ 登別熊牧場", km: 140, driveTime: "約 2 小時", hub: "sapporo", targetHub: "noboribetsu", weather: "登別火山天", spots: "地獄谷白煙，搭纜車直達熊牧場餵棕熊與梅花鹿！", b: "自製", l: "溫泉街拉麵", d: "燒肉", title: "🐻 登別餵熊達成", desc: "上傳親手餵食棕熊或鹿的照片！", addr: "Noboribetsuonsenchō, Noboribetsu", url: "https://bearpark.jp", waypoints: [{name:"地獄谷", lat: 42.497, lng: 141.145}, {name:"熊牧場", lat: 42.492, lng: 141.143}] },
+        { day: 8, route: "札幌車站爆買（寶可夢、Jump Shop）", km: 15, driveTime: "約 40 分鐘", hub: "noboribetsu", targetHub: "sapporo", weather: "札幌晴天", spots: "掃寶可夢中心與 Jump Shop，根室花丸迴轉壽司！", b: "自製", l: "地下街", d: "根室花丸", title: "🎮 動漫周邊大爆發", desc: "拍下手提寶可夢戰利品照片！", addr: "札幌市中央區北5條西2丁目", url: "https://www.stellarplace.net", waypoints: [{name:"JR Tower", lat: 43.068, lng: 141.350}] },
+        { day: 9, route: "三井 OUTLET PARK 北廣島", km: 45, driveTime: "約 1 小時", hub: "sapporo", targetHub: "sapporo", weather: "札幌多雲", spots: "三井 OUTLET 國際運動品牌限時大血拼！", b: "自製", l: "Outlet美食", d: "成吉思汗烤肉", title: "💸 運動品牌戰利品開箱", desc: "拍下後車廂被戰利品塞滿的照片！", addr: "北廣島市大曲幸町3丁目7-6", url: "https://mitsui-shopping-park.com", waypoints: [{name:"三井Outlet", lat: 42.971, lng: 141.458}] },
+        { day: 10, route: "富良野富田農場（向日葵花田）", km: 130, driveTime: "約 2 小時 15 分鐘", hub: "sapporo", targetHub: "furano", weather: "富良野晴天", spots: "富田農場向日葵彩色花田，冰雪之門帝王蟹大餐！", b: "自製", l: "富良野咖哩", d: "冰雪之門", title: "🌻 富良野花田沉醉", desc: "在無邊際花海前拍下合照！", addr: "空知郡中富良野町基線北15號", url: "https://www.farm-tomita.co.jp", waypoints: [{name:"富田農場", lat: 43.418, lng: 142.427}] },
+        { day: 11, route: "移居小樽 ➔ 小樽運河 ➔ 爆汁炸雞", km: 45, driveTime: "約 50 分鐘", hub: "furano", targetHub: "otaru", weather: "小樽微風", spots: "進駐小樽獨立屋，黃昏運河散步，若雞時代爆汁炸雞！", b: "自製", l: "小樽小吃", d: "若雞時代 Naruto", title: "🏠 小樽石山町新據點解鎖", desc: "拍下新客廳基地合照！", addr: "小樽市石山町19-4", url: "https://maps.google.com", waypoints: [{name:"小樽運河", lat: 43.197, lng: 140.999}, {name:"小樽獨立屋", lat: 43.190, lng: 140.994}] },
+        { day: 12, route: "積丹半島「積丹藍」海景自駕", km: 130, driveTime: "約 2 小時 20 分鐘", hub: "otaru", targetHub: "shakotan", weather: "積丹藍晴天", spots: "神威岬步道飽覽 360 度寶藍海景，狂嗑現撈海膽丼！", b: "自製", l: "極品海膽丼", d: "小樽壽司", title: "🌊 征服夢幻積丹藍", desc: "在神威岬頂點拍下積丹藍大片！", addr: "積丹郡積丹町大字神威岬", url: "https://www.kanko-shakotan.jp", waypoints: [{name:"神威岬", lat: 43.330, lng: 140.347}] },
+        { day: 13, route: "三角市場海鮮 ➔ 天狗山夜景纜車", km: 15, driveTime: "約 30 分鐘", hub: "shakotan", targetHub: "otaru", weather: "小樽晴天", spots: "三角市場長腳蟹現煮現吃，天狗山纜車登頂俯瞰夜景！", b: "自理", l: "三角市場生猛鮮蟹", d: "小樽洋食", title: "🚡 天狗山俯瞰海岸線", desc: "拍下天狗山俯瞰小樽夜景照片！", addr: "小樽市最上2丁目16-15", url: "https://tenguyama.ckk.chuo-bus.co.jp", waypoints: [{name:"三角市場", lat: 43.197, lng: 140.993}, {name:"天狗山", lat: 43.178, lng: 140.969}] },
+        { day: 14, route: "小樽退房 ➔ 新千歲機場 ➔ 返港", km: 85, driveTime: "約 1 小時 15 分鐘", hub: "otaru", targetHub: "airport", weather: "千歲晴天", spots: "新千歲機場國內線爆買，衝刺多啦A夢空中樂園！", b: "起司麵包", l: "拉麵道場", d: "飛機餐", title: "✈️ 空港免稅品最後大搜捕", desc: "在新千歲機場多啦A夢天空樂園前合照！", addr: "千歲市美美新千歲機場", url: "https://www.new-chitose-airport.jp", waypoints: [{name:"新千歲機場", lat: 42.775, lng: 141.692}] }
     ];
 
     const mapHubs = {
-        taipei:     { name: "台北晴美", lat: 25.064, lng: 121.526, emoji: "🇹🇼" },
+        taipei:     { name: "台北區域", lat: 25.064, lng: 121.526, emoji: "🇹🇼" },
         airport:    { name: "新千歲機場", lat: 42.775, lng: 141.692, emoji: "✈️" },
         sapporo:    { name: "札幌獨立屋", lat: 43.062, lng: 141.354, emoji: "🏡" },
         rausu:      { name: "羅臼港/北狐", lat: 44.020, lng: 145.190, emoji: "🐋" },
@@ -661,267 +592,272 @@
         shakotan:   { name: "積丹半島", lat: 43.328, lng: 140.355, emoji: "🌊" }
     };
 
-    const routeOrder = ['taipei','taipei','sapporo','sapporo','rausu','rausu','noboribetsu','sapporo','sapporo','furano','otaru','shakotan','otaru','airport'];
-
-    const initialAchievements = [
-        { id: "horse", name: "🐴 森林騎士", desc: "完成 Day 3 北國優駿公園騎馬體驗", unlocked: false, day: 3, exp: 300 },
-        { id: "fox", name: "🦊 北狐密使", desc: "完成 Day 5 北狐牧場極近接觸", unlocked: false, day: 5, exp: 300 },
-        { id: "orca", name: "🐋 殺人鯨獵影者", desc: "完成 Day 6 羅臼出海野生大目擊", unlocked: false, day: 6, exp: 500 },
-        { id: "bear", name: "🐻 棕熊飼育員", desc: "完成 Day 7 登別餵食熊與梅花鹿", unlocked: false, day: 7, exp: 300 }
-    ];
-
+    let selectedTemplateType = 'hokkaido';
+    let masterData = [];
     let activeDay = 1;
-    let isMemoirMode = false;
     let currentUploadedPhotoUrl = ""; 
     let completedDays = []; 
-    let recentPhotosArray = [];
-    let rpgPlayers = {
-        dad: { name: "爸爸", title: "🚗 北海道車神", exp: 830 },
-        mom: { name: "媽媽", title: "🍜 拉麵獵人", exp: 720 },
-        sis1: { name: "大囡", title: "🐎 森林騎士", exp: 980 },
-        sis2: { name: "細囡", title: "🐋 殺人鯨觀測員", exp: 1200 }
-    };
-    let achievements = JSON.parse(JSON.stringify(initialAchievements));
+    let rpgPlayers = {};
+    let isGpsPowerSaving = false;
 
-    let lfMap, lfCarMarker, lfRadarMarker;
-    let lfPolylinesArray = [];
+    let lfMap = null;
+    let currentPolyline = null, currentGlowLine = null;
+    let currentMarkers = [];
     let myChartInstance = null;
+    let audioCtx = null, isMuted = true;
+    let gpsWatchId = null;
+    let deferredPwaPrompt = null;
 
-    // Web Audio API 音訊合成 (修復外部音訊檔 404 報錯)
-    let audioCtx = null;
-    let isMuted = true;
-
-    function toggleAudioMute() {
-        isMuted = !isMuted;
-        document.getElementById('audio-wave').innerText = isMuted ? "🔇 MUTED" : "🎵 PLAYING";
-        if (!isMuted) playSynthesizedBGM();
+    function openWizardOverlay() {
+        document.getElementById('wizardOverlay').style.display = 'flex';
+        renderWizardMemberInputs();
     }
 
-    function playSynthesizedBGM() {
-        if (isMuted) return;
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let osc = audioCtx.createOscillator();
-        let gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.15);
+    function selectTemplate(type, cardEl) {
+        selectedTemplateType = type;
+        document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+        if (cardEl) cardEl.classList.add('selected');
+    }
+
+    function goToWizardStep(stepNum) {
+        document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+        document.getElementById(`wizardStep${stepNum}`).classList.add('active');
+    }
+
+    let tempWizardMembers = [
+        { name: "爸爸", title: "🚗 北海道車神", avatar: "👨" },
+        { name: "媽媽", title: "🍜 美食獵人", avatar: "👩" },
+        { name: "大囡", title: "🐎 森林騎士", avatar: "👧" },
+        { name: "細囡", title: "🐋 殺人鯨觀測員", avatar: "👶" }
+    ];
+
+    function renderWizardMemberInputs() {
+        const container = document.getElementById('wizardMemberList');
+        container.innerHTML = "";
+        tempWizardMembers.forEach((m, idx) => {
+            container.innerHTML += `
+                <div class="member-input-row">
+                    <input type="text" value="${m.avatar}" class="member-avatar-select" id="w-av-${idx}" aria-label="頭像 Emoji">
+                    <input type="text" value="${m.name}" placeholder="姓名" id="w-nm-${idx}" aria-label="隊員姓名">
+                    <input type="text" value="${m.title}" placeholder="稱號" id="w-tt-${idx}" aria-label="隊員稱號">
+                    <button style="border:none; background:none; cursor:pointer;" aria-label="刪除隊員" onclick="removeWizardMember(${idx})">❌</button>
+                </div>
+            `;
+        });
+    }
+
+    function addWizardMemberInput() {
+        tempWizardMembers.push({ name: `隊員 ${tempWizardMembers.length + 1}`, title: "⚔️ 冒險者", avatar: "🧑" });
+        renderWizardMemberInputs();
+    }
+
+    function removeWizardMember(idx) {
+        if (tempWizardMembers.length <= 1) { alert("至少需保留一名隊員！"); return; }
+        tempWizardMembers.splice(idx, 1);
+        renderWizardMemberInputs();
+    }
+
+    function finishWizardAndStart() {
+        rpgPlayers = {};
+        tempWizardMembers.forEach((_, idx) => {
+            const av = document.getElementById(`w-av-${idx}`).value || "🧑";
+            const nm = document.getElementById(`w-nm-${idx}`).value || `隊員${idx+1}`;
+            const tt = document.getElementById(`w-tt-${idx}`).value || "⚔️ 冒險者";
+            rpgPlayers[`p${idx+1}`] = { name: nm, title: tt, avatar: av, exp: 100 };
+        });
+
+        if (selectedTemplateType === 'hokkaido') {
+            masterData = JSON.parse(JSON.stringify(hokkaidoTemplate));
+        } else if (selectedTemplateType === 'blank') {
+            masterData = [
+                { day: 1, route: "抵達第一站 ➔ 市區探索", km: 10, driveTime: "30 分鐘", hub: "taipei", targetHub: "taipei", weather: "晴朗", spots: "開啟全新冒險的第一天！", b: "自理", l: "自理", d: "在地美食", title: "解鎖第一基地", desc: "拍攝隊伍抵達第一站的合照！", addr: "市中心地標", url: "https://maps.google.com", waypoints: [{name:"第一站", lat: 25.064, lng: 121.526}] }
+            ];
+        }
+
+        activeDay = 1; completedDays = [];
+        clearPhotosIndexedDBAndReload();
+        saveGame();
+        document.getElementById('wizardOverlay').style.display = 'none';
+        
+        initLeafletMapSystem();
+        buildTimeline();
+        updateAllInterfaces();
+        drawDailyRouteOnMap();
     }
 
     function saveGame() {
-        const hokkaidoSave = { activeDay, rpgPlayers, recentPhotosArray, achievements, isMemoirMode, completedDays, masterData };
-        localStorage.setItem('hokkaidoSave_v5_1', JSON.stringify(hokkaidoSave));
+        try {
+            const state = { activeDay, rpgPlayers, completedDays, masterData };
+            localStorage.setItem('rpg_travel_master_v10', JSON.stringify(state));
+        } catch(e) { console.error("LocalStorage Save Fail:", e); }
     }
 
     function loadGame() {
-        const saveData = JSON.parse(localStorage.getItem('hokkaidoSave_v5_1'));
-        if (saveData) {
-            activeDay = saveData.activeDay || 1;
-            rpgPlayers = saveData.rpgPlayers || rpgPlayers;
-            recentPhotosArray = saveData.recentPhotosArray || [];
-            achievements = saveData.achievements || achievements;
-            isMemoirMode = saveData.isMemoirMode || false;
-            completedDays = saveData.completedDays || [];
-            if (saveData.masterData) {
-                saveData.masterData.forEach((d, idx) => { if (masterData[idx]) Object.assign(masterData[idx], d); });
+        try {
+            const saved = localStorage.getItem('rpg_travel_master_v10');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                activeDay = parsed.activeDay || 1;
+                rpgPlayers = parsed.rpgPlayers || {};
+                completedDays = parsed.completedDays || [];
+                masterData = parsed.masterData || [];
+                return true;
             }
+        } catch(e) { console.error("LocalStorage Load Fail:", e); }
+        return false;
+    }
+
+    function shareTripViaLightweightURL() {
+        try {
+            const lightweightState = { activeDay, rpgPlayers, completedDays, masterData };
+            const jsonStr = JSON.stringify(lightweightState);
+            const encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(jsonStr))));
+            const shareUrl = `${window.location.origin}${window.location.pathname}#trip=${encoded}`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: '🎮 加入我們的旅行 RPG 冒險！',
+                    text: '這是我剛排好的輕量版旅行行程，點擊連結載入：',
+                    url: shareUrl
+                }).catch(e => console.log('Share canceled'));
+            } else {
+                navigator.clipboard.writeText(shareUrl);
+                alert("🔗 輕量版行程分享連結已複製到剪貼簿！\n\n" + shareUrl);
+            }
+        } catch(e) { alert("❌ 生成連結失敗"); }
+    }
+
+    function checkAndLoadURLHashData() {
+        if (window.location.hash.startsWith('#trip=')) {
+            try {
+                const encoded = window.location.hash.replace('#trip=', '');
+                const jsonStr = decodeURIComponent(escape(atob(decodeURIComponent(encoded))));
+                const parsed = JSON.parse(jsonStr);
+                if (parsed && parsed.masterData) {
+                    if (confirm("🔗 偵測到來自分享的行程資料！是否載入並覆蓋當前行程？")) {
+                        localStorage.setItem('rpg_travel_master_v10', JSON.stringify(parsed));
+                        window.location.hash = "";
+                        return true;
+                    }
+                }
+            } catch(e) { console.error("URL Hash Read Error:", e); }
         }
+        return false;
+    }
+
+    function downloadCSVTemplate() {
+        const csvContent = "data:text/csv;charset=utf-8," 
+            + "Route,Spots,Breakfast,Lunch,Dinner,DriveTime\n"
+            + "抵達台北 ➔ 寧夏夜市,入住晴美公寓酒店並品嚐小吃,自理,自理,寧夏夜市小吃,約 30 分鐘\n"
+            + "西門町潮流購物 ➔ 鼎泰豐,掃萬年大樓潮玩與鼎泰豐小籠包,酒店內,西門町美食,鼎泰豐,約 20 分鐘\n";
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "travel_itinerary_template.csv");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    }
+
+    function triggerImportCSV() { document.getElementById('importCSVInput').click(); }
+
+    function importTripDataFromCSV(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const text = e.target.result;
+                    const lines = text.split('\n').filter(line => line.trim() !== '');
+                    const newMasterData = [];
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+                        if (cols.length < 2) {
+                            alert(`⚠️ 匯入在中斷：第 ${i + 1} 行欄位不足！請下載範本確認格式。`);
+                            return;
+                        }
+                        newMasterData.push({
+                            day: i,
+                            route: cols[0] || `Day ${i} 行程`,
+                            spots: cols[1] || "景點探索",
+                            b: cols[2] || "自理",
+                            l: cols[3] || "在地小吃",
+                            d: cols[4] || "精緻晚餐",
+                            driveTime: cols[5] || "約 30 分鐘",
+                            km: 20, targetHub: "taipei", weather: "晴朗",
+                            title: `Day ${i} 解鎖`, desc: "完成今日探索並打卡！",
+                            addr: cols[1] || "目的地", url: "https://maps.google.com",
+                            waypoints: [{name: cols[0] || "站點", lat: 25.064, lng: 121.526}]
+                        });
+                    }
+
+                    if (newMasterData.length > 0) {
+                        masterData = newMasterData; activeDay = 1; saveGame();
+                        alert(`✅ 成功從 CSV 匯入 ${newMasterData.length} 天行程！`);
+                        window.location.reload();
+                    }
+                } catch(err) { alert("❌ 解析 CSV 檔案失敗"); }
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    function toggleEditDayPanel(show) {
+        const panel = document.getElementById('editDayItineraryPanel');
+        if (show) {
+            const data = masterData[activeDay - 1];
+            document.getElementById('editDayNumLabel').innerText = activeDay;
+            document.getElementById('editInputRoute').value = data.route || "";
+            document.getElementById('editInputDriveTime').value = data.driveTime || "";
+            document.getElementById('editInputSpots').value = data.spots || "";
+            document.getElementById('editInputAddr').value = data.addr || "";
+            panel.style.display = "block";
+        } else {
+            panel.style.display = "none";
+        }
+    }
+
+    function saveCurrentDayEdits() {
+        const data = masterData[activeDay - 1];
+        data.route = document.getElementById('editInputRoute').value;
+        data.driveTime = document.getElementById('editInputDriveTime').value;
+        data.spots = document.getElementById('editInputSpots').value;
+        data.addr = document.getElementById('editInputAddr').value;
+        saveGame();
+        toggleEditDayPanel(false);
+        updateAllInterfaces();
+        alert("💾 已儲存此日行程修改！");
+    }
+
+    async function prefetchOfflineMapTiles() {
+        if (!('caches' in window)) { alert("瀏覽器不支援 Cache API"); return; }
+        alert("📥 開始為全旅程預下載離線地圖切片，請稍候...");
+        try {
+            const cache = await caches.open('map-tiles-v10');
+            let count = 0;
+            for (let d of masterData) {
+                if (d.waypoints) {
+                    for (let wp of d.waypoints) {
+                        const zoom = 10;
+                        const x = Math.floor((wp.lng + 180) / 360 * Math.pow(2, zoom));
+                        const y = Math.floor((1 - Math.log(Math.tan(wp.lat * Math.PI / 180) + 1 / Math.cos(wp.lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
+                        const tileUrl = `https://a.tile.openstreetmap.org/${zoom}/${x}/${y}.png`;
+                        try { await cache.add(tileUrl); count++; } catch(e){}
+                    }
+                }
+            }
+            alert(`✅ 離線地圖預載完成！已成功快取 ${count} 個區域切片！`);
+        } catch(e) { alert("❌ 預載過程受阻"); }
     }
 
     function resetLocalStorageData() {
-        if(confirm("確定要清除緩存的冒險紀錄嗎？")) {
-            localStorage.removeItem('hokkaidoSave_v5_1');
-            window.location.reload();
+        if (confirm("確定要清空存檔與所有 IndexedDB 相片嗎？")) {
+            localStorage.removeItem('rpg_travel_master_v10');
+            clearPhotosIndexedDBAndReload();
         }
     }
 
-    // 智能 GPS 輪詢 (解決 watchPosition 暴烈耗電問題)
-    function initGpsGeofencingHardware() {
-        if (!navigator.geolocation) return;
-        document.getElementById('gps-status-pill').style.display = 'block';
-        
-        function checkPos() {
-            navigator.geolocation.getCurrentPosition((position) => {
-                const userLat = position.coords.latitude;
-                const userLng = position.coords.longitude;
-                const currentTargetHub = masterData[activeDay - 1].targetHub;
-                const targetPos = mapHubs[currentTargetHub];
-                
-                if (targetPos) {
-                    const distanceInMeters = calculateHaversineDistance(userLat, userLng, targetPos.lat, targetPos.lng);
-                    const alertBanner = document.getElementById('gps-proximity-alert');
-                    
-                    if (distanceInMeters <= 500) {
-                        alertBanner.innerText = `✅ 已到達任務區域：[${targetPos.name}] (距離 ${Math.round(distanceInMeters)}米)`;
-                        alertBanner.style.display = 'block';
-                    } else {
-                        alertBanner.style.display = 'none';
-                    }
-                }
-            }, (err) => console.warn("GPS Check: ", err.message), { enableHighAccuracy: false, timeout: 5000 });
-        }
-
-        checkPos();
-        setInterval(checkPos, 30000); // 每 30 秒節流檢查一次
-    }
-
-    function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371e3;
-        const phi1 = lat1 * Math.PI / 180;
-        const phi2 = lat2 * Math.PI / 180;
-        const deltaPhi = (lat2 - lat1) * Math.PI / 180;
-        const deltaLambda = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(deltaPhi/2) * Math.sin(deltaPhi/2) +
-                  Math.cos(phi1) * Math.cos(phi2) *
-                  Math.sin(deltaLambda/2) * Math.sin(deltaLambda/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return R * c;
-    }
-
-    function initLeafletMapSystem() {
-        lfMap = L.map('leafletMap', { zoomControl: false, attributionControl: false }).setView([42.95, 141.8], 7);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(lfMap);
-
-        lfCarMarker = L.marker([mapHubs.taipei.lat, mapHubs.taipei.lng], {
-            icon: L.divIcon({ html: '<div style="font-size:1.5rem; text-align:center;">🚗</div>', iconSize: [30, 30] })
-        }).addTo(lfMap);
-
-        lfRadarMarker = L.marker([mapHubs.taipei.lat, mapHubs.taipei.lng], {
-            icon: L.divIcon({ className: 'radar-ping-icon', html: '<div class="radar-wave-glow"></div>', iconSize: [0, 0] })
-        }).addTo(lfMap);
-
-        for (let key in mapHubs) {
-            let h = mapHubs[key];
-            L.marker([h.lat, h.lng], {
-                icon: L.divIcon({ html: `<div class="game-marker-label" id="lf-lbl-${key}">${h.emoji} ${h.name}</div>`, iconAnchor: [25, 0] })
-            }).addTo(lfMap).on('click', () => jumpToHubDay(key));
-        }
-        drawLeafletRoutes();
-    }
-
-    function buildTimeline() {
-        const bar = document.getElementById('map-timeline-bar');
-        if (!bar) return;
-        bar.innerHTML = "";
-        masterData.forEach(d => {
-            const node = document.createElement('div');
-            node.className = `day-node ${d.day === activeDay ? 'active' : ''}`;
-            node.id = `timeline-d${d.day}`;
-            node.innerText = `D${d.day}`;
-            node.onclick = () => selectDay(d.day);
-            bar.appendChild(node);
-        });
-
-        let unlockedHubs = new Set(['taipei']);
-        for(let i = 0; i < activeDay; i++) {
-            unlockedHubs.add(masterData[i].targetHub);
-            unlockedHubs.add(masterData[i].hub);
-        }
-
-        for (let key in mapHubs) {
-            let labelDom = document.getElementById(`lf-lbl-${key}`);
-            if (labelDom) {
-                if (isMemoirMode || unlockedHubs.has(key)) {
-                    labelDom.style.filter = "none"; labelDom.style.opacity = "1";
-                    labelDom.innerText = `${mapHubs[key].emoji} ${mapHubs[key].name}`;
-                } else {
-                    labelDom.style.filter = "grayscale(1) opacity(0.4)"; labelDom.innerText = `🌫️ ???`;
-                }
-            }
-        }
-    }
-
-    function jumpToHubDay(hubKey) {
-        let found = masterData.find(d => d.targetHub === hubKey || d.hub === hubKey);
-        if(found) selectDay(found.day);
-    }
-
-    function selectDay(dayNum) {
-        activeDay = dayNum;
-        buildTimeline();
-        updateAllInterfaces();
-        drawLeafletRoutes();
-        saveGame();
-    }
-
-    function drawLeafletRoutes() {
-        if (!lfMap) return;
-        lfPolylinesArray.forEach(line => lfMap.removeLayer(line));
-        lfPolylinesArray = [];
-
-        for (let i = 0; i < routeOrder.length - 1; i++) {
-            const p1 = mapHubs[routeOrder[i]];
-            const p2 = mapHubs[routeOrder[i+1]];
-            let isPassed = isMemoirMode || (i < activeDay);
-
-            let lineOpts = {
-                color: isPassed ? '#22C55E' : '#CBD5E1',
-                weight: isPassed ? 5 : 3,
-                dashArray: isPassed ? null : '6, 6',
-                opacity: isPassed ? 0.85 : 0.5
-            };
-            let polyline = L.polyline([[p1.lat, p1.lng], [p2.lat, p2.lng]], lineOpts).addTo(lfMap);
-            lfPolylinesArray.push(polyline);
-        }
-
-        const currentTargetHub = masterData[activeDay - 1].targetHub;
-        const currentHubPos = mapHubs[currentTargetHub];
-        if (currentHubPos) {
-            lfCarMarker.setLatLng([currentHubPos.lat, currentHubPos.lng]);
-            lfRadarMarker.setLatLng([currentHubPos.lat, currentHubPos.lng]);
-            let targetZoom = (currentTargetHub === 'taipei') ? 12 : 8;
-            lfMap.flyTo([currentHubPos.lat, currentHubPos.lng], targetZoom, { animate: true, duration: 0.6 });
-        }
-    }
-
-    function launchGoogleMapsNavigation() {
-        const data = masterData[activeDay - 1];
-        const targetHubObj = mapHubs[data.targetHub];
-        if (targetHubObj) {
-            const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${targetHubObj.lat},${targetHubObj.lng}&travelmode=driving`;
-            window.open(navUrl, '_blank');
-        }
-    }
-
-    function toggleEditMode(isEdit) {
-        const data = masterData[activeDay - 1];
-        if (isEdit) {
-            document.getElementById('edit-route').value = data.route;
-            document.getElementById('edit-drivetime').value = data.driveTime;
-            document.getElementById('edit-spots').value = data.spots;
-            document.getElementById('edit-b').value = data.b;
-            document.getElementById('edit-l').value = data.l;
-            document.getElementById('edit-d').value = data.d;
-        }
-        document.getElementById('display-itinerary-card').style.display = isEdit ? 'none' : 'block';
-        document.getElementById('edit-itinerary-panel').style.display = isEdit ? 'block' : 'none';
-        document.getElementById('btn-trigger-edit').style.display = isEdit ? 'none' : 'flex';
-    }
-
-    function saveDayEdits() {
-        const data = masterData[activeDay - 1];
-        data.route = document.getElementById('edit-route').value;
-        data.driveTime = document.getElementById('edit-drivetime').value;
-        data.spots = document.getElementById('edit-spots').value;
-        data.b = document.getElementById('edit-b').value;
-        data.l = document.getElementById('edit-l').value;
-        data.d = document.getElementById('edit-d').value;
-        
-        alert(`💾 資料修改成功！`);
-        toggleEditMode(false);
-        updateAllInterfaces();
-        saveGame();
-    }
-
-    // 手風琴 UI 切換 (Accordion)
-    function toggleAccordion(element) {
-        element.classList.toggle('open');
-    }
-
-    // Canvas 高效等比壓縮 (防止 Base64 爆倉)
     function handlePhotoUpload(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
@@ -930,26 +866,18 @@
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
                     const MAX_WIDTH = 800; 
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
+                    let width = img.width, height = img.height;
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    canvas.width = width; canvas.height = height;
 
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-
-                    // 壓縮至 JPEG 0.65，單張約 80~100KB
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.65);
+                    const compressed = canvas.toDataURL('image/jpeg', 0.65);
 
                     const preview = document.getElementById('photo-preview-img');
-                    if (preview) { preview.src = compressedDataUrl; preview.style.display = 'block'; }
-                    currentUploadedPhotoUrl = compressedDataUrl; 
-                    if (document.getElementById('btn-submit-quest')) document.getElementById('btn-submit-quest').style.display = 'block';
+                    preview.src = compressed; preview.style.display = 'block';
+                    currentUploadedPhotoUrl = compressed;
+                    document.getElementById('btn-submit-quest').style.display = 'block';
                 };
                 img.src = e.target.result;
             };
@@ -957,229 +885,389 @@
         }
     }
 
-    function checkAndUnlockAchievement(dayNum) {
-        const ach = achievements.find(a => a.day === dayNum);
-        if (ach && !ach.unlocked) {
-            ach.unlocked = true;
-            for (let key in rpgPlayers) { rpgPlayers[key].exp += ach.exp || 300; }
-            alert(`🏅 恭喜解鎖家族主線成就：【${ach.name}】！\n全體成員同步獲得大進補！`);
-        }
-    }
-
-    function validateQuestCompletion() {
+    async function validateQuestCompletion() {
         if (completedDays.includes(activeDay)) {
-            alert("⚠️ 偵測到重複提交！此日期的冒險任務與照片已全真通關，不可重複刷取經驗值。");
-            switchTab('home');
-            return;
+            alert("⚠️ 此日任務已通關！"); switchTab('home'); return;
         }
-
         const data = masterData[activeDay - 1];
-        for (let key in rpgPlayers) { rpgPlayers[key].exp += 200; }
-        
-        checkAndUnlockAchievement(data.day);
+        for (let k in rpgPlayers) { rpgPlayers[k].exp += 200; }
         completedDays.push(activeDay);
-        recentPhotosArray.unshift({ url: currentUploadedPhotoUrl, day: data.day, name: mapHubs[data.targetHub].name });
         
+        await savePhotoToIndexedDB(currentUploadedPhotoUrl, data.day, data.title);
         saveGame();
-        alert(`✅ Day ${data.day} 主線任務首次通關成功！全家獲得 +200 EXP！`);
-        
-        if (activeDay === 14) {
-            if (document.getElementById('endGameScreen')) document.getElementById('endGameScreen').style.display = 'flex';
-        } else {
-            selectDay(activeDay + 1); 
-            switchTab('home');
-        }
+        alert(`✅ Day ${data.day} 任務完成！全體 +200 EXP！`);
+        updateAllInterfaces();
+        switchTab('home');
     }
 
     function manualForceCheckin() {
         document.getElementById('gps-proximity-alert').style.display = 'block';
-        alert("📍 已透過手動備援機制完成座標核對！");
+        document.getElementById('gps-proximity-alert').style.background = '#16A34A';
+        document.getElementById('gps-proximity-alert').innerHTML = `📍 已透過手動備援機制完成座標打卡！`;
+        document.getElementById('btn-submit-quest').style.display = 'block';
+        alert("📍 已手動備援核對座標！請點擊上方按鈕提交任務。");
     }
 
-    function renderHomeCarousel() {
-        const carousel = document.getElementById('homePhotoCarousel');
-        if (!carousel) return;
-        let html = "";
-        for (let i = 0; i < Math.min(3, recentPhotosArray.length); i++) { html += `<div class="home-photo-slot"><img src="${recentPhotosArray[i].url}"></div>`; }
-        for (let j = recentPhotosArray.length; j < 3; j++) { html += `<div class="home-photo-slot"><div>📸</div><div>採集回憶</div></div>`; }
-        carousel.innerHTML = html;
+    function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
+        const R = 6371e3;
+        const φ1 = lat1 * Math.PI / 180, φ2 = lat2 * Math.PI / 180;
+        const Δφ = (lat2 - lat1) * Math.PI / 180, Δλ = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    function renderAlbumWall() {
-        const grid = document.getElementById('albumGridZone');
-        if (!grid) return;
-        grid.innerHTML = "";
-        recentPhotosArray.forEach(p => {
-            const card = document.createElement('div');
-            card.className = 'album-card';
-            card.innerHTML = `<img class="album-img" src="${p.url}"><div class="album-meta">Day ${p.day} · ${p.name}</div>`;
-            grid.appendChild(card);
+    function toggleGpsPowerSavingMode() {
+        isGpsPowerSaving = !isGpsPowerSaving;
+        document.getElementById('gpsPowerToggleBtn').innerText = isGpsPowerSaving ? "當前：省電 (每30秒)" : "當前：高精準度";
+        startRealGPSGeoFencing();
+    }
+
+    function startRealGPSGeoFencing() {
+        if (!navigator.geolocation) return;
+        document.getElementById('gps-status-pill').style.display = 'block';
+
+        if (gpsWatchId) navigator.geolocation.clearWatch(gpsWatchId);
+
+        const options = {
+            enableHighAccuracy: !isGpsPowerSaving,
+            timeout: 10000,
+            maximumAge: isGpsPowerSaving ? 30000 : 5000
+        };
+
+        gpsWatchId = navigator.geolocation.watchPosition((pos) => {
+            const userLat = pos.coords.latitude, userLng = pos.coords.longitude;
+            const currentData = masterData[activeDay - 1];
+            if (!currentData) return;
+
+            const targetHub = mapHubs[currentData.targetHub] || mapHubs['taipei'];
+            const dist = calculateDistanceMeters(userLat, userLng, targetHub.lat, targetHub.lng);
+            const alertBanner = document.getElementById('gps-proximity-alert');
+
+            alertBanner.style.display = 'block';
+            if (dist <= 200) {
+                alertBanner.style.background = '#16A34A';
+                alertBanner.innerHTML = `🎉 已進入打卡範圍！（距離 ${targetHub.name} 僅 ${Math.round(dist)} 米）`;
+                document.getElementById('btn-submit-quest').style.display = 'block';
+            } else {
+                alertBanner.style.background = '#0284C7';
+                alertBanner.innerHTML = `📡 目的地：[${targetHub.name}] (距離 ${Math.round(dist/1000)} km / ${Math.round(dist)} 米)`;
+            }
+        }, (err) => console.warn("GPS:", err.message), options);
+    }
+
+    function stopGpsGeoFencing() {
+        if (gpsWatchId) {
+            navigator.geolocation.clearWatch(gpsWatchId);
+            gpsWatchId = null;
+            document.getElementById('gps-status-pill').style.display = 'none';
+        }
+    }
+
+    function toggleAccordion(el) { el.classList.toggle('open'); }
+
+    function addNewDayToItinerary() {
+        const newDayNum = masterData.length + 1;
+        masterData.push({
+            day: newDayNum, route: "新站點 ➔ 探索周邊", km: 20, driveTime: "40 分鐘", hub: "taipei", targetHub: "taipei", weather: "晴朗", spots: "探索全新區域的地標與美食。", b: "自理", l: "在地小吃", d: "特色晚餐", title: `Day ${newDayNum} 解鎖`, desc: "拍攝此區域的打卡照！", addr: "目的地地址", url: "https://maps.google.com", waypoints: [{name:"新站點", lat: 25.064, lng: 121.526}]
+        });
+        saveGame(); buildTimeline(); selectDay(newDayNum);
+        alert(`➕ 已新增 Day ${newDayNum} 行程！`);
+    }
+
+    function initLeafletMapSystem() {
+        try {
+            if (!document.getElementById('leafletMap')) return;
+            if (lfMap) lfMap.remove();
+            
+            lfMap = L.map('leafletMap', { zoomControl: false, attributionControl: false }).setView([25.064, 121.526], 7);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(lfMap);
+        } catch(e) {}
+    }
+
+    function getCurvedPoint(p1, p2) {
+        let latlng1 = L.latLng(p1), latlng2 = L.latLng(p2);
+        let offsetX = latlng2.lng - latlng1.lng, offsetY = latlng2.lat - latlng1.lat;
+        let r = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2)), theta = Math.atan2(offsetY, offsetX);
+        let thetaOffset = 3.14159 / 6;
+        let r2 = (r / 2) / Math.cos(thetaOffset), theta2 = theta + thetaOffset;
+        return [latlng1.lat + r2 * Math.sin(theta2), latlng1.lng + r2 * Math.cos(theta2)];
+    }
+
+    function drawDailyRouteOnMap() {
+        if (!lfMap || !masterData.length) return;
+        
+        try {
+            if (currentPolyline) lfMap.removeLayer(currentPolyline);
+            if (currentGlowLine) lfMap.removeLayer(currentGlowLine);
+            currentMarkers.forEach(m => lfMap.removeLayer(m));
+            currentMarkers = [];
+
+            const data = masterData[activeDay - 1];
+            if (!data || !data.waypoints) return;
+
+            data.waypoints.forEach((wp, idx) => {
+                const markerIcon = L.divIcon({
+                    className: 'custom-rpg-pin',
+                    html: `<div class="rpg-marker-pin"><span class="rpg-marker-num">${idx + 1}</span></div>`,
+                    iconSize: [28, 38], iconAnchor: [14, 38]
+                });
+
+                const marker = L.marker([wp.lat, wp.lng], { icon: markerIcon })
+                    .addTo(lfMap).bindPopup(`<div style="font-weight:bold; font-size:12px;">📍 第 ${idx + 1} 站：${wp.name}</div>`);
+                currentMarkers.push(marker);
+            });
+
+            if (data.waypoints.length > 1) {
+                let curvePath = [];
+                for (let i = 0; i < data.waypoints.length - 1; i++) {
+                    let p1 = [data.waypoints[i].lat, data.waypoints[i].lng];
+                    let p2 = [data.waypoints[i+1].lat, data.waypoints[i+1].lng];
+                    let mid = getCurvedPoint(p1, p2);
+                    for (let t = 0; t <= 1; t += 0.05) {
+                        let lat = (1 - t) * (1 - t) * p1[0] + 2 * (1 - t) * t * mid[0] + t * t * p2[0];
+                        let lng = (1 - t) * (1 - t) * p1[1] + 2 * (1 - t) * t * mid[1] + t * t * p2[1];
+                        curvePath.push([lat, lng]);
+                    }
+                }
+                currentGlowLine = L.polyline(curvePath, { color: '#38BDF8', weight: 8, opacity: 0.4 }).addTo(lfMap);
+                currentPolyline = L.polyline(curvePath, { color: '#0284C7', weight: 4, className: 'rpg-route-line' }).addTo(lfMap);
+                lfMap.fitBounds(currentPolyline.getBounds(), { padding: [40, 40] });
+            } else if (data.waypoints.length === 1) {
+                lfMap.setView([data.waypoints[0].lat, data.waypoints[0].lng], 11);
+            }
+        } catch(e) {}
+    }
+
+    function buildTimeline() {
+        const bar = document.getElementById('map-timeline-bar');
+        if (!bar) return;
+        bar.innerHTML = "";
+        masterData.forEach(d => {
+            const node = document.createElement('button');
+            node.className = `day-node ${d.day === activeDay ? 'active' : ''}`;
+            node.innerText = `D${d.day}`;
+            node.setAttribute("aria-label", `第 ${d.day} 天行程`);
+            node.onclick = () => selectDay(d.day);
+            bar.appendChild(node);
         });
     }
 
-    function renderAchievementsUI() {
-        const zone = document.getElementById('achievement-scroll-zone');
-        if (!zone) return;
-        zone.innerHTML = "";
-        achievements.forEach(a => {
-            const span = document.createElement('span');
-            span.className = `ach-badge ${a.unlocked ? 'unlocked' : ''}`;
-            span.innerText = a.unlocked ? a.name : `🔒 ${a.name.split(' ')[1] || '未解鎖'}`;
-            span.title = a.desc;
-            zone.appendChild(span);
-        });
+    function jumpToCurrentDay() {
+        activeDay = 1;
+        selectDay(activeDay);
+        alert("📍 已跳轉至行程首日！");
+    }
+
+    function selectDay(dayNum) {
+        activeDay = dayNum;
+        buildTimeline();
+        updateAllInterfaces();
+        drawDailyRouteOnMap();
+        saveGame();
+    }
+
+    function openLiveWeatherQuery() {
+        const data = masterData[activeDay - 1] || masterData[0];
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(data.addr + " 天氣")}`, '_blank');
+    }
+
+    function launchGoogleMapsNavigation() {
+        const data = masterData[activeDay - 1] || masterData[0];
+        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.addr)}`, '_blank');
+    }
+
+    // ✨ 新增：彈出 Prompt 讓使用者即時加入新隊員
+    function promptAddNewMember() {
+        const name = prompt("請輸入新隊員名稱：", "隊員" + (Object.keys(rpgPlayers).length + 1));
+        if (!name) return;
+        const title = prompt("請輸入新隊員稱號：", "⚔️ 冒險者") || "⚔️ 冒險者";
+        const avatar = prompt("請輸入 Emoji 頭像：", "🧑") || "🧑";
+        
+        const newKey = "p_" + Date.now();
+        rpgPlayers[newKey] = { name: name, title: title, avatar: avatar, exp: 100 };
+        
+        renderPlayerStats();
+        initOrUpdateChart();
+        saveGame();
+        alert(`🎉 歡迎【${name}】加入冒險隊伍！`);
+    }
+
+    // ✨ 新增：刪除成員功能
+    function removeMember(key) {
+        const keys = Object.keys(rpgPlayers);
+        if (keys.length <= 1) {
+            alert("⚠️ 隊伍至少需保留 1 名成員！");
+            return;
+        }
+        const p = rpgPlayers[key];
+        if (confirm(`確定要將【${p.name}】移出隊伍嗎？`)) {
+            delete rpgPlayers[key];
+            renderPlayerStats();
+            initOrUpdateChart();
+            saveGame();
+        }
     }
 
     function renderPlayerStats() {
+        const grid = document.getElementById('playerGridZone');
+        if (!grid) return;
+        grid.innerHTML = "";
         let sortable = [];
-        for (let key in rpgPlayers) {
-            let player = rpgPlayers[key];
-            let calculatedLv = Math.floor(player.exp / 100) + 1;
-            let barFillPercent = player.exp % 100;
-            if (document.getElementById(`lv-${key}`)) document.getElementById(`lv-${key}`).innerText = `LV.${calculatedLv} (${player.exp} XP)`;
-            if (document.getElementById(`bar-${key}`)) document.getElementById(`bar-${key}`).style.width = `${barFillPercent}%`;
-            sortable.push({ name: player.name, title: player.title, exp: player.exp });
+
+        for (let k in rpgPlayers) {
+            let p = rpgPlayers[k];
+            let lv = Math.floor(p.exp / 100) + 1;
+            let fill = p.exp % 100;
+            
+            // ✨ 渲染帶有右上角 ❌ 刪除按鈕的成員卡片
+            grid.innerHTML += `
+                <div class="player-card" tabindex="0">
+                    <button class="player-card-del-btn" aria-label="刪除 ${p.name}" onclick="event.stopPropagation(); removeMember('${k}')">❌</button>
+                    <div onclick="addExp('${k}')">
+                        <span style="font-size:1.2rem;">${p.avatar || '🧑'}</span> <strong>${p.name}</strong>
+                        <span class="player-title-tag">${p.title}</span>
+                        <div class="player-lv">LV.${lv} (${p.exp} XP)</div>
+                        <div class="player-exp-bar"><div class="player-exp-fill" style="width:${fill}%"></div></div>
+                    </div>
+                </div>
+            `;
+            sortable.push(p);
         }
+
         sortable.sort((a, b) => b.exp - a.exp);
         let lbHtml = "";
         sortable.forEach((item, index) => {
-            let isTop = (index === 0) ? "lb-row lb-top" : "lb-row";
-            lbHtml += `<div class="${isTop}"><span><b>${item.name}</b> <small>(${item.title})</small></span><strong>${item.exp} EXP</strong></div>`;
+            lbHtml += `<div class="${index === 0 ? 'lb-row lb-top' : 'lb-row'}"><span><b>${item.avatar||'🧑'} ${item.name}</b> <small>(${item.title})</small></span><strong>${item.exp} EXP</strong></div>`;
         });
         if (document.getElementById('leaderboard-zone')) document.getElementById('leaderboard-zone').innerHTML = lbHtml;
+    }
+
+    function addExp(k) {
+        rpgPlayers[k].exp += 25;
+        renderPlayerStats();
+        initOrUpdateChart();
+        saveGame();
     }
 
     function initOrUpdateChart() {
         const ctx = document.getElementById('rpgChart');
         if (!ctx) return;
-        const labels = ['爸爸', '媽媽', '大囡', '細囡'];
-        const dataValues = [rpgPlayers.dad.exp, rpgPlayers.mom.exp, rpgPlayers.sis1.exp, rpgPlayers.sis2.exp];
+        const labels = Object.values(rpgPlayers).map(p => p.name);
+        const dataValues = Object.values(rpgPlayers).map(p => p.exp);
 
-        if (myChartInstance) {
-            myChartInstance.data.datasets[0].data = dataValues;
-            myChartInstance.update();
-        } else {
-            myChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: '冒險總 EXP 戰力值',
-                        data: dataValues,
-                        backgroundColor: ['#FF6B6B', '#4ECDC4', '#A855F7', '#FFD93D'],
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
+        try {
+            if (myChartInstance) {
+                myChartInstance.data.labels = labels;
+                myChartInstance.data.datasets[0].data = dataValues;
+                myChartInstance.update();
+            } else {
+                myChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels, datasets: [{ label: 'EXP', data: dataValues, backgroundColor: '#0D9488', borderRadius: 6 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                });
+            }
+        } catch(e) {}
+    }
+
+    async function updateAllInterfaces() {
+        if (!masterData.length) return;
+        const data = masterData[activeDay - 1] || masterData[0];
+        
+        document.getElementById('top-day-badge').innerText = `DAY ${data.day}`;
+        document.getElementById('apple-chapter-id').innerText = `DAY ${data.day}`;
+        document.getElementById('apple-loc-title').innerText = data.route.split('➔')[0] || "目的地";
+        document.getElementById('apple-m-box').innerText = data.title;
+        document.getElementById('apple-weather-text').innerText = `🌤️ ${data.weather} (點擊查即時氣象)`;
+
+        document.getElementById('map-card-day').innerText = `Day ${data.day}`;
+        document.getElementById('map-card-km').innerText = `~${data.km}km`;
+        document.getElementById('det-route').innerText = data.route;
+        document.getElementById('det-drivetime').innerText = data.driveTime;
+        document.getElementById('det-spots').innerText = data.spots;
+        document.getElementById('det-b').innerText = data.b;
+        document.getElementById('det-l').innerText = data.l;
+        document.getElementById('det-d').innerText = data.d;
+        document.getElementById('det-link-body').innerHTML = `📍 <b>地址：</b>${data.addr}<br>🔗 <a href="${data.url}" target="_blank" style="color:var(--primary); font-weight:bold;">開啟連結</a>`;
+
+        let progressPercent = Math.round((data.day / masterData.length) * 100);
+        document.getElementById('top-progress-text').innerText = `進度 ${progressPercent}%`;
+        document.getElementById('top-progress-bar').style.width = `${progressPercent}%`;
+
+        document.getElementById('q-title').innerText = data.title;
+        document.getElementById('q-desc').innerText = data.desc;
+
+        renderPlayerStats();
+        initOrUpdateChart();
+        await renderAlbumWallAndCarousel();
+    }
+
+    async function renderAlbumWallAndCarousel() {
+        const photos = await getAllPhotosFromIndexedDB();
+        
+        const sizeMb = ((JSON.stringify(photos).length * 2) / (1024 * 1024)).toFixed(2);
+        if (document.getElementById('indexedDbSizeLabel')) {
+            document.getElementById('indexedDbSizeLabel').innerText = `相片: ${photos.length} 張 (~${sizeMb} MB)`;
+        }
+
+        const carousel = document.getElementById('homePhotoCarousel');
+        if (carousel) {
+            let html = "";
+            for (let i = 0; i < Math.min(3, photos.length); i++) { html += `<div class="home-photo-slot"><img src="${photos[i].url}" alt="照片"></div>`; }
+            for (let j = photos.length; j < 3; j++) { html += `<div class="home-photo-slot">📸<br>採集回憶</div>`; }
+            carousel.innerHTML = html;
+        }
+
+        const grid = document.getElementById('albumGridZone');
+        if (grid) {
+            grid.innerHTML = "";
+            photos.forEach(p => {
+                grid.innerHTML += `<div class="album-card"><img class="album-img" src="${p.url}" alt="照片"><div class="album-meta">Day ${p.day} · ${p.name}</div></div>`;
             });
         }
     }
 
-    function updateAllInterfaces() {
-        const data = masterData[activeDay - 1];
-        const targetHubObj = mapHubs[data.targetHub];
-        
-        if (document.getElementById('top-day-badge')) document.getElementById('top-day-badge').innerText = `DAY ${data.day}`;
-        if (document.getElementById('apple-chapter-id')) document.getElementById('apple-chapter-id').innerText = `DAY ${data.day}`;
-        if (document.getElementById('apple-loc-title')) document.getElementById('apple-loc-title').innerText = targetHubObj.name;
-        if (document.getElementById('apple-weather-text')) document.getElementById('apple-weather-text').innerText = `☀️ ${data.day <= 2 ? '32' : '22'}°C • ${data.weather}`;
-        if (document.getElementById('apple-m-box')) document.getElementById('apple-m-box').innerText = data.title;
-
-        if (document.getElementById('map-card-day')) document.getElementById('map-card-day').innerText = `📅 Day ${data.day} - ${data.tag}`;
-        if (document.getElementById('map-card-km')) document.getElementById('map-card-km').innerText = `~${data.km}km`;
-        if (document.getElementById('det-route')) document.getElementById('det-route').innerText = data.route;
-        if (document.getElementById('det-drivetime')) document.getElementById('det-drivetime').innerText = data.driveTime;
-        if (document.getElementById('det-spots')) document.getElementById('det-spots').innerText = data.spots;
-        if (document.getElementById('det-b')) document.getElementById('det-b').innerText = data.b;
-        if (document.getElementById('det-l')) document.getElementById('det-l').innerText = data.l;
-        if (document.getElementById('det-d')) document.getElementById('det-d').innerText = data.d;
-        
-        if (document.getElementById('det-link')) {
-            const encodedAddr = encodeURIComponent(data.addr);
-            const geoNavUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddr}`;
-            
-            document.getElementById('det-link').innerHTML = `
-                📍 <b>精確地址</b>: ${data.addr} 
-                <a href="${geoNavUrl}" target="_blank" style="color:var(--primary); font-weight:bold; margin-left:8px;">[🗺️ 導航]</a>
-                <br>
-                🔗 <b>官方網站</b>: <a href="${data.url}" target="_blank" class="detail-link">點擊開啟官方網站</a>
-            `;
-        }
-
-        let progressPercent = Math.round((data.day / 14) * 100);
-        if (document.getElementById('top-progress-text')) document.getElementById('top-progress-text').innerText = `旅程進度 ${progressPercent}%`;
-        if (document.getElementById('top-progress-bar')) document.getElementById('top-progress-bar').style.width = `${progressPercent}%`;
-
-        if (document.getElementById('q-title')) document.getElementById('q-title').innerText = data.title;
-        if (document.getElementById('q-desc')) document.getElementById('q-desc').innerText = data.desc;
-        if (document.getElementById('photo-preview-img')) document.getElementById('photo-preview-img').style.display = 'none';
-        if (document.getElementById('btn-submit-quest')) document.getElementById('btn-submit-quest').style.display = 'none';
-
-        renderPlayerStats();
-        renderAchievementsUI();
-        initOrUpdateChart();
-        renderAlbumWall();
-        renderHomeCarousel();
-    }
-
-    function addIndividualExp(playerKey) { 
-        rpgPlayers[playerKey].exp += 25; 
-        renderPlayerStats(); 
-        initOrUpdateChart();
-        saveGame();
-    }
-
-    function navigateTo(targetTab) { switchTab(targetTab); }
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         const targetDom = document.getElementById(`tab-${tabId}`);
-        if(targetDom) targetDom.classList.add('active');
+        if (targetDom) targetDom.classList.add('active');
         
-        if (tabId === 'map' && lfMap) { 
-            setTimeout(() => { 
-                lfMap.invalidateSize(true); 
-                drawLeafletRoutes();
-            }, 300); 
+        if (tabId === 'map' || tabId === 'quest') {
+            startRealGPSGeoFencing();
+            if (tabId === 'map' && lfMap) {
+                setTimeout(() => { lfMap.invalidateSize(); drawDailyRouteOnMap(); }, 300);
+            }
+        } else {
+            stopGpsGeoFencing();
         }
     }
 
-    function enterMemoirMode() {
-        isMemoirMode = true; 
-        document.getElementById('endGameScreen').style.display = 'none';
-        document.getElementById('memoir-banner').style.display = 'block';
-        buildTimeline(); drawLeafletRoutes(); switchTab('home');
-        saveGame();
+    function navigateTo(tabId) { switchTab(tabId); }
+
+    function toggleAudioMute() {
+        isMuted = !isMuted;
+        document.getElementById('audio-wave').innerText = isMuted ? "🔇 MUTED" : "🎵 PLAYING";
+        if (!isMuted && !audioCtx) {
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sine'; osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+            } catch(e){}
+        }
     }
 
-    function exportTravelMemoir() {
-        switchTab('rpg-status');
-        setTimeout(() => {
-            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'block');
-            window.print();
-            document.querySelectorAll('.tab-content').forEach(c => c.style.display = '');
-            switchTab('home');
-        }, 500);
-    }
-
-    // 匯出 JSON 備份
     function exportTripData() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem('hokkaidoSave_v5_1'));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `hokkaido_rpg_backup.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem('rpg_travel_master_v10'));
+        const anchor = document.createElement('a');
+        anchor.setAttribute("href", dataStr);
+        anchor.setAttribute("download", `rpg_travel_backup.json`);
+        document.body.appendChild(anchor); anchor.click(); anchor.remove();
     }
 
-    function triggerImportJSON() {
-        document.getElementById('importFileInput').click();
-    }
+    function triggerImportJSON() { document.getElementById('importFileInput').click(); }
 
     function importTripData(input) {
         const file = input.files[0];
@@ -1188,43 +1276,46 @@
             reader.onload = function(e) {
                 try {
                     const parsed = JSON.parse(e.target.result);
-                    localStorage.setItem('hokkaidoSave_v5_1', JSON.stringify(parsed));
-                    alert("✅ 數據匯入成功！即將重新載入頁面...");
+                    localStorage.setItem('rpg_travel_master_v10', JSON.stringify(parsed));
+                    alert("✅ 數據載入成功！即將重新整理...");
                     window.location.reload();
-                } catch(err) {
-                    alert("❌ 格式不正確，匯入失敗。");
-                }
+                } catch(err) { alert("❌ JSON 格式不正確。"); }
             };
             reader.readAsText(file);
         }
     }
 
-    // 內嵌 Service Worker 註冊 (免外部 .js 檔)
-    function injectDynamicServiceWorker() {
-        if ('serviceWorker' in navigator) {
-            const swCode = `
-                self.addEventListener('install', e => self.skipWaiting());
-                self.addEventListener('activate', e => self.clients.claim());
-                self.addEventListener('fetch', e => {
-                    e.respondWith(fetch(e.request).catch(() => new Response('離線模式運作中')));
-                });
-            `;
-            const blob = new Blob([swCode], { type: 'text/javascript' });
-            const swUrl = URL.createObjectURL(blob);
-            navigator.serviceWorker.register(swUrl).catch(err => console.log("SW Register Note", err));
-        }
-    }
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPwaPrompt = e;
+        const banner = document.getElementById('pwaInstallBanner');
+        if (banner) banner.style.display = 'flex';
+    });
 
-    window.onload = function() { 
-        loadGame(); 
-        buildTimeline(); 
-        updateAllInterfaces(); 
-        initLeafletMapSystem();
-        initGpsGeofencingHardware(); 
-        injectDynamicServiceWorker(); 
+    document.getElementById('pwaInstallBtn')?.addEventListener('click', () => {
+        if (deferredPwaPrompt) {
+            deferredPwaPrompt.prompt();
+            deferredPwaPrompt.userChoice.then(() => {
+                deferredPwaPrompt = null;
+                document.getElementById('pwaInstallBanner').style.display = 'none';
+            });
+        }
+    });
+
+    window.onload = function() {
+        registerRealOfflineServiceWorker();
         
-        if(isMemoirMode) {
-            document.getElementById('memoir-banner').style.display = 'block';
+        const loadedFromURL = checkAndLoadURLHashData();
+        const hasData = loadGame();
+
+        if ((hasData || loadedFromURL) && masterData.length > 0) {
+            document.getElementById('wizardOverlay').style.display = 'none';
+            initLeafletMapSystem();
+            buildTimeline();
+            updateAllInterfaces();
+            drawDailyRouteOnMap();
+        } else {
+            openWizardOverlay();
         }
     };
 </script>
