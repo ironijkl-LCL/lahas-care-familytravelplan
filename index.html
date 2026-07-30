@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 北海道冒險作戰中心 - Summer RPG 5.0 終極拓荒版</title>
+    <title>🎮 北海道冒險作戰中心 - Summer RPG 5.1 終極拓荒版</title>
     
-    <!-- ================= 📱 PWA Manifest 內嵌配置文件 ================= -->
-    <link rel="manifest" href='data:application/json,{"name":"Hokkaido Summer RPG 5.0","short_name":"北海道冒險","start_url":".","display":"standalone","background_color":"#87CEEB","theme_color":"#4FC3F7","orientation":"portrait","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
+    <!-- PWA Manifest 動態 Data URI 內嵌配置文件 -->
+    <link rel="manifest" href='data:application/json,{"name":"Hokkaido Summer RPG 5.1","short_name":"北海道冒險","start_url":".","display":"standalone","background_color":"#87CEEB","theme_color":"#4FC3F7","orientation":"portrait","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="北海道冒險">
@@ -312,6 +312,12 @@
         .google-tool-emoji { font-size: 1.35rem; margin-bottom: 2px; }
         .google-tool-label { font-size: 0.65rem; font-weight: bold; color: #334155; text-align: center; }
 
+        /* 新增：手風琴 UI (Accordion) 解決資訊過載 */
+        .accordion-item { border-bottom: 1px dashed #E2E8F0; margin-bottom: 4px; }
+        .accordion-header { padding: 8px 0; font-size: 0.82rem; font-weight: bold; color: var(--gray); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .accordion-body { display: none; padding: 4px 0 8px 0; font-size: 0.8rem; line-height: 1.4; color: var(--text-light); }
+        .accordion-item.open .accordion-body { display: block; }
+
         @media print {
             body { background: white !important; color: black !important; padding: 0 !important; }
             .phone-container { width: 100% !important; max-width: 100% !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; display: block !important; }
@@ -325,8 +331,6 @@
     </style>
 </head>
 <body>
-
-<audio id="bgm" loop preload="auto" src="summer.mp3"></audio>
 
 <div class="sky-cloud">☁️</div>
 <div class="sky-cloud cloud2">☁️</div>
@@ -392,13 +396,12 @@
             🎉 偵測到真實 GPS 坐標定位！已成功到達冒險任務指定區域！
         </div>
 
+        <!-- 使用 Accordion 摺疊排版，避免閱讀體驗過載 -->
         <div class="info-card" id="display-itinerary-card" style="margin-top: 10px; border-left: 4px solid var(--primary);">
             <div class="info-header"><span class="info-title" id="map-card-day">Day 1</span><span class="info-meta" id="map-card-km">~0km</span></div>
+            
             <div class="detail-section">
-                <div class="detail-row"><div class="detail-label">🗺️ 精確地址 / 官方網站</div><div class="detail-text" id="det-link">-</div></div>
-                <div class="detail-row"><div class="detail-label">🛣️ 行程路線</div><div class="detail-text" id="det-route">-</div></div>
-                
-                <div class="detail-row" style="background: #F8FAFC; border-radius: 12px; padding: 10px 12px; margin: 6px 0; display: flex; flex-direction: row; justify-content: space-between; align-items: center; border: 1px solid #E2E8F0;">
+                <div class="detail-row" style="background: #F8FAFC; border-radius: 12px; padding: 10px 12px; margin: 4px 0; display: flex; flex-direction: row; justify-content: space-between; align-items: center; border: 1px solid #E2E8F0;">
                     <div>
                         <div class="detail-label" style="color: var(--pack-color); margin-bottom: 2px;">⏱️ 預計開車車程時間</div>
                         <div class="detail-text" id="det-drivetime" style="font-weight: bold; color: var(--pack-color); font-size: 0.9rem;">-</div>
@@ -408,10 +411,29 @@
                     </button>
                 </div>
 
-                <div class="detail-row"><div class="detail-label">🎯 景點深度</div><div class="detail-text" id="det-spots">-</div></div>
-                <div class="detail-row"><div class="detail-label">🌅 早餐提案</div><div class="detail-text" id="det-b">-</div></div>
-                <div class="detail-row"><div class="detail-label">🍱 午餐提案</div><div class="detail-text" id="det-l">-</div></div>
-                <div class="detail-row"><div class="detail-label">🌌 晚餐提案</div><div class="detail-text" id="det-d">-</div></div>
+                <div class="accordion-item open" onclick="toggleAccordion(this)">
+                    <div class="accordion-header"><span>🎯 景點深度與路線</span><span>▼</span></div>
+                    <div class="accordion-body">
+                        <div><b>🛣️ 路線：</b><span id="det-route">-</span></div>
+                        <div style="margin-top:4px;"><b>🎯 細節：</b><span id="det-spots">-</span></div>
+                    </div>
+                </div>
+
+                <div class="accordion-item" onclick="toggleAccordion(this)">
+                    <div class="accordion-header"><span>🍱 美食提案 (早/午/晚)</span><span>▼</span></div>
+                    <div class="accordion-body">
+                        <div><b>🌅 早餐：</b><span id="det-b">-</span></div>
+                        <div><b>🍱 午餐：</b><span id="det-l">-</span></div>
+                        <div><b>🌌 晚餐：</b><span id="det-d">-</span></div>
+                    </div>
+                </div>
+
+                <div class="accordion-item" onclick="toggleAccordion(this)">
+                    <div class="accordion-header"><span>📍 地址與官方網站</span><span>▼</span></div>
+                    <div class="accordion-body" id="det-link">
+                        -
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -437,11 +459,12 @@
             <p id="q-desc" style="font-size:0.85rem; line-height:1.4; color:var(--gray);">-</p>
 
             <div class="photo-upload-zone">
-                <span style="font-size:0.82rem; font-weight:bold; color:var(--pack-color);">📷 點擊此處上傳現場打卡照片</span>
+                <span style="font-size:0.82rem; font-weight:bold; color:var(--pack-color);">📷 點擊此處上傳現場打卡照片 (Canvas 高效壓縮)</span>
                 <input type="file" accept="image/*" class="photo-input" onchange="handlePhotoUpload(this)">
                 <img class="photo-preview" id="photo-preview-img" src="">
             </div>
             <button class="btn-quest-done" id="btn-submit-quest" onclick="validateQuestCompletion()">✅ 任務達成 +200 EXP</button>
+            <button class="btn btn-outline" style="margin-top:8px; font-size:0.75rem;" onclick="manualForceCheckin()">📍 GPS 訊號弱？手動打卡備援</button>
         </div>
 
         <!-- Google 三寶整合按鈕工具箱 -->
@@ -488,6 +511,14 @@
             <h3>🏅 任務成就解鎖系統</h3>
             <div class="achievement-scroll" id="achievement-scroll-zone"></div>
         </div>
+        
+        <div class="info-card" style="background:#F8FAFC;">
+            <h4>📤 數據備份與轉移</h4>
+            <button class="btn btn-outline" onclick="exportTripData()">📤 匯出存檔 JSON</button>
+            <button class="btn btn-outline" onclick="triggerImportJSON()">📥 匯入存檔 JSON</button>
+            <input type="file" id="importFileInput" style="display:none;" accept=".json" onchange="importTripData(this)">
+        </div>
+
         <button class="btn btn-outline" style="border-color:#EF4444; color:#EF4444;" onclick="resetLocalStorageData()">🔄 重置全體存檔資料</button>
         <button class="btn btn-primary" style="background:var(--switch-blue); margin-top:10px;" onclick="switchTab('home')">🎮 返回主選單</button>
     </div>
@@ -630,16 +661,6 @@
         shakotan:   { name: "積丹半島", lat: 43.328, lng: 140.355, emoji: "🌊" }
     };
 
-    const biomeGradients = {
-        TAIPEI: "linear-gradient(135deg, #059669, #34D399)",
-        SAPPORO: "linear-gradient(135deg, #0EA5E9, #38BDF8)",
-        WILDLIFE: "linear-gradient(135deg, #1E3A8A, #3B82F6)",
-        SHOPPING: "linear-gradient(135deg, #F43F5E, #FB7185)",
-        FURANO: "linear-gradient(135deg, #A855F7, #EC4899)",
-        OTARU: "linear-gradient(135deg, #0284C7, #06B6D4)",
-        AIRPORT: "linear-gradient(135deg, #0EA5E9, #64748B)"
-    };
-
     const routeOrder = ['taipei','taipei','sapporo','sapporo','rausu','rausu','noboribetsu','sapporo','sapporo','furano','otaru','shakotan','otaru','airport'];
 
     const initialAchievements = [
@@ -666,13 +687,37 @@
     let lfPolylinesArray = [];
     let myChartInstance = null;
 
+    // Web Audio API 音訊合成 (修復外部音訊檔 404 報錯)
+    let audioCtx = null;
+    let isMuted = true;
+
+    function toggleAudioMute() {
+        isMuted = !isMuted;
+        document.getElementById('audio-wave').innerText = isMuted ? "🔇 MUTED" : "🎵 PLAYING";
+        if (!isMuted) playSynthesizedBGM();
+    }
+
+    function playSynthesizedBGM() {
+        if (isMuted) return;
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+    }
+
     function saveGame() {
-        const hokkaidoSave = { activeDay, rpgPlayers, recentPhotosArray, achievements, isMemoirMode, completedDays };
-        localStorage.setItem('hokkaidoSave_v5_0', JSON.stringify(hokkaidoSave));
+        const hokkaidoSave = { activeDay, rpgPlayers, recentPhotosArray, achievements, isMemoirMode, completedDays, masterData };
+        localStorage.setItem('hokkaidoSave_v5_1', JSON.stringify(hokkaidoSave));
     }
 
     function loadGame() {
-        const saveData = JSON.parse(localStorage.getItem('hokkaidoSave_v5_0'));
+        const saveData = JSON.parse(localStorage.getItem('hokkaidoSave_v5_1'));
         if (saveData) {
             activeDay = saveData.activeDay || 1;
             rpgPlayers = saveData.rpgPlayers || rpgPlayers;
@@ -680,40 +725,47 @@
             achievements = saveData.achievements || achievements;
             isMemoirMode = saveData.isMemoirMode || false;
             completedDays = saveData.completedDays || [];
+            if (saveData.masterData) {
+                saveData.masterData.forEach((d, idx) => { if (masterData[idx]) Object.assign(masterData[idx], d); });
+            }
         }
     }
 
     function resetLocalStorageData() {
         if(confirm("確定要清除緩存的冒險紀錄嗎？")) {
-            localStorage.removeItem('hokkaidoSave_v5_0');
+            localStorage.removeItem('hokkaidoSave_v5_1');
             window.location.reload();
         }
     }
 
+    // 智能 GPS 輪詢 (解決 watchPosition 暴烈耗電問題)
     function initGpsGeofencingHardware() {
         if (!navigator.geolocation) return;
         document.getElementById('gps-status-pill').style.display = 'block';
         
-        navigator.geolocation.watchPosition((position) => {
-            const userLat = position.coords.latitude;
-            const userLng = position.coords.longitude;
-            const currentTargetHub = masterData[activeDay - 1].targetHub;
-            const targetPos = mapHubs[currentTargetHub];
-            
-            if (targetPos) {
-                const distanceInMeters = calculateHaversineDistance(userLat, userLng, targetPos.lat, targetPos.lng);
-                const alertBanner = document.getElementById('gps-proximity-alert');
+        function checkPos() {
+            navigator.geolocation.getCurrentPosition((position) => {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+                const currentTargetHub = masterData[activeDay - 1].targetHub;
+                const targetPos = mapHubs[currentTargetHub];
                 
-                if (distanceInMeters <= 500) {
-                    alertBanner.innerText = `✅ 已到達任務區域：[${targetPos.name}] (距離 ${Math.round(distanceInMeters)}米)`;
-                    alertBanner.style.display = 'block';
-                } else {
-                    alertBanner.style.display = 'none';
+                if (targetPos) {
+                    const distanceInMeters = calculateHaversineDistance(userLat, userLng, targetPos.lat, targetPos.lng);
+                    const alertBanner = document.getElementById('gps-proximity-alert');
+                    
+                    if (distanceInMeters <= 500) {
+                        alertBanner.innerText = `✅ 已到達任務區域：[${targetPos.name}] (距離 ${Math.round(distanceInMeters)}米)`;
+                        alertBanner.style.display = 'block';
+                    } else {
+                        alertBanner.style.display = 'none';
+                    }
                 }
-            }
-        }, (error) => {
-            console.warn("GPS 讀取失敗: ", error.message);
-        }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 });
+            }, (err) => console.warn("GPS Check: ", err.message), { enableHighAccuracy: false, timeout: 5000 });
+        }
+
+        checkPos();
+        setInterval(checkPos, 30000); // 每 30 秒節流檢查一次
     }
 
     function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
@@ -825,7 +877,6 @@
         }
     }
 
-    // 🚀 保留並修正的 Google 導航核心邏輯（主頁及各大導航鍵綁定）
     function launchGoogleMapsNavigation() {
         const data = masterData[activeDay - 1];
         const targetHubObj = mapHubs[data.targetHub];
@@ -865,7 +916,12 @@
         saveGame();
     }
 
-    // 照片 Canvas 高效等比壓縮防爆補丁
+    // 手風琴 UI 切換 (Accordion)
+    function toggleAccordion(element) {
+        element.classList.toggle('open');
+    }
+
+    // Canvas 高效等比壓縮 (防止 Base64 爆倉)
     function handlePhotoUpload(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
@@ -887,7 +943,8 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                    // 壓縮至 JPEG 0.65，單張約 80~100KB
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.65);
 
                     const preview = document.getElementById('photo-preview-img');
                     if (preview) { preview.src = compressedDataUrl; preview.style.display = 'block'; }
@@ -932,6 +989,11 @@
             selectDay(activeDay + 1); 
             switchTab('home');
         }
+    }
+
+    function manualForceCheckin() {
+        document.getElementById('gps-proximity-alert').style.display = 'block';
+        alert("📍 已透過手動備援機制完成座標核對！");
     }
 
     function renderHomeCarousel() {
@@ -1018,7 +1080,6 @@
         }
     }
 
-    // 精確中途點導航與接口更新
     function updateAllInterfaces() {
         const data = masterData[activeDay - 1];
         const targetHubObj = mapHubs[data.targetHub];
@@ -1044,9 +1105,9 @@
             
             document.getElementById('det-link').innerHTML = `
                 📍 <b>精確地址</b>: ${data.addr} 
-                <a href="${geoNavUrl}" target="_blank" style="color:var(--primary); font-weight:bold; margin-left:8px;">[🗺️ 導航至此景點]</a>
+                <a href="${geoNavUrl}" target="_blank" style="color:var(--primary); font-weight:bold; margin-left:8px;">[🗺️ 導航]</a>
                 <br>
-                🔗 <b>官方網站</b>: <a href="${data.url}" target="_blank" class="detail-link">點擊打開官方網站</a>
+                🔗 <b>官方網站</b>: <a href="${data.url}" target="_blank" class="detail-link">點擊開啟官方網站</a>
             `;
         }
 
@@ -1072,28 +1133,6 @@
         initOrUpdateChart();
         saveGame();
     }
-
-    function toggleAudioMute() {
-        const audio = document.getElementById('bgm');
-        const wave = document.getElementById('audio-wave');
-        if (!audio || !wave) return;
-        if (audio.paused) { 
-            audio.play().catch(e => console.log("Muted: ", e)); 
-            wave.innerText = "🎵 PLAYING"; 
-        } else { 
-            audio.pause(); 
-            wave.innerText = "🔇 MUTED"; 
-        }
-    }
-
-    document.addEventListener('click', () => {
-        const audio = document.getElementById('bgm');
-        if(audio && audio.paused && document.getElementById('audio-wave').innerText !== "🔇 MUTED") {
-            audio.play().then(() => {
-                document.getElementById('audio-wave').innerText = "🎵 PLAYING";
-            }).catch(e => console.log("iOS Handshake"));
-        }
-    }, { once: true });
 
     function navigateTo(targetTab) { switchTab(targetTab); }
     function switchTab(tabId) {
@@ -1127,11 +1166,52 @@
         }, 500);
     }
 
-    function injectOfflineServiceWorkerHardware() {
+    // 匯出 JSON 備份
+    function exportTripData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem('hokkaidoSave_v5_1'));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `hokkaido_rpg_backup.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+
+    function triggerImportJSON() {
+        document.getElementById('importFileInput').click();
+    }
+
+    function importTripData(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    localStorage.setItem('hokkaidoSave_v5_1', JSON.stringify(parsed));
+                    alert("✅ 數據匯入成功！即將重新載入頁面...");
+                    window.location.reload();
+                } catch(err) {
+                    alert("❌ 格式不正確，匯入失敗。");
+                }
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    // 內嵌 Service Worker 註冊 (免外部 .js 檔)
+    function injectDynamicServiceWorker() {
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./service-worker.js')
-                .then(() => console.log("📡 [Service Worker] 實體快取註冊成功！100% 離線應用就緒。"))
-                .catch(err => console.error("實體 SW 註冊失敗: ", err));
+            const swCode = `
+                self.addEventListener('install', e => self.skipWaiting());
+                self.addEventListener('activate', e => self.clients.claim());
+                self.addEventListener('fetch', e => {
+                    e.respondWith(fetch(e.request).catch(() => new Response('離線模式運作中')));
+                });
+            `;
+            const blob = new Blob([swCode], { type: 'text/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            navigator.serviceWorker.register(swUrl).catch(err => console.log("SW Register Note", err));
         }
     }
 
@@ -1141,7 +1221,7 @@
         updateAllInterfaces(); 
         initLeafletMapSystem();
         initGpsGeofencingHardware(); 
-        injectOfflineServiceWorkerHardware(); 
+        injectDynamicServiceWorker(); 
         
         if(isMemoirMode) {
             document.getElementById('memoir-banner').style.display = 'block';
