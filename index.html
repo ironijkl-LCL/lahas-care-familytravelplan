@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 北海道冒險作戰中心 - RPG Travel Master 12.0 Ultimate Fix</title>
+    <title>🎮 北海道冒險作戰中心 - RPG Travel Master 12.2 (Overview Management)</title>
     
     <link rel="manifest" href='data:application/json,{"name":"RPG Travel Master","short_name":"冒險中心","start_url":".","display":"standalone","background_color":"#87CEEB","theme_color":"#4FC3F7","orientation":"portrait","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -237,6 +237,14 @@
             background: white; border-radius: 20px; max-width: 380px; width: 100%;
             max-height: 85vh; overflow-y: auto; padding: 18px; position: relative;
         }
+
+        /* ✨ 總覽 Modal 內迷你操作按鈕樣式 */
+        .ov-action-btn {
+            background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 6px;
+            padding: 3px 6px; font-size: 0.68rem; font-weight: bold; cursor: pointer; color: #0F172A;
+            display: inline-flex; align-items: center; gap: 2px;
+        }
+        .ov-action-btn:hover { background: #E2E8F0; }
     </style>
 </head>
 <body>
@@ -262,15 +270,14 @@
 
         <div class="wizard-step active" id="wizardStep1">
             <h4>第 1 步：選擇旅程模板</h4>
-            <div class="template-card selected" tabindex="0" role="button" aria-label="選擇北海道模板" onclick="selectTemplate('hokkaido', this)">
-                <div class="template-title"><span>🌻 北海道夏日 14 日拓荒版</span><span>官方</span></div>
-                <div class="template-desc">包含札幌獨立屋、知床羅臼賞鯨船、美瑛青池、北狐牧場、登別熊牧場。</div>
+            <div class="template-card selected" tabindex="0" role="button" aria-label="選擇台日雙區模板" onclick="selectTemplate('hokkaido', this)">
+                <div class="template-title"><span>🌻 8/8-8/21 台灣3日+北海道11日</span><span>官方</span></div>
+                <div class="template-desc">包含台北晴美酒店、鼎泰豐、札幌獨立屋、知床羅臼賞鯨船、美瑛青池、北狐與熊牧場。</div>
             </div>
             <div class="template-card" tabindex="0" role="button" aria-label="選擇空白模板" onclick="selectTemplate('blank', this)">
                 <div class="template-title"><span>⚡ 自建全新空白冒險</span><span>自訂</span></div>
                 <div class="template-desc">從 Day 1 開始自訂你的目的地、任務、美食與景點。</div>
             </div>
-            <!-- 💡 修正 High Priority 3: 獨立 JSON 匯入流程，避免空開局事故 -->
             <div class="template-card" tabindex="0" role="button" aria-label="匯入 JSON 檔" onclick="triggerDirectImportJSON()">
                 <div class="template-title"><span>📥 匯入好友的冒險 JSON 檔</span><span>檔案</span></div>
                 <div class="template-desc">載入已匯出的 `.json` 行程備份並直接開始旅程。</div>
@@ -307,7 +314,7 @@
     <!-- 分頁 1: 主儀表板 -->
     <div id="tab-home" class="tab-content active" role="tabpanel">
         <div class="apple-hero-center">
-            <div class="apple-day" id="apple-chapter-id">DAY 1</div>
+            <div class="apple-day" id="apple-chapter-id">DAY 1 (8/8)</div>
             <div class="apple-location" id="apple-loc-title">目的地</div>
             
             <button onclick="openLiveWeatherQuery()" style="background:none; border:none; cursor:pointer;" aria-label="查詢即時天氣">
@@ -476,6 +483,19 @@
             </div>
         </div>
 
+        <div class="info-card" style="border-left: 4px solid var(--pack-color);">
+            <div class="info-title" style="color:var(--pack-color);">👕 4人服裝資產庫 (8/8 - 8/21 台灣3日+北海道11日)</div>
+            <div class="pack-sub-title" style="font-weight:bold; font-size:0.8rem; margin-top:6px;">建議帶備</div>
+            <div class="detail-section">
+                <div class="check-item"><input type="checkbox"><span>短袖T恤 4-6件 (日間偏熱透氣)</span></div>
+                <div class="check-item"><input type="checkbox"><span>薄長袖 1-2件 (道東知床防涼)</span></div>
+                <div class="check-item"><input type="checkbox"><span>防曬外套 / 薄外套 1件</span></div>
+                <div class="check-item"><input type="checkbox"><span>輕便防風外套 1件 (羅臼出海/沿海防風)</span></div>
+                <div class="check-item"><input type="checkbox"><span>長褲 2條 / 短褲 1-2條</span></div>
+                <div class="check-item"><input type="checkbox"><span>襪子與舒適步行鞋</span></div>
+            </div>
+        </div>
+
         <div class="info-card" style="background:#F8FAFC;">
             <h3>⚙️ 冒險數據管理與進階工具</h3>
             
@@ -612,21 +632,22 @@
         }
     }
 
+    // 🗓️ 校正過後嘅 8/8–8/21 台日兩區完整 14 日數據
     const hokkaidoTemplate = [
-        { day: 1, route: "抵達台北 ➔ 晴光商圈 ➔ 寧夏夜市", km: 15, driveTime: "約 30 分鐘", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "入住晴美公寓酒店，爆食蚵仔煎與甜甜圈！", b: "自理", l: "自理", d: "寧夏夜市", title: "晴美公寓酒店解鎖", desc: "拍攝第一站合照！", addr: "臺北市中山區林森北路568號", url: "https://www.jolleyhotels.com/", waypoints: [{name:"晴美酒店", lat: 25.064, lng: 121.526}, {name:"寧夏夜市", lat: 25.056, lng: 121.515}] },
-        { day: 2, route: "西門町潮流購物 ➔ 鼎泰豐晚餐", km: 10, driveTime: "約 20 分鐘", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "萬年大樓潮玩，享用鼎泰豐小籠包！", b: "酒店內", l: "西門町美食", d: "鼎泰豐", title: "西門町潮流捕獲", desc: "拍下萬年大樓戰利品合照！", addr: "臺北市大安區信義路二段277號", url: "https://www.dintaifung.com.tw", waypoints: [{name:"萬年大樓", lat: 25.043, lng: 121.506}, {name:"鼎泰豐", lat: 25.033, lng: 121.529}] },
-        { day: 3, route: "台北 ➔ 新千歲 ➔ 北國優駿公園 ➔ 札幌", km: 65, driveTime: "約 1 小時 30 分鐘", hub: "taipei", targetHub: "sapporo", weather: "札幌微風", spots: "北國優駿公園騎馬，入住札幌獨立屋！", b: "自理", l: "飛機餐", d: "湯咖哩 Suage+", title: "🐴 森林初試近距離騎馬", desc: "拍下跨上馬背的帥氣瞬間！", addr: "114-7 Misawa, Tomakomai, Hokkaido", url: "https://www.conventionsapporo.jp", waypoints: [{name:"新千歲機場", lat: 42.775, lng: 141.692}, {name:"北國優駿公園", lat: 42.650, lng: 141.670}, {name:"札幌獨立屋", lat: 43.062, lng: 141.354}] },
-        { day: 4, route: "白色戀人公園 ➔ 狸小路 ➔ 藻岩山夜景", km: 30, driveTime: "約 1 小時", hub: "sapporo", targetHub: "sapporo", weather: "札幌晴朗", spots: "白色戀人城堡，藻岩山頂俯瞰百萬夜景！", b: "自製", l: "狸小路拉麵", d: "居酒屋", title: "✨ 藻岩山百萬夜景降臨", desc: "在觀景台拍下百萬夜景大合照！", addr: "札幌市西區宮之澤2條2丁目", url: "https://www.shiroikoibitopark.jp", waypoints: [{name:"白色戀人", lat: 43.088, lng: 141.271}, {name:"藻岩山", lat: 43.023, lng: 141.333}] },
-        { day: 5, route: "美瑛青池 ➔ 北狐牧場 ➔ 知床", km: 410, driveTime: "約 5 小時 30 分鐘", hub: "sapporo", targetHub: "rausu", weather: "美瑛晴天", spots: "美瑛青池蒂芬妮藍，北狐牧場近距離看狐狸！", b: "快閃", l: "美瑛洋食", d: "海鮮大餐", title: "🦊 零距離接觸北狐", desc: "捕捉狐狸散步超萌照片！", addr: "Rubeshibechō Hanaoka, Kitami", url: "https://kitakitsune-farm.com", waypoints: [{name:"美瑛青池", lat: 43.493, lng: 142.613}, {name:"北狐牧場", lat: 43.706, lng: 143.611}, {name:"知床/羅臼", lat: 44.020, lng: 145.190}] },
-        { day: 6, route: "羅臼賞鯨船 ➔ 旭川 ➔ 返札幌", km: 430, driveTime: "約 5 小時 45 分鐘", hub: "rausu", targetHub: "sapporo", weather: "羅臼晴天", spots: "知床羅臼賞鯨船觀賞野生殺人鯨破浪而出！", b: "自理", l: "漁夫料理", d: "旭川拉麵", title: "🐋 野生殺人鯨大目擊", desc: "拍下殺人鯨破浪震撼照片！", addr: "Rausu, Menashi District, Hokkaido", url: "https://www.e-shiretoko.com", waypoints: [{name:"羅臼港", lat: 44.020, lng: 145.190}, {name:"旭川拉麵村", lat: 43.780, lng: 142.420}] },
-        { day: 7, route: "登別地獄谷 ➔ 登別熊牧場", km: 140, driveTime: "約 2 小時", hub: "sapporo", targetHub: "noboribetsu", weather: "登別火山天", spots: "地獄谷白煙，搭纜車直達熊牧場餵棕熊與梅花鹿！", b: "自製", l: "溫泉街拉麵", d: "燒肉", title: "🐻 登別餵熊達成", desc: "上傳親手餵食棕熊或鹿的照片！", addr: "Noboribetsuonsenchō, Noboribetsu", url: "https://bearpark.jp", waypoints: [{name:"地獄谷", lat: 42.497, lng: 141.145}, {name:"熊牧場", lat: 42.492, lng: 141.143}] },
-        { day: 8, route: "札幌車站爆買（寶可夢、Jump Shop）", km: 15, driveTime: "約 40 分鐘", hub: "noboribetsu", targetHub: "sapporo", weather: "札幌晴天", spots: "掃寶可夢中心與 Jump Shop，根室花丸迴轉壽司！", b: "自製", l: "地下街", d: "根室花丸", title: "🎮 動漫周邊大爆發", desc: "拍下手提寶可夢戰利品照片！", addr: "札幌市中央區北5條西2丁目", url: "https://www.stellarplace.net", waypoints: [{name:"JR Tower", lat: 43.068, lng: 141.350}] },
-        { day: 9, route: "三井 OUTLET PARK 北廣島", km: 45, driveTime: "約 1 小時", hub: "sapporo", targetHub: "sapporo", weather: "札幌多雲", spots: "三井 OUTLET 國際運動品牌限時大血拼！", b: "自製", l: "Outlet美食", d: "成吉思汗烤肉", title: "💸 運動品牌戰利品開箱", desc: "拍下後車廂被戰利品塞滿的照片！", addr: "北廣島市大曲幸町3丁目7-6", url: "https://mitsui-shopping-park.com", waypoints: [{name:"三井Outlet", lat: 42.971, lng: 141.458}] },
-        { day: 10, route: "富良野富田農場（向日葵花田）", km: 130, driveTime: "約 2 小時 15 分鐘", hub: "sapporo", targetHub: "furano", weather: "富良野晴天", spots: "富田農場向日葵彩色花田，冰雪之門帝王蟹大餐！", b: "自製", l: "富良野咖哩", d: "冰雪之門", title: "🌻 富良野花田沉醉", desc: "在無邊際花海前拍下合照！", addr: "空知郡中富良野町基線北15號", url: "https://www.farm-tomita.co.jp", waypoints: [{name:"富田農場", lat: 43.418, lng: 142.427}] },
-        { day: 11, route: "移居小樽 ➔ 小樽運河 ➔ 爆汁炸雞", km: 45, driveTime: "約 50 分鐘", hub: "furano", targetHub: "otaru", weather: "小樽微風", spots: "進駐小樽獨立屋，黃昏運河散步，若雞時代爆汁炸雞！", b: "自製", l: "小樽小吃", d: "若雞時代 Naruto", title: "🏠 小樽石山町新據點解鎖", desc: "拍下新客廳基地合照！", addr: "小樽市石山町19-4", url: "https://maps.google.com", waypoints: [{name:"小樽運河", lat: 43.197, lng: 140.999}, {name:"小樽獨立屋", lat: 43.190, lng: 140.994}] },
-        { day: 12, route: "積丹半島「積丹藍」海景自駕", km: 130, driveTime: "約 2 小時 20 分鐘", hub: "otaru", targetHub: "shakotan", weather: "積丹藍晴天", spots: "神威岬步道飽覽 360 度寶藍海景，狂嗑現撈海膽丼！", b: "自製", l: "極品海膽丼", d: "小樽壽司", title: "🌊 征服夢幻積丹藍", desc: "在神威岬頂點拍下積丹藍大片！", addr: "積丹郡積丹町大字神威岬", url: "https://www.kanko-shakotan.jp", waypoints: [{name:"神威岬", lat: 43.330, lng: 140.347}] },
-        { day: 13, route: "三角市場海鮮 ➔ 天狗山夜景纜車", km: 15, driveTime: "約 30 分鐘", hub: "shakotan", targetHub: "otaru", weather: "小樽晴天", spots: "三角市場長腳蟹現煮現吃，天狗山纜車登頂俯瞰夜景！", b: "自理", l: "三角市場生猛鮮蟹", d: "小樽洋食", title: "🚡 天狗山俯瞰海岸線", desc: "拍下天狗山俯瞰小樽夜景照片！", addr: "小樽市最上2丁目16-15", url: "https://tenguyama.ckk.chuo-bus.co.jp", waypoints: [{name:"三角市場", lat: 43.197, lng: 140.993}, {name:"天狗山", lat: 43.178, lng: 140.969}] },
-        { day: 14, route: "小樽退房 ➔ 新千歲機場 ➔ 返港", km: 85, driveTime: "約 1 小時 15 分鐘", hub: "otaru", targetHub: "airport", weather: "千歲晴天", spots: "新千歲機場國內線爆買，衝刺多啦A夢空中樂園！", b: "起司麵包", l: "拉麵道場", d: "飛機餐", title: "✈️ 空港免稅品最後大搜捕", desc: "在新千歲機場多啦A夢天空樂園前合照！", addr: "千歲市美美新千歲機場", url: "https://www.new-chitose-airport.jp", waypoints: [{name:"新千歲機場", lat: 42.775, lng: 141.692}] }
+        { day: 1, route: "8/8 抵達台北 ➔ 晴光商圈 ➔ 寧夏夜市", km: 15, driveTime: "約 30 分鐘", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "下午抵達台北，解鎖入住中山區「晴美公寓酒店」。下樓即是晴光市場商圈，必吃紅豆餅與脆皮鮮奶甜甜圈！晚上直奔寧夏夜市爆食蚵仔煎、地瓜球、大腸包小腸！", b: "自理", l: "自理", d: "寧夏夜市在地小吃", title: "晴美公寓酒店解鎖", desc: "順利抵達台北Check-in，上傳第一張台式快閃合照！", addr: "臺北市中山區林森北路568號", url: "https://www.jolleyhotels.com/", waypoints: [{name:"晴美酒店", lat: 25.064, lng: 121.526}, {name:"寧夏夜市", lat: 25.056, lng: 121.515}] },
+        { day: 2, route: "8/9 西門町潮流購物 ➔ 鼎泰豐晚餐", km: 10, driveTime: "約 20 分鐘", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "萬年大樓潮玩極合口味。晚上前往鼎泰豐（新生店）享用世界級小籠包與排骨炒飯大餐。", b: "酒店內享用", l: "西門町在地美食", d: "鼎泰豐 新生店麵點", title: "西門町潮流捕獲", desc: "拍下在萬年大樓買到心儀潮玩的開心合照提交！", addr: "臺北市大安區信義路二段277號", url: "https://www.dintaifung.com.tw", waypoints: [{name:"萬年大樓", lat: 25.043, lng: 121.506}, {name:"鼎泰豐", lat: 25.033, lng: 121.529}] },
+        { day: 3, route: "8/10 台北 ➔ 新千歲 ➔ 北國優駿公園 ➔ 札幌", km: 65, driveTime: "約 1 小時 30 分鐘", hub: "taipei", targetHub: "sapporo", weather: "札幌微風", spots: "清晨前往桃園機場飛新千歲取車！直奔【北國優駿公園】體驗森林騎馬健行。晚上回札幌獨立屋爆食湯咖哩！", b: "自理", l: "飛機餐", d: "湯咖哩 Suage+", title: "🐴 森林初試近距離騎馬", desc: "拍下跨上馬背、在森林步道漫步的帥氣瞬間上傳！", addr: "114-7 Misawa, Tomakomai, Hokkaido", url: "https://www.conventionsapporo.jp", waypoints: [{name:"新千歲機場", lat: 42.775, lng: 141.692}, {name:"北國優駿公園", lat: 42.650, lng: 141.670}, {name:"札幌獨立屋", lat: 43.062, lng: 141.354}] },
+        { day: 4, route: "8/11 白色戀人公園 ➔ 狸小路 ➔ 藻岩山夜景", km: 30, driveTime: "約 1 小時", hub: "sapporo", targetHub: "sapporo", weather: "札幌晴朗", spots: "造訪白色戀人公園歐洲城堡，下午狸小路 MEGA Don Quijote 瘋狂採購。傍晚登藻岩山頂俯瞰燈海！", b: "大本營自製", l: "狸小路在地拉麵", d: "札幌特色居酒屋", title: "✨ 藻岩山百萬夜景降臨", desc: "在藻岩山觀景台以百萬燈海為背景拍下大合照！", addr: "札幌市西區宮之澤2條2丁目", url: "https://www.shiroikoibitopark.jp", waypoints: [{name:"白色戀人", lat: 43.088, lng: 141.271}, {name:"藻岩山", lat: 43.023, lng: 141.333}] },
+        { day: 5, route: "8/12 美瑛青池 ➔ 北狐牧場 ➔ 知床（宿知床/羅臼）", km: 410, driveTime: "約 5 小時 30 分鐘", hub: "sapporo", targetHub: "rausu", weather: "美瑛東海道晴天", spots: "美瑛白金青池賞蒂芬妮藍。進入【北狐牧場】極近距離看著毛茸茸北極狐散步！夜宿知床/羅臼一帶。", b: "大本營快閃", l: "美瑛在地洋食", d: "東北海道海鮮大餐", title: "🦊 零距離接觸毛茸茸北狐", desc: "成功捕捉狐狸在身邊散步或追逐的超萌近鏡照片！", addr: "Rubeshibechō Hanaoka, Kitami", url: "https://kitakitsune-farm.com", waypoints: [{name:"美瑛青池", lat: 43.493, lng: 142.613}, {name:"北狐牧場", lat: 43.706, lng: 143.611}, {name:"知床/羅臼", lat: 44.020, lng: 145.190}] },
+        { day: 6, route: "8/13 羅臼賞鯨船 ➔ 旭川拉麵村 ➔ 返札幌", km: 430, driveTime: "約 5 小時 45 分鐘", hub: "rausu", targetHub: "sapporo", weather: "羅臼出海大晴天", spots: "登上【知床羅臼賞鯨船】觀賞野生殺人鯨（Orca）家族破浪而出！回程爆食旭川拉麵村，返札幌獨立屋。", b: "知床自理", l: "羅臼在地漁夫料理", d: "旭川拉麵村", title: "🐋 霸氣解鎖！夏日限定野生殺人鯨", desc: "成功拍下黑白殺人鯨家族破浪而出的極限震撼畫面！", addr: "Rausu, Menashi District, Hokkaido", url: "https://www.e-shiretoko.com", waypoints: [{name:"羅臼港", lat: 44.020, lng: 145.190}, {name:"旭川拉麵村", lat: 43.780, lng: 142.420}] },
+        { day: 7, route: "8/14 登別地獄谷 ➔ 登別熊牧場", km: 140, driveTime: "約 2 小時", hub: "sapporo", targetHub: "noboribetsu", weather: "登別火山硫磺天", spots: "登別地獄谷感受火山白煙。搭纜車直達【登別熊牧場】餵食棕熊與蝦夷鹿牧場梅花鹿！", b: "大本營自製", l: "登別溫泉街拉麵", d: "日式傳統燒肉", title: "🐻 熊與梅花鹿雙重餵飼達成", desc: "上傳親手餵飼梅花鹿或棕熊精明招手要食物的照片！", addr: "Noboribetsuonsenchō, Noboribetsu", url: "https://bearpark.jp", waypoints: [{name:"地獄谷", lat: 42.497, lng: 141.145}, {name:"熊牧場", lat: 42.492, lng: 141.143}] },
+        { day: 8, route: "8/15 札幌車站爆買（寶可夢、Jump Shop）", km: 15, driveTime: "約 40 分鐘", hub: "noboribetsu", targetHub: "sapporo", weather: "札幌晴天", spots: "掃寶可夢中心與 Jump Shop 購買限定周邊。晚餐享用產地直送根室花丸迴轉壽司。", b: "大本營自製", l: "車站地下街美食", d: "根室花丸迴轉壽司", title: "🎮 動漫周邊與寶可夢大爆發", desc: "拍下手提寶可夢中心或 Jump Shop 戰利品的開心照片！", addr: "札幌市中央區北5條西2丁目", url: "https://www.stellarplace.net", waypoints: [{name:"JR Tower", lat: 43.068, lng: 141.350}] },
+        { day: 9, route: "8/16 三井 OUTLET PARK 北廣島", km: 45, driveTime: "約 1 小時", hub: "sapporo", targetHub: "sapporo", weather: "札幌多雲", spots: "三井 OUTLET PARK 彙集大量國際運動品牌大血拼！晚餐回市區享用頂級成吉思汗烤羊肉。", b: "大本營自製", l: "Outlet 美食廣場", d: "札幌成吉思汗烤肉", title: "💸 運動品牌戰利品大開箱", desc: "拍下全車後車廂被運動品牌及免稅大包小包塞滿的照片！", addr: "北廣島市大曲幸町3丁目7-6", url: "https://mitsui-shopping-park.com", waypoints: [{name:"三井Outlet", lat: 42.971, lng: 141.458}] },
+        { day: 10, route: "8/17 富良野富田農場（夏日彩色向日葵花田）", km: 130, driveTime: "約 2 小時 15 分鐘", hub: "sapporo", targetHub: "furano", weather: "富良野大晴天", spots: "【富田農場】飽覽向日葵彩色花田與薰衣草餘韻，狂嗑爆汁哈密瓜。晚餐享用「冰雪之門」帝王蟹盛宴！", b: "大本營自製", l: "富良野在地咖哩", d: "冰雪之門 螃蟹盛宴", title: "🌻 沉醉夏日向日葵彩色花田", desc: "在無邊際金色向日葵花海前拍下完美的陽光合照！", addr: "空知郡中富良野町基線北15號", url: "https://www.farm-tomita.co.jp", waypoints: [{name:"富田農場", lat: 43.418, lng: 142.427}] },
+        { day: 11, route: "8/18 移居小樽新基地 ➔ 小樽運河 ➔ 爆汁炸雞", km: 45, driveTime: "約 50 分鐘", hub: "furano", targetHub: "otaru", weather: "小樽微風", spots: "從小樽獨立屋辦理進駐新基地，黃昏漫步懷舊小樽運河，晚餐朝聖「若雞時代 Naruto」爆汁半身炸雞！", b: "大本營自製", l: "小樽街頭小吃", d: "若雞時代 Naruto", title: "🏠 小樽石山町新據點解鎖", desc: "進駐小樽獨立屋，拍下這個極具空間感的新客廳基地合照！", addr: "小樽市石山町19-4", url: "https://maps.google.com", waypoints: [{name:"小樽運河", lat: 43.197, lng: 140.999}, {name:"小樽獨立屋", lat: 43.190, lng: 140.994}] },
+        { day: 12, route: "8/19 積丹半島「積丹藍」海景自駕", km: 130, driveTime: "約 2 小時 20 分鐘", hub: "otaru", targetHub: "shakotan", weather: "積丹藍大晴天", spots: "衝向積丹半島神威岬步道，飽覽 360 度寶藍色寶藏大海，中午享用現撈極品海膽丼！", b: "小樽大本營自製", l: "積丹現撈海膽丼", d: "小樽港新鮮壽司", title: "🌊 征服 360 度夢幻積丹藍", desc: "在神威岬步道頂點，拍下背景為純粹「積丹藍」的海景大片！", addr: "積丹郡積丹町大字神威岬", url: "https://www.kanko-shakotan.jp", waypoints: [{name:"神威岬", lat: 43.330, lng: 140.347}] },
+        { day: 13, route: "8/20 三角市場海鮮 ➔ 天狗山夜景纜車", km: 15, driveTime: "約 30 分鐘", hub: "shakotan", targetHub: "otaru", weather: "小樽晴天", spots: "三角市場挑選長腳蟹現煮現吃！傍晚搭天狗山索道纜車登頂，俯瞰完美弧形海岸線夜景倒數乾杯。", b: "自理", l: "三角市場生猛鮮蟹", d: "小樽在地浪漫洋食", title: "🚡 天狗山俯瞰浪漫海岸線", desc: "在天狗山觀景台拍下俯瞰小樽弧形海岸夜景的照片！", addr: "小樽市最上2丁目16-15", url: "https://tenguyama.ckk.chuo-bus.co.jp", waypoints: [{name:"三角市場", lat: 43.197, lng: 140.993}, {name:"天狗山", lat: 43.178, lng: 140.969}] },
+        { day: 14, route: "8/21 小樽退房 ➔ 新千歲機場 ➔ BR165 啟程返港", km: 85, driveTime: "約 1 小時 15 分鐘", hub: "otaru", targetHub: "airport", weather: "千歲晴天", spots: "清晨退房自駕還車。狂掃新千歲機場國內線航廈！衝刺多啦A夢空中樂園，買齊六花亭與 ROYCE，搭 13:00 班機返港！", b: "起司巨塔麵包", l: "札幌拉麵道場", d: "飛機餐 / 返港", title: "✈️ 空港免稅品最後大搜捕", desc: "在新千歲機場多啦A夢天空樂園前，拍下拎滿戰利品的大團圓合照結算！", addr: "千歲市美美新千歲機場", url: "https://www.new-chitose-airport.jp", waypoints: [{name:"新千歲機場", lat: 42.775, lng: 141.692}] }
     ];
 
     const mapHubs = {
@@ -935,7 +956,6 @@
         }
     }
 
-    // 💡 修正 High Priority 1: 預下載時同時 Cache a/b/c 網絡 Tile，解決子網域快取不命中問題
     async function prefetchOfflineMapTiles() {
         if (!('caches' in window)) { alert("瀏覽器不支援 Cache API"); return; }
         alert("📥 開始為全旅程預下載離線地圖切片 (a/b/c 三子網域)，請稍候...");
@@ -995,7 +1015,7 @@
         }
     }
 
-    // 💡 修正 Critical Bug 2: 強制驗證相片上傳，防止空相片寫入數據污染
+    // 💡 修正 Critical Bug 2: 強制驗證相片上傳，絕不允許空白上傳
     async function validateQuestCompletion() {
         if (completedDays.includes(activeDay)) {
             alert("⚠️ 此日任務已通關！"); switchTab('home'); return;
@@ -1010,7 +1030,7 @@
         completedDays.push(activeDay);
         
         await savePhotoToIndexedDB(currentUploadedPhotoUrl, data.day, data.title);
-        currentUploadedPhotoUrl = ""; // 重置照片暫存
+        currentUploadedPhotoUrl = "";
         saveGame();
         alert(`✅ Day ${data.day} 任務完成！全體 +200 EXP！`);
         updateAllInterfaces();
@@ -1043,7 +1063,7 @@
         startRealGPSGeoFencing();
     }
 
-    // 💡 修正 Critical Bug 1: 改用當日最後一個 Waypoint 做實體靶心，徹底移除台北幽靈座標
+    // 💡 修正 Critical Bug 1: 動態抓取最後一個 Waypoint 座標做精準圍欄靶心，徹底去除台北幽靈定位
     function startRealGPSGeoFencing() {
         if (!navigator.geolocation) return;
         document.getElementById('gps-status-pill').style.display = 'block';
@@ -1061,7 +1081,6 @@
             const currentData = masterData[activeDay - 1];
             if (!currentData) return;
 
-            // 動態抓取最後一個實體 Waypoint
             const targetWp = (currentData.waypoints && currentData.waypoints.length > 0) 
                            ? currentData.waypoints[currentData.waypoints.length - 1] 
                            : { lat: 25.064, lng: 121.526, name: "目的地" };
@@ -1347,7 +1366,7 @@
         document.getElementById('genericModalOverlay').style.display = 'none';
     }
 
-    // 💡 修正 Critical Bug 3: 總覽卡片加入 onclick 直達該天行程！
+    // 💡 修正 Critical Bug 3: 總覽 Modal 點擊事件跳轉直達該天行程，並提供快速操作面板
     function openOverviewModal() {
         const overlay = document.getElementById('genericModalOverlay');
         const content = document.getElementById('modalContentBox');
@@ -1358,8 +1377,11 @@
                 <div onclick="closeModal(); selectDay(${d.day});" 
                      style="cursor:pointer; background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:8px; text-align:left; transition:background 0.2s;"
                      onmouseover="this.style.background='#FFF'" onmouseout="this.style.background='#F8FAFC'">
-                    <div style="font-weight:bold; color:var(--primary); font-size:0.85rem;">Day ${d.day}: ${d.title}</div>
-                    <div style="font-size:0.75rem; color:#0F172A; margin:2px 0;"><b>路線:</b> ${d.route}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:bold; color:var(--primary); font-size:0.85rem;">Day ${d.day}: ${d.title}</span>
+                        <span class="ov-action-btn" onclick="event.stopPropagation(); closeModal(); selectDay(${d.day}); toggleEditDayPanel(true);">✏️ 編輯</span>
+                    </div>
+                    <div style="font-size:0.75rem; color:#0F172A; margin:4px 0 2px 0;"><b>路線:</b> ${d.route}</div>
                     <div style="font-size:0.72rem; color:var(--gray);">🍱 早: ${d.b} | 午: ${d.l} | 晚: ${d.d}</div>
                 </div>
             `;
@@ -1443,7 +1465,7 @@
         document.body.appendChild(anchor); anchor.click(); anchor.remove();
     }
 
-    // 💡 修正 High Priority 3: 獨立 JSON 匯入引導，不強迫進入 Step 2
+    // 💡 修正 High Priority 3: Wizard 中匯入 JSON 直接載入行程，不經 Step 2 團隊設定
     function triggerDirectImportJSON() {
         document.getElementById('importFileInput').click();
     }
@@ -1467,12 +1489,12 @@
         }
     }
 
-    // 💡 修正 High Priority 2: 判斷 iOS Safari UA，動態顯示 iOS PWA 安裝圖文指引
+    // 💡 修正 High Priority 2: 檢測 iOS UA 並提供 Safari 圖文指引提示
     function setupPwaInstallBanner() {
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
 
-        if (isStandalone) return; // 已安裝 PWA 則隱藏 Banner
+        if (isStandalone) return;
 
         const banner = document.getElementById('pwaInstallBanner');
         const btn = document.getElementById('pwaInstallBtn');
@@ -1480,8 +1502,8 @@
 
         if (isIOS) {
             banner.style.display = 'flex';
-            text.innerText = "📲 iOS Safari 點擊底欄 「分享 ➔ 加入主畫面」";
-            btn.style.display = 'none'; // iOS 無法由 API 觸發，提示步驟
+            text.innerText = "📲 iOS Safari 請點擊底欄 「分享 ➔ 加入主畫面」";
+            btn.style.display = 'none';
         } else {
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
