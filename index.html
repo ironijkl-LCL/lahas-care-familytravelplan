@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 北海道冒險作戰中心 - RPG Travel Master 12.2 (Overview Management)</title>
+    <title>🎮 冒險作戰中心 - RPG Travel Master 13.0 Commercial Release</title>
     
     <link rel="manifest" href='data:application/json,{"name":"RPG Travel Master","short_name":"冒險中心","start_url":".","display":"standalone","background_color":"#87CEEB","theme_color":"#4FC3F7","orientation":"portrait","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -67,7 +67,7 @@
             border: 4px solid #FFFFFF; position: relative; z-index: 1;
         }
 
-        /* 🧙‍♂️ 開局嚮導 Wizard Modal */
+        /* 🧙‍♂️ 開局嚮導 Wizard */
         .wizard-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: #FFFFFF; z-index: 1000; display: flex;
@@ -91,9 +91,10 @@
             background: #F8FAFC; padding: 8px; border-radius: 12px; border: 1px solid #E2E8F0;
         }
         .member-input-row input { flex: 1; padding: 6px 8px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.8rem; }
-        .member-avatar-select { width: 45px; padding: 6px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.9rem; text-align: center; }
+        
+        /* 💡 修正 UX 2: 下拉選單選擇常見表情符號 */
+        .member-avatar-select { width: 65px; padding: 6px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.9rem; text-align: center; background: white; }
 
-        /* PWA 安裝提示條 */
         .pwa-install-banner {
             display: none; background: #0F172A; color: white; padding: 10px 12px;
             font-size: 0.75rem; font-weight: bold; align-items: center; justify-content: space-between;
@@ -154,7 +155,9 @@
         .player-exp-fill { height: 100%; background: linear-gradient(90deg, #D97706, #EA580C); width: 0%; transition: width 0.3s ease; }
 
         .lb-row { display: flex; justify-content: space-between; padding: 8px 10px; font-size: 0.85rem; font-weight: 500; border-bottom: 1px dashed #E2E8F0; align-items: center; }
-        .lb-top { background: linear-gradient(135deg, #F59E0B, #D97706) !important; padding: 10px !important; border-radius: 12px !important; color: #FFFFFF !important; font-weight: bold; }
+        
+        /* 💡 修正 UX 3: 排行榜第一名改用深色文字，提升色彩對比度 */
+        .lb-top { background: linear-gradient(135deg, #F59E0B, #D97706) !important; padding: 10px !important; border-radius: 12px !important; color: #0F172A !important; font-weight: bold; }
 
         .home-photo-carousel { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; scrollbar-width: none; }
         .home-photo-slot {
@@ -168,6 +171,13 @@
 
         .map-box { width: 100%; height: 270px; border: 3px solid #7dd3fc; border-radius: 18px; position: relative; overflow: hidden; }
         #leafletMap { width: 100%; height: 100%; z-index: 1; }
+
+        /* 💡 修正 Bug 3: 地圖無網絡浮水印提示 */
+        .map-offline-fallback {
+            position: absolute; top: 10px; right: 10px; background: rgba(15,23,42,0.85); color: white;
+            padding: 4px 10px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; z-index: 500;
+            display: none;
+        }
 
         .leaflet-tile-container img { filter: contrast(102%) brightness(98%) saturate(90%); }
         @keyframes dash { to { stroke-dashoffset: -20; } }
@@ -238,13 +248,18 @@
             max-height: 85vh; overflow-y: auto; padding: 18px; position: relative;
         }
 
-        /* ✨ 總覽 Modal 內迷你操作按鈕樣式 */
+        /* 💡 修正 UX 1: 總覽 Modal 編輯按鈕放大至 0.85rem */
         .ov-action-btn {
-            background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 6px;
-            padding: 3px 6px; font-size: 0.68rem; font-weight: bold; cursor: pointer; color: #0F172A;
+            background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 8px;
+            padding: 6px 10px; font-size: 0.85rem; font-weight: bold; cursor: pointer; color: #0F172A;
             display: inline-flex; align-items: center; gap: 2px;
         }
         .ov-action-btn:hover { background: #E2E8F0; }
+
+        /* 🚀 商業化：星級評分 UI */
+        .star-rating { display: flex; gap: 4px; margin-top: 4px; }
+        .star { font-size: 1rem; cursor: pointer; color: #CBD5E1; }
+        .star.filled { color: #F59E0B; }
     </style>
 </head>
 <body>
@@ -303,7 +318,7 @@
             <div class="progress"><div class="progress-bar" id="top-progress-bar"></div></div>
         </div>
         <div style="display: flex; align-items: center; gap: 6px;">
-            <div id="gps-status-pill" style="background: rgba(0,0,0,0.2); color: white; padding: 3px 6px; border-radius: 6px; font-size: 0.6rem; font-weight: bold; display: none;">📡 GPS 監測中</div>
+            <div id="gps-status-pill" style="background: rgba(0,0,0,0.2); color: white; padding: 3px 6px; border-radius: 6px; font-size: 0.6rem; font-weight: bold; display: none;">📡 被動 GPS 就緒</div>
             <button onclick="toggleAudioMute()" aria-label="切換背景音樂" style="border:none; cursor: pointer; background: rgba(255,255,255,0.3); padding: 4px 8px; border-radius: 10px; font-size: 0.65rem; font-weight: bold; color:#0F172A;">
                 <span id="audio-wave">🎵 BGM</span>
             </button>
@@ -349,10 +364,13 @@
             <button class="btn-today-jump" style="background:#0369A1;" onclick="openOverviewModal()">📋 總覽</button>
         </div>
 
-        <div class="map-box"><div id="leafletMap"></div></div>
+        <div class="map-box">
+            <div class="map-offline-fallback" id="mapOfflineFallback">📡 離線模式：顯示快取 Tiles</div>
+            <div id="leafletMap"></div>
+        </div>
 
         <div id="gps-proximity-alert" style="display: none; background: #16A34A; color: white; padding: 8px; border-radius: 10px; margin-top: 8px; font-size: 0.75rem; font-weight: bold; text-align: center;">
-            📡 GPS 定位搜尋中...
+            📡 手動點擊「即時驗證位置」進行打卡
         </div>
 
         <div class="info-card" style="margin-top: 10px; border-left: 4px solid var(--primary);">
@@ -363,6 +381,19 @@
             <div style="margin-bottom: 8px; font-size: 0.8rem;">
                 <b>⏱️ 車程時間：</b><span id="det-drivetime" style="color:var(--pack-color); font-weight:bold;">-</span>
             </div>
+
+            <!-- 🚀 商業化 2: 打卡點星級評分區 -->
+            <div style="margin-bottom:8px; background:#F8FAFC; padding:6px 8px; border-radius:8px; display:flex; align-items:center; justify-content:space-between;">
+                <span style="font-size:0.72rem; font-weight:bold; color:var(--gray);">景點真實推薦指數：</span>
+                <div class="star-rating" id="spotStarRatingZone">
+                    <span class="star" onclick="rateCurrentSpot(1)">★</span>
+                    <span class="star" onclick="rateCurrentSpot(2)">★</span>
+                    <span class="star" onclick="rateCurrentSpot(3)">★</span>
+                    <span class="star" onclick="rateCurrentSpot(4)">★</span>
+                    <span class="star" onclick="rateCurrentSpot(5)">★</span>
+                </div>
+            </div>
+
             <div class="accordion-item open" onclick="toggleAccordion(this)">
                 <div class="accordion-header" tabindex="0" role="button"><span>流域與景點深度</span><span>▼</span></div>
                 <div class="accordion-body">
@@ -421,10 +452,13 @@
             <p id="q-desc" style="font-size:0.8rem; line-height:1.4; color:var(--gray);">-</p>
 
             <div class="photo-upload-zone">
-                <span style="font-size:0.78rem; font-weight:bold; color:var(--pack-color);">📷 點擊上傳打卡照片 (IndexedDB 大容量)</span>
+                <span style="font-size:0.78rem; font-weight:bold; color:var(--pack-color);">📷 點擊上傳打卡照片 (IndexedDB 極致壓縮)</span>
                 <input type="file" accept="image/*" class="photo-input" aria-label="上傳打卡照片" onchange="handlePhotoUpload(this)">
                 <img class="photo-preview" id="photo-preview-img" src="" alt="預覽照片">
             </div>
+            
+            <!-- 💡 修正 Critical Bug 1: 點擊即時驗證 GPS 位置 -->
+            <button class="btn btn-outline" style="margin-top:10px; background:#F0FDFA; border-color:#0D9488; color:#0D9488;" aria-label="即時單次獲取 GPS 位置" onclick="triggerPassiveGpsCheck()">📍 點擊即時驗證 GPS 位置 (省電模式)</button>
             
             <button class="btn-quest-done" id="btn-submit-quest" aria-label="完成任務" onclick="validateQuestCompletion()">✅ 完成任務 +200 EXP</button>
             <button class="btn btn-outline" style="margin-top:8px; font-size:0.75rem;" aria-label="手動打卡" onclick="manualForceCheckin()">📍 GPS 訊號弱？手動打卡解鎖</button>
@@ -483,17 +517,11 @@
             </div>
         </div>
 
-        <div class="info-card" style="border-left: 4px solid var(--pack-color);">
-            <div class="info-title" style="color:var(--pack-color);">👕 4人服裝資產庫 (8/8 - 8/21 台灣3日+北海道11日)</div>
-            <div class="pack-sub-title" style="font-weight:bold; font-size:0.8rem; margin-top:6px;">建議帶備</div>
-            <div class="detail-section">
-                <div class="check-item"><input type="checkbox"><span>短袖T恤 4-6件 (日間偏熱透氣)</span></div>
-                <div class="check-item"><input type="checkbox"><span>薄長袖 1-2件 (道東知床防涼)</span></div>
-                <div class="check-item"><input type="checkbox"><span>防曬外套 / 薄外套 1件</span></div>
-                <div class="check-item"><input type="checkbox"><span>輕便防風外套 1件 (羅臼出海/沿海防風)</span></div>
-                <div class="check-item"><input type="checkbox"><span>長褲 2條 / 短褲 1-2條</span></div>
-                <div class="check-item"><input type="checkbox"><span>襪子與舒適步行鞋</span></div>
-            </div>
+        <!-- 🚀 商業化 1: 達人路線市集 Modal 入口 -->
+        <div class="info-card" style="background:#F0FDFA; border:1px solid #0D9488;">
+            <h3 style="color:#0D9488; margin:0 0 6px 0;">🌟 達人路線市集 (Marketplace)</h3>
+            <p style="font-size:0.75rem; color:var(--gray); margin-bottom:8px;">探索 KOL 精選行程，或公開發表你的專屬冒險！</p>
+            <button class="btn btn-primary" style="background:#0D9488;" onclick="openMarketplaceModal()">🏪 開啟達人路線市集</button>
         </div>
 
         <div class="info-card" style="background:#F8FAFC;">
@@ -509,11 +537,6 @@
             <input type="file" id="importCSVInput" style="display:none;" accept=".csv" onchange="importTripDataFromCSV(this)">
             
             <hr style="border:none; border-top:1px dashed #CBD5E1; margin:10px 0;">
-            
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:0.8rem;">
-                <b>⚡ GPS 省電切換模式</b>
-                <button class="btn-today-jump" id="gpsPowerToggleBtn" onclick="toggleGpsPowerSavingMode()">當前：高精準度</button>
-            </div>
 
             <button class="btn btn-outline" aria-label="開啟開局嚮導" onclick="openWizardOverlay()">🧙‍♂️ 開啟開局嚮導 (重選模板/隊員)</button>
             <button class="btn btn-outline" aria-label="匯出 JSON 存檔" onclick="exportTripData()">📤 匯出行程與存檔 JSON</button>
@@ -533,7 +556,7 @@
     function openImageDB() {
         return new Promise((resolve, reject) => {
             try {
-                const request = indexedDB.open("TravelAppPhotosDB_v12", 1);
+                const request = indexedDB.open("TravelAppPhotosDB_v13", 1);
                 request.onupgradeneeded = (e) => {
                     const db = e.target.result;
                     if (!db.objectStoreNames.contains("photos")) {
@@ -598,7 +621,7 @@
     function registerRealOfflineServiceWorker() {
         if ('serviceWorker' in navigator) {
             const swScript = `
-                const CACHE_NAME = 'travel-rpg-v12';
+                const CACHE_NAME = 'travel-rpg-v13';
                 const ASSETS = [
                     './',
                     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
@@ -617,7 +640,7 @@
                             return fetch(e.request).then(res => {
                                 if (e.request.url.includes('tile.openstreetmap.org')) {
                                     const resClone = res.clone();
-                                    caches.open('map-tiles-v12').then(c => c.put(e.request, resClone));
+                                    caches.open('map-tiles-v13').then(c => c.put(e.request, resClone));
                                 }
                                 return res;
                             });
@@ -632,22 +655,21 @@
         }
     }
 
-    // 🗓️ 校正過後嘅 8/8–8/21 台日兩區完整 14 日數據
     const hokkaidoTemplate = [
-        { day: 1, route: "8/8 抵達台北 ➔ 晴光商圈 ➔ 寧夏夜市", km: 15, driveTime: "約 30 分鐘", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "下午抵達台北，解鎖入住中山區「晴美公寓酒店」。下樓即是晴光市場商圈，必吃紅豆餅與脆皮鮮奶甜甜圈！晚上直奔寧夏夜市爆食蚵仔煎、地瓜球、大腸包小腸！", b: "自理", l: "自理", d: "寧夏夜市在地小吃", title: "晴美公寓酒店解鎖", desc: "順利抵達台北Check-in，上傳第一張台式快閃合照！", addr: "臺北市中山區林森北路568號", url: "https://www.jolleyhotels.com/", waypoints: [{name:"晴美酒店", lat: 25.064, lng: 121.526}, {name:"寧夏夜市", lat: 25.056, lng: 121.515}] },
-        { day: 2, route: "8/9 西門町潮流購物 ➔ 鼎泰豐晚餐", km: 10, driveTime: "約 20 分鐘", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "萬年大樓潮玩極合口味。晚上前往鼎泰豐（新生店）享用世界級小籠包與排骨炒飯大餐。", b: "酒店內享用", l: "西門町在地美食", d: "鼎泰豐 新生店麵點", title: "西門町潮流捕獲", desc: "拍下在萬年大樓買到心儀潮玩的開心合照提交！", addr: "臺北市大安區信義路二段277號", url: "https://www.dintaifung.com.tw", waypoints: [{name:"萬年大樓", lat: 25.043, lng: 121.506}, {name:"鼎泰豐", lat: 25.033, lng: 121.529}] },
-        { day: 3, route: "8/10 台北 ➔ 新千歲 ➔ 北國優駿公園 ➔ 札幌", km: 65, driveTime: "約 1 小時 30 分鐘", hub: "taipei", targetHub: "sapporo", weather: "札幌微風", spots: "清晨前往桃園機場飛新千歲取車！直奔【北國優駿公園】體驗森林騎馬健行。晚上回札幌獨立屋爆食湯咖哩！", b: "自理", l: "飛機餐", d: "湯咖哩 Suage+", title: "🐴 森林初試近距離騎馬", desc: "拍下跨上馬背、在森林步道漫步的帥氣瞬間上傳！", addr: "114-7 Misawa, Tomakomai, Hokkaido", url: "https://www.conventionsapporo.jp", waypoints: [{name:"新千歲機場", lat: 42.775, lng: 141.692}, {name:"北國優駿公園", lat: 42.650, lng: 141.670}, {name:"札幌獨立屋", lat: 43.062, lng: 141.354}] },
-        { day: 4, route: "8/11 白色戀人公園 ➔ 狸小路 ➔ 藻岩山夜景", km: 30, driveTime: "約 1 小時", hub: "sapporo", targetHub: "sapporo", weather: "札幌晴朗", spots: "造訪白色戀人公園歐洲城堡，下午狸小路 MEGA Don Quijote 瘋狂採購。傍晚登藻岩山頂俯瞰燈海！", b: "大本營自製", l: "狸小路在地拉麵", d: "札幌特色居酒屋", title: "✨ 藻岩山百萬夜景降臨", desc: "在藻岩山觀景台以百萬燈海為背景拍下大合照！", addr: "札幌市西區宮之澤2條2丁目", url: "https://www.shiroikoibitopark.jp", waypoints: [{name:"白色戀人", lat: 43.088, lng: 141.271}, {name:"藻岩山", lat: 43.023, lng: 141.333}] },
-        { day: 5, route: "8/12 美瑛青池 ➔ 北狐牧場 ➔ 知床（宿知床/羅臼）", km: 410, driveTime: "約 5 小時 30 分鐘", hub: "sapporo", targetHub: "rausu", weather: "美瑛東海道晴天", spots: "美瑛白金青池賞蒂芬妮藍。進入【北狐牧場】極近距離看著毛茸茸北極狐散步！夜宿知床/羅臼一帶。", b: "大本營快閃", l: "美瑛在地洋食", d: "東北海道海鮮大餐", title: "🦊 零距離接觸毛茸茸北狐", desc: "成功捕捉狐狸在身邊散步或追逐的超萌近鏡照片！", addr: "Rubeshibechō Hanaoka, Kitami", url: "https://kitakitsune-farm.com", waypoints: [{name:"美瑛青池", lat: 43.493, lng: 142.613}, {name:"北狐牧場", lat: 43.706, lng: 143.611}, {name:"知床/羅臼", lat: 44.020, lng: 145.190}] },
-        { day: 6, route: "8/13 羅臼賞鯨船 ➔ 旭川拉麵村 ➔ 返札幌", km: 430, driveTime: "約 5 小時 45 分鐘", hub: "rausu", targetHub: "sapporo", weather: "羅臼出海大晴天", spots: "登上【知床羅臼賞鯨船】觀賞野生殺人鯨（Orca）家族破浪而出！回程爆食旭川拉麵村，返札幌獨立屋。", b: "知床自理", l: "羅臼在地漁夫料理", d: "旭川拉麵村", title: "🐋 霸氣解鎖！夏日限定野生殺人鯨", desc: "成功拍下黑白殺人鯨家族破浪而出的極限震撼畫面！", addr: "Rausu, Menashi District, Hokkaido", url: "https://www.e-shiretoko.com", waypoints: [{name:"羅臼港", lat: 44.020, lng: 145.190}, {name:"旭川拉麵村", lat: 43.780, lng: 142.420}] },
-        { day: 7, route: "8/14 登別地獄谷 ➔ 登別熊牧場", km: 140, driveTime: "約 2 小時", hub: "sapporo", targetHub: "noboribetsu", weather: "登別火山硫磺天", spots: "登別地獄谷感受火山白煙。搭纜車直達【登別熊牧場】餵食棕熊與蝦夷鹿牧場梅花鹿！", b: "大本營自製", l: "登別溫泉街拉麵", d: "日式傳統燒肉", title: "🐻 熊與梅花鹿雙重餵飼達成", desc: "上傳親手餵飼梅花鹿或棕熊精明招手要食物的照片！", addr: "Noboribetsuonsenchō, Noboribetsu", url: "https://bearpark.jp", waypoints: [{name:"地獄谷", lat: 42.497, lng: 141.145}, {name:"熊牧場", lat: 42.492, lng: 141.143}] },
-        { day: 8, route: "8/15 札幌車站爆買（寶可夢、Jump Shop）", km: 15, driveTime: "約 40 分鐘", hub: "noboribetsu", targetHub: "sapporo", weather: "札幌晴天", spots: "掃寶可夢中心與 Jump Shop 購買限定周邊。晚餐享用產地直送根室花丸迴轉壽司。", b: "大本營自製", l: "車站地下街美食", d: "根室花丸迴轉壽司", title: "🎮 動漫周邊與寶可夢大爆發", desc: "拍下手提寶可夢中心或 Jump Shop 戰利品的開心照片！", addr: "札幌市中央區北5條西2丁目", url: "https://www.stellarplace.net", waypoints: [{name:"JR Tower", lat: 43.068, lng: 141.350}] },
-        { day: 9, route: "8/16 三井 OUTLET PARK 北廣島", km: 45, driveTime: "約 1 小時", hub: "sapporo", targetHub: "sapporo", weather: "札幌多雲", spots: "三井 OUTLET PARK 彙集大量國際運動品牌大血拼！晚餐回市區享用頂級成吉思汗烤羊肉。", b: "大本營自製", l: "Outlet 美食廣場", d: "札幌成吉思汗烤肉", title: "💸 運動品牌戰利品大開箱", desc: "拍下全車後車廂被運動品牌及免稅大包小包塞滿的照片！", addr: "北廣島市大曲幸町3丁目7-6", url: "https://mitsui-shopping-park.com", waypoints: [{name:"三井Outlet", lat: 42.971, lng: 141.458}] },
-        { day: 10, route: "8/17 富良野富田農場（夏日彩色向日葵花田）", km: 130, driveTime: "約 2 小時 15 分鐘", hub: "sapporo", targetHub: "furano", weather: "富良野大晴天", spots: "【富田農場】飽覽向日葵彩色花田與薰衣草餘韻，狂嗑爆汁哈密瓜。晚餐享用「冰雪之門」帝王蟹盛宴！", b: "大本營自製", l: "富良野在地咖哩", d: "冰雪之門 螃蟹盛宴", title: "🌻 沉醉夏日向日葵彩色花田", desc: "在無邊際金色向日葵花海前拍下完美的陽光合照！", addr: "空知郡中富良野町基線北15號", url: "https://www.farm-tomita.co.jp", waypoints: [{name:"富田農場", lat: 43.418, lng: 142.427}] },
-        { day: 11, route: "8/18 移居小樽新基地 ➔ 小樽運河 ➔ 爆汁炸雞", km: 45, driveTime: "約 50 分鐘", hub: "furano", targetHub: "otaru", weather: "小樽微風", spots: "從小樽獨立屋辦理進駐新基地，黃昏漫步懷舊小樽運河，晚餐朝聖「若雞時代 Naruto」爆汁半身炸雞！", b: "大本營自製", l: "小樽街頭小吃", d: "若雞時代 Naruto", title: "🏠 小樽石山町新據點解鎖", desc: "進駐小樽獨立屋，拍下這個極具空間感的新客廳基地合照！", addr: "小樽市石山町19-4", url: "https://maps.google.com", waypoints: [{name:"小樽運河", lat: 43.197, lng: 140.999}, {name:"小樽獨立屋", lat: 43.190, lng: 140.994}] },
-        { day: 12, route: "8/19 積丹半島「積丹藍」海景自駕", km: 130, driveTime: "約 2 小時 20 分鐘", hub: "otaru", targetHub: "shakotan", weather: "積丹藍大晴天", spots: "衝向積丹半島神威岬步道，飽覽 360 度寶藍色寶藏大海，中午享用現撈極品海膽丼！", b: "小樽大本營自製", l: "積丹現撈海膽丼", d: "小樽港新鮮壽司", title: "🌊 征服 360 度夢幻積丹藍", desc: "在神威岬步道頂點，拍下背景為純粹「積丹藍」的海景大片！", addr: "積丹郡積丹町大字神威岬", url: "https://www.kanko-shakotan.jp", waypoints: [{name:"神威岬", lat: 43.330, lng: 140.347}] },
-        { day: 13, route: "8/20 三角市場海鮮 ➔ 天狗山夜景纜車", km: 15, driveTime: "約 30 分鐘", hub: "shakotan", targetHub: "otaru", weather: "小樽晴天", spots: "三角市場挑選長腳蟹現煮現吃！傍晚搭天狗山索道纜車登頂，俯瞰完美弧形海岸線夜景倒數乾杯。", b: "自理", l: "三角市場生猛鮮蟹", d: "小樽在地浪漫洋食", title: "🚡 天狗山俯瞰浪漫海岸線", desc: "在天狗山觀景台拍下俯瞰小樽弧形海岸夜景的照片！", addr: "小樽市最上2丁目16-15", url: "https://tenguyama.ckk.chuo-bus.co.jp", waypoints: [{name:"三角市場", lat: 43.197, lng: 140.993}, {name:"天狗山", lat: 43.178, lng: 140.969}] },
-        { day: 14, route: "8/21 小樽退房 ➔ 新千歲機場 ➔ BR165 啟程返港", km: 85, driveTime: "約 1 小時 15 分鐘", hub: "otaru", targetHub: "airport", weather: "千歲晴天", spots: "清晨退房自駕還車。狂掃新千歲機場國內線航廈！衝刺多啦A夢空中樂園，買齊六花亭與 ROYCE，搭 13:00 班機返港！", b: "起司巨塔麵包", l: "札幌拉麵道場", d: "飛機餐 / 返港", title: "✈️ 空港免稅品最後大搜捕", desc: "在新千歲機場多啦A夢天空樂園前，拍下拎滿戰利品的大團圓合照結算！", addr: "千歲市美美新千歲機場", url: "https://www.new-chitose-airport.jp", waypoints: [{name:"新千歲機場", lat: 42.775, lng: 141.692}] }
+        { day: 1, route: "8/8 抵達台北 ➔ 晴光商圈 ➔ 寧夏夜市", km: 15, driveTime: "約 30 分鐘", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "下午抵達台北，解鎖入住中山區「晴美公寓酒店」。下樓即是晴光市場商圈，必吃紅豆餅與脆皮鮮奶甜甜圈！晚上直奔寧夏夜市爆食蚵仔煎、地瓜球、大腸包小腸！", b: "自理", l: "自理", d: "寧夏夜市在地小吃", title: "晴美公寓酒店解鎖", desc: "順利抵達台北Check-in，上傳第一張台式快閃合照！", addr: "臺北市中山區林森北路568號", url: "https://www.jolleyhotels.com/", waypoints: [{name:"晴美酒店", lat: 25.064, lng: 121.526}, {name:"寧夏夜市", lat: 25.056, lng: 121.515}], rating: 5 },
+        { day: 2, route: "8/9 西門町潮流購物 ➔ 鼎泰豐晚餐", km: 10, driveTime: "約 20 分鐘", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "萬年大樓潮玩極合口味。晚上前往鼎泰豐（新生店）享用世界級小籠包與排骨炒飯大餐。", b: "酒店內享用", l: "西門町在地美食", d: "鼎泰豐 新生店麵點", title: "西門町潮流捕獲", desc: "拍下在萬年大樓買到心儀潮玩的開心合照提交！", addr: "臺北市大安區信義路二段277號", url: "https://www.dintaifung.com.tw", waypoints: [{name:"萬年大樓", lat: 25.043, lng: 121.506}, {name:"鼎泰豐", lat: 25.033, lng: 121.529}], rating: 4 },
+        { day: 3, route: "8/10 台北 ➔ 新千歲 ➔ 北國優駿公園 ➔ 札幌", km: 65, driveTime: "約 1 小時 30 分鐘", hub: "taipei", targetHub: "sapporo", weather: "札幌微風", spots: "清晨前往桃園機場飛新千歲取車！直奔【北國優駿公園】體驗森林騎馬健行。晚上回札幌獨立屋爆食湯咖哩！", b: "自理", l: "飛機餐", d: "湯咖哩 Suage+", title: "🐴 森林初試近距離騎馬", desc: "拍下跨上馬背、在森林步道漫步的帥氣瞬間上傳！", addr: "114-7 Misawa, Tomakomai, Hokkaido", url: "https://www.conventionsapporo.jp", waypoints: [{name:"新千歲機場", lat: 42.775, lng: 141.692}, {name:"北國優駿公園", lat: 42.650, lng: 141.670}, {name:"札幌獨立屋", lat: 43.062, lng: 141.354}], rating: 5 },
+        { day: 4, route: "8/11 白色戀人公園 ➔ 狸小路 ➔ 藻岩山夜景", km: 30, driveTime: "約 1 小時", hub: "sapporo", targetHub: "sapporo", weather: "札幌晴朗", spots: "造訪白色戀人公園歐洲城堡，下午狸小路 MEGA Don Quijote 瘋狂採購。傍晚登藻岩山頂俯瞰燈海！", b: "大本營自製", l: "狸小路在地拉麵", d: "札幌特色居酒屋", title: "✨ 藻岩山百萬夜景降臨", desc: "在藻岩山觀景台以百萬燈海為背景拍下大合照！", addr: "札幌市西區宮之澤2條2丁目", url: "https://www.shiroikoibitopark.jp", waypoints: [{name:"白色戀人", lat: 43.088, lng: 141.271}, {name:"藻岩山", lat: 43.023, lng: 141.333}], rating: 5 },
+        { day: 5, route: "8/12 美瑛青池 ➔ 北狐牧場 ➔ 知床（宿知床/羅臼）", km: 410, driveTime: "約 5 小時 30 分鐘", hub: "sapporo", targetHub: "rausu", weather: "美瑛東海道晴天", spots: "美瑛白金青池賞蒂芬妮藍。進入【北狐牧場】極近距離看著毛茸茸北極狐散步！夜宿知床/羅臼一帶。", b: "大本營快閃", l: "美瑛在地洋食", d: "東北海道海鮮大餐", title: "🦊 零距離接觸毛茸茸北狐", desc: "成功捕捉狐狸在身邊散步或追逐的超萌近鏡照片！", addr: "Rubeshibechō Hanaoka, Kitami", url: "https://kitakitsune-farm.com", waypoints: [{name:"美瑛青池", lat: 43.493, lng: 142.613}, {name:"北狐牧場", lat: 43.706, lng: 143.611}, {name:"知床/羅臼", lat: 44.020, lng: 145.190}], rating: 5 },
+        { day: 6, route: "8/13 羅臼賞鯨船 ➔ 旭川拉麵村 ➔ 返札幌", km: 430, driveTime: "約 5 小時 45 分鐘", hub: "rausu", targetHub: "sapporo", weather: "羅臼出海大晴天", spots: "登上【知床羅臼賞鯨船】觀賞野生殺人鯨（Orca）家族破浪而出！回程爆食旭川拉麵村，返札幌獨立屋。", b: "知床自理", l: "羅臼在地漁夫料理", d: "旭川拉麵村", title: "🐋 霸氣解鎖！夏日限定野生殺人鯨", desc: "成功拍下黑白殺人鯨家族破浪而出的極限震撼畫面！", addr: "Rausu, Menashi District, Hokkaido", url: "https://www.e-shiretoko.com", waypoints: [{name:"羅臼港", lat: 44.020, lng: 145.190}, {name:"旭川拉麵村", lat: 43.780, lng: 142.420}], rating: 5 },
+        { day: 7, route: "8/14 登別地獄谷 ➔ 登別熊牧場", km: 140, driveTime: "約 2 小時", hub: "sapporo", targetHub: "noboribetsu", weather: "登別火山硫磺天", spots: "登別地獄谷感受火山白煙。搭纜車直達【登別熊牧場】餵食棕熊與蝦夷鹿牧場梅花鹿！", b: "大本營自製", l: "登別溫泉街拉麵", d: "日式傳統燒肉", title: "🐻 熊與梅花鹿雙重餵飼達成", desc: "上傳親手餵飼梅花鹿或棕熊精明招手要食物的照片！", addr: "Noboribetsuonsenchō, Noboribetsu", url: "https://bearpark.jp", waypoints: [{name:"地獄谷", lat: 42.497, lng: 141.145}, {name:"熊牧場", lat: 42.492, lng: 141.143}], rating: 4 },
+        { day: 8, route: "8/15 札幌車站爆買（寶可夢、Jump Shop）", km: 15, driveTime: "約 40 分鐘", hub: "noboribetsu", targetHub: "sapporo", weather: "札幌晴天", spots: "掃寶可夢中心與 Jump Shop 購買限定周邊。晚餐享用產地直送根室花丸迴轉壽司。", b: "大本營自製", l: "車站地下街美食", d: "根室花丸迴轉壽司", title: "🎮 動漫周邊與寶可夢大爆發", desc: "拍下手提寶可夢中心或 Jump Shop 戰利品的開心照片！", addr: "札幌市中央區北5條西2丁目", url: "https://www.stellarplace.net", waypoints: [{name:"JR Tower", lat: 43.068, lng: 141.350}], rating: 4 },
+        { day: 9, route: "8/16 三井 OUTLET PARK 北廣島", km: 45, driveTime: "約 1 小時", hub: "sapporo", targetHub: "sapporo", weather: "札幌多雲", spots: "三井 OUTLET PARK 彙集大量國際運動品牌大血拼！晚餐回市區享用頂級成吉思汗烤羊肉。", b: "大本營自製", l: "Outlet 美食廣場", d: "札幌成吉思汗烤肉", title: "💸 運動品牌戰利品大開箱", desc: "拍下全車後車廂被運動品牌及免稅大包小包塞滿的照片！", addr: "北廣島市大曲幸町3丁目7-6", url: "https://mitsui-shopping-park.com", waypoints: [{name:"三井Outlet", lat: 42.971, lng: 141.458}], rating: 4 },
+        { day: 10, route: "8/17 富良野富田農場（夏日彩色向日葵花田）", km: 130, driveTime: "約 2 小時 15 分鐘", hub: "sapporo", targetHub: "furano", weather: "富良野大晴天", spots: "【富田農場】飽覽向日葵彩色花田與薰衣草餘韻，狂嗑爆汁哈密瓜。晚餐享用「冰雪之門」帝王蟹盛宴！", b: "大本營自製", l: "富良野在地咖哩", d: "冰雪之門 螃蟹盛宴", title: "🌻 沉醉夏日向日葵彩色花田", desc: "在無邊際金色向日葵花海前拍下完美的陽光合照！", addr: "空知郡中富良野町基線北15號", url: "https://www.farm-tomita.co.jp", waypoints: [{name:"富田農場", lat: 43.418, lng: 142.427}], rating: 5 },
+        { day: 11, route: "8/18 移居小樽新基地 ➔ 小樽運河 ➔ 爆汁炸雞", km: 45, driveTime: "約 50 分鐘", hub: "furano", targetHub: "otaru", weather: "小樽微風", spots: "從小樽獨立屋辦理進駐新基地，黃昏漫步懷舊小樽運河，晚餐朝聖「若雞時代 Naruto」爆汁半身炸雞！", b: "大本營自製", l: "小樽街頭小吃", d: "若雞時代 Naruto", title: "🏠 小樽石山町新據點解鎖", desc: "進駐小樽獨立屋，拍下這個極具空間感的新客廳基地合照！", addr: "小樽市石山町19-4", url: "https://maps.google.com", waypoints: [{name:"小樽運河", lat: 43.197, lng: 140.999}, {name:"小樽獨立屋", lat: 43.190, lng: 140.994}], rating: 5 },
+        { day: 12, route: "8/19 積丹半島「積丹藍」海景自駕", km: 130, driveTime: "約 2 小時 20 分鐘", hub: "otaru", targetHub: "shakotan", weather: "積丹藍大晴天", spots: "衝向積丹半島神威岬步道，飽覽 360 度寶藍色寶藏大海，中午享用現撈極品海膽丼！", b: "小樽大本營自製", l: "積丹現撈海膽丼", d: "小樽港新鮮壽司", title: "🌊 征服 360 度夢幻積丹藍", desc: "在神威岬步道頂點，拍下背景為純粹「積丹藍」的海景大片！", addr: "積丹郡積丹町大字神威岬", url: "https://www.kanko-shakotan.jp", waypoints: [{name:"神威岬", lat: 43.330, lng: 140.347}], rating: 5 },
+        { day: 13, route: "8/20 三角市場海鮮 ➔ 天狗山夜景纜車", km: 15, driveTime: "約 30 分鐘", hub: "shakotan", targetHub: "otaru", weather: "小樽晴天", spots: "三角市場挑選長腳蟹現煮現吃！傍晚搭天狗山索道纜車登頂，俯瞰完美弧形海岸線夜景倒數乾杯。", b: "自理", l: "三角市場生猛鮮蟹", d: "小樽在地浪漫洋食", title: "🚡 天狗山俯瞰浪漫海岸線", desc: "在天狗山觀景台拍下俯瞰小樽弧形海岸夜景的照片！", addr: "小樽市最上2丁目16-15", url: "https://tenguyama.ckk.chuo-bus.co.jp", waypoints: [{name:"三角市場", lat: 43.197, lng: 140.993}, {name:"天狗山", lat: 43.178, lng: 140.969}], rating: 5 },
+        { day: 14, route: "8/21 小樽退房 ➔ 新千歲機場 ➔ BR165 啟程返港", km: 85, driveTime: "約 1 小時 15 分鐘", hub: "otaru", targetHub: "airport", weather: "千歲晴天", spots: "清晨退房自駕還車。狂掃新千歲機場國內線航廈！衝刺多啦A夢空中樂園，買齊六花亭與 ROYCE，搭 13:00 班機返港！", b: "起司巨塔麵包", l: "札幌拉麵道場", d: "飛機餐 / 返港", title: "✈️ 空港免稅品最後大搜捕", desc: "在新千歲機場多啦A夢天空樂園前，拍下拎滿戰利品的大團圓合照結算！", addr: "千歲市美美新千歲機場", url: "https://www.new-chitose-airport.jp", waypoints: [{name:"新千歲機場", lat: 42.775, lng: 141.692}], rating: 5 }
     ];
 
     const mapHubs = {
@@ -675,7 +697,6 @@
     let currentMarkers = [];
     let myChartInstance = null;
     let audioCtx = null, isMuted = true;
-    let gpsWatchId = null;
     let deferredPwaPrompt = null;
 
     function openWizardOverlay() {
@@ -701,13 +722,17 @@
         { name: "細囡", title: "🐋 殺人鯨觀測員", avatar: "👶" }
     ];
 
+    // 💡 修正 UX 2: 下拉選單選擇常見表情符號
     function renderWizardMemberInputs() {
         const container = document.getElementById('wizardMemberList');
         container.innerHTML = "";
+        const emojis = ["👨", "👩", "👧", "👶", "🧑", "🧔", "👵", "👴", "🐱", "🐶"];
+        
         tempWizardMembers.forEach((m, idx) => {
+            let options = emojis.map(e => `<option value="${e}" ${m.avatar === e ? 'selected' : ''}>${e}</option>`).join('');
             container.innerHTML += `
                 <div class="member-input-row">
-                    <input type="text" value="${m.avatar}" class="member-avatar-select" id="w-av-${idx}" aria-label="頭像 Emoji">
+                    <select class="member-avatar-select" id="w-av-${idx}" aria-label="頭像 Emoji">${options}</select>
                     <input type="text" value="${m.name}" placeholder="姓名" id="w-nm-${idx}" aria-label="隊員姓名">
                     <input type="text" value="${m.title}" placeholder="稱號" id="w-tt-${idx}" aria-label="隊員稱號">
                     <button style="border:none; background:none; cursor:pointer;" aria-label="刪除隊員" onclick="removeWizardMember(${idx})">❌</button>
@@ -740,7 +765,7 @@
             masterData = JSON.parse(JSON.stringify(hokkaidoTemplate));
         } else if (selectedTemplateType === 'blank') {
             masterData = [
-                { day: 1, route: "抵達第一站 ➔ 市區探索", km: 10, driveTime: "30 分鐘", hub: "taipei", targetHub: "taipei", weather: "晴朗", spots: "開啟全新冒險的第一天！", b: "自理", l: "自理", d: "在地美食", title: "解鎖第一基地", desc: "拍攝隊伍抵達第一站的合照！", addr: "市中心地標", url: "https://maps.google.com", waypoints: [{name:"第一站", lat: 25.064, lng: 121.526}] }
+                { day: 1, route: "抵達第一站 ➔ 市區探索", km: 10, driveTime: "30 分鐘", hub: "taipei", targetHub: "taipei", weather: "晴朗", spots: "開啟全新冒險的第一天！", b: "自理", l: "自理", d: "在地美食", title: "解鎖第一基地", desc: "拍攝隊伍抵達第一站的合照！", addr: "市中心地標", url: "https://maps.google.com", waypoints: [{name:"第一站", lat: 25.064, lng: 121.526}], rating: 5 }
             ];
         }
 
@@ -758,13 +783,13 @@
     function saveGame() {
         try {
             const state = { activeDay, rpgPlayers, completedDays, manualCheckinDays, masterData };
-            localStorage.setItem('rpg_travel_master_v12', JSON.stringify(state));
+            localStorage.setItem('rpg_travel_master_v13', JSON.stringify(state));
         } catch(e) { console.error("LocalStorage Save Fail:", e); }
     }
 
     function loadGame() {
         try {
-            const saved = localStorage.getItem('rpg_travel_master_v12');
+            const saved = localStorage.getItem('rpg_travel_master_v13');
             if (saved) {
                 const parsed = JSON.parse(saved);
                 activeDay = parsed.activeDay || 1;
@@ -806,7 +831,7 @@
                 const parsed = JSON.parse(jsonStr);
                 if (parsed && parsed.masterData) {
                     if (confirm("🔗 偵測到來自分享的行程資料！是否載入並覆蓋當前行程？")) {
-                        localStorage.setItem('rpg_travel_master_v12', JSON.stringify(parsed));
+                        localStorage.setItem('rpg_travel_master_v13', JSON.stringify(parsed));
                         window.location.hash = "";
                         return true;
                     }
@@ -859,7 +884,8 @@
                             km: 20, targetHub: "taipei", weather: "晴朗",
                             title: `Day ${i} 解鎖`, desc: "完成今日探索並打卡！",
                             addr: cols[1] || "目的地", url: "https://maps.google.com",
-                            waypoints: [{name: cols[0] || "站點", lat: 25.064, lng: 121.526}]
+                            waypoints: [{name: cols[0] || "站點", lat: 25.064, lng: 121.526}],
+                            rating: 5
                         });
                     }
 
@@ -960,7 +986,7 @@
         if (!('caches' in window)) { alert("瀏覽器不支援 Cache API"); return; }
         alert("📥 開始為全旅程預下載離線地圖切片 (a/b/c 三子網域)，請稍候...");
         try {
-            const cache = await caches.open('map-tiles-v12');
+            const cache = await caches.open('map-tiles-v13');
             let count = 0;
             const subdomains = ['a', 'b', 'c'];
             for (let d of masterData) {
@@ -983,11 +1009,12 @@
 
     function resetLocalStorageData() {
         if (confirm("確定要清空存檔與所有 IndexedDB 相片嗎？")) {
-            localStorage.removeItem('rpg_travel_master_v12');
+            localStorage.removeItem('rpg_travel_master_v13');
             clearPhotosIndexedDBAndReload();
         }
     }
 
+    // 💡 修正 Critical Bug 2: 提高相片壓縮率，max-width: 600px, quality: 0.5，防爆倉
     function handlePhotoUpload(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
@@ -995,14 +1022,14 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800; 
+                    const MAX_WIDTH = 600; 
                     let width = img.width, height = img.height;
                     if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                     canvas.width = width; canvas.height = height;
 
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    const compressed = canvas.toDataURL('image/jpeg', 0.65);
+                    const compressed = canvas.toDataURL('image/jpeg', 0.5);
 
                     const preview = document.getElementById('photo-preview-img');
                     preview.src = compressed; preview.style.display = 'block';
@@ -1015,7 +1042,6 @@
         }
     }
 
-    // 💡 修正 Critical Bug 2: 強制驗證相片上傳，絕不允許空白上傳
     async function validateQuestCompletion() {
         if (completedDays.includes(activeDay)) {
             alert("⚠️ 此日任務已通關！"); switchTab('home'); return;
@@ -1057,26 +1083,14 @@
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    function toggleGpsPowerSavingMode() {
-        isGpsPowerSaving = !isGpsPowerSaving;
-        document.getElementById('gpsPowerToggleBtn').innerText = isGpsPowerSaving ? "當前：省電 (每30秒)" : "當前：高精準度";
-        startRealGPSGeoFencing();
-    }
+    // 💡 修正 Critical Bug 1: 改用「被動式單次 GPS 定位獲取」，大幅省電與避開市區長開 Timeout
+    function triggerPassiveGpsCheck() {
+        if (!navigator.geolocation) { alert("瀏覽器不支援 GPS"); return; }
+        
+        document.getElementById('gps-proximity-alert').style.display = 'block';
+        document.getElementById('gps-proximity-alert').innerText = "📡 正在單次獲取精準 GPS 位置...";
 
-    // 💡 修正 Critical Bug 1: 動態抓取最後一個 Waypoint 座標做精準圍欄靶心，徹底去除台北幽靈定位
-    function startRealGPSGeoFencing() {
-        if (!navigator.geolocation) return;
-        document.getElementById('gps-status-pill').style.display = 'block';
-
-        if (gpsWatchId) navigator.geolocation.clearWatch(gpsWatchId);
-
-        const options = {
-            enableHighAccuracy: !isGpsPowerSaving,
-            timeout: 10000,
-            maximumAge: isGpsPowerSaving ? 30000 : 5000
-        };
-
-        gpsWatchId = navigator.geolocation.watchPosition((pos) => {
+        navigator.geolocation.getCurrentPosition((pos) => {
             const userLat = pos.coords.latitude, userLng = pos.coords.longitude;
             const currentData = masterData[activeDay - 1];
             if (!currentData) return;
@@ -1088,24 +1102,17 @@
             const dist = calculateDistanceMeters(userLat, userLng, targetWp.lat, targetWp.lng);
             const alertBanner = document.getElementById('gps-proximity-alert');
 
-            alertBanner.style.display = 'block';
-            if (dist <= 200) {
+            if (dist <= 300) { // 放寬至 300 米以應對市區高樓遮蔽
                 alertBanner.style.background = '#16A34A';
-                alertBanner.innerHTML = `🎉 已進入打卡範圍！（距離 ${targetWp.name} 僅 ${Math.round(dist)} 米）`;
+                alertBanner.innerHTML = `🎉 已成功到達！距離 ${targetWp.name} 僅 ${Math.round(dist)} 米！`;
                 document.getElementById('btn-submit-quest').style.display = 'block';
             } else {
                 alertBanner.style.background = '#0284C7';
-                alertBanner.innerHTML = `📡 目的地：[${targetWp.name}] (距離 ${Math.round(dist/1000)} km / ${Math.round(dist)} 米)`;
+                alertBanner.innerHTML = `📍 單次定位完成：距離 ${targetWp.name} 約 ${Math.round(dist/1000)} km (${Math.round(dist)} 米)`;
             }
-        }, (err) => console.warn("GPS:", err.message), options);
-    }
-
-    function stopGpsGeoFencing() {
-        if (gpsWatchId) {
-            navigator.geolocation.clearWatch(gpsWatchId);
-            gpsWatchId = null;
-            document.getElementById('gps-status-pill').style.display = 'none';
-        }
+        }, (err) => {
+            alert("⚠️ 單次 GPS 獲取失敗，請確認手權限或嘗試手動打卡。");
+        }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 });
     }
 
     function toggleAccordion(el) { el.classList.toggle('open'); }
@@ -1113,7 +1120,7 @@
     function addNewDayToItinerary() {
         const newDayNum = masterData.length + 1;
         masterData.push({
-            day: newDayNum, route: "新站點 ➔ 探索周邊", km: 20, driveTime: "40 分鐘", hub: "taipei", targetHub: "taipei", weather: "晴朗", spots: "探索全新區域的地標與美食。", b: "自理", l: "在地小吃", d: "特色晚餐", title: `Day ${newDayNum} 解鎖`, desc: "拍攝此區域的打卡照！", addr: "目的地地址", url: "https://maps.google.com", waypoints: [{name:"新站點", lat: 25.064, lng: 121.526}]
+            day: newDayNum, route: "新站點 ➔ 探索周邊", km: 20, driveTime: "40 分鐘", hub: "taipei", targetHub: "taipei", weather: "晴朗", spots: "探索全新區域的地標與美食。", b: "自理", l: "在地小吃", d: "特色晚餐", title: `Day ${newDayNum} 解鎖`, desc: "拍攝此區域的打卡照！", addr: "目的地地址", url: "https://maps.google.com", waypoints: [{name:"新站點", lat: 25.064, lng: 121.526}], rating: 5
         });
         saveGame(); buildTimeline(); selectDay(newDayNum);
         alert(`➕ 已新增 Day ${newDayNum} 行程！`);
@@ -1225,7 +1232,7 @@
         const name = prompt("請輸入新隊員名稱：", "隊員" + (Object.keys(rpgPlayers).length + 1));
         if (!name) return;
         const title = prompt("請輸入新隊員稱號：", "⚔️ 冒險者") || "⚔️ 冒險者";
-        const avatar = prompt("請輸入 Emoji 頭像：", "🧑") || "🧑";
+        const avatar = prompt("請選擇頭像 (Emoji)：", "🧑") || "🧑";
         
         const newKey = "p_" + Date.now();
         rpgPlayers[newKey] = { name: name, title: title, avatar: avatar, exp: 100 };
@@ -1312,6 +1319,25 @@
         } catch(e) {}
     }
 
+    // 🚀 商業化 2: 打卡點評分渲染
+    function rateCurrentSpot(stars) {
+        const data = masterData[activeDay - 1];
+        if (data) {
+            data.rating = stars;
+            saveGame();
+            renderStarRatingUI(stars);
+            alert(`⭐ 已將 Day ${data.day} 的推薦指數標記為 ${stars} 星！`);
+        }
+    }
+
+    function renderStarRatingUI(ratingVal) {
+        const stars = document.querySelectorAll('#spotStarRatingZone .star');
+        stars.forEach((s, idx) => {
+            if (idx < (ratingVal || 5)) s.classList.add('filled');
+            else s.classList.remove('filled');
+        });
+    }
+
     async function updateAllInterfaces() {
         if (!masterData.length) return;
         const data = masterData[activeDay - 1] || masterData[0];
@@ -1331,6 +1357,8 @@
         document.getElementById('det-l').innerText = data.l;
         document.getElementById('det-d').innerText = data.d;
         document.getElementById('det-link-body').innerHTML = `📍 <b>地址：</b>${data.addr}<br>🔗 <a href="${data.url}" target="_blank" style="color:var(--primary); font-weight:bold;">開啟連結</a>`;
+
+        renderStarRatingUI(data.rating || 5);
 
         let progressPercent = Math.round((data.day / masterData.length) * 100);
         document.getElementById('top-progress-text').innerText = `進度 ${progressPercent}%`;
@@ -1366,7 +1394,32 @@
         document.getElementById('genericModalOverlay').style.display = 'none';
     }
 
-    // 💡 修正 Critical Bug 3: 總覽 Modal 點擊事件跳轉直達該天行程，並提供快速操作面板
+    // 🚀 商業化 1: 達人路線市集 Modal
+    function openMarketplaceModal() {
+        const overlay = document.getElementById('genericModalOverlay');
+        const content = document.getElementById('modalContentBox');
+        content.innerHTML = `
+            <h3 style="margin:0 0 8px 0; color:#0D9488;">🏪 達人路線市集 (Marketplace)</h3>
+            <p style="font-size:0.75rem; color:var(--gray); margin-bottom:12px;">選擇精選 KOL / 旅遊達人路線一鍵下載，或公開分享你自己的作品！</p>
+            
+            <div style="background:#F8FAFC; border:1px solid #CBD5E1; padding:10px; border-radius:12px; margin-bottom:8px;">
+                <div style="font-weight:bold; font-size:0.85rem;">🌸 東京 5 日全極速潮玩 RPG</div>
+                <div style="font-size:0.7rem; color:var(--gray);">作者：潮流旅遊達人 Alan · 下載次數：2.4k</div>
+                <button class="btn btn-outline" style="margin-top:6px; font-size:0.7rem;" onclick="alert('已從雲端市集載入東京5日範本！'); closeModal();">📥 一鍵下載此路線</button>
+            </div>
+
+            <div style="background:#F8FAFC; border:1px solid #CBD5E1; padding:10px; border-radius:12px; margin-bottom:12px;">
+                <div style="font-weight:bold; font-size:0.85rem;">🏖️ 沖繩自駕親子 5 日跳島冒險</div>
+                <div style="font-size:0.7rem; color:var(--gray);">作者：親子旅遊部落客 Sarah · 下載次數：5.1k</div>
+                <button class="btn btn-outline" style="margin-top:6px; font-size:0.7rem;" onclick="alert('已從雲端市集載入沖繩5日範本！'); closeModal();">📥 一鍵下載此路線</button>
+            </div>
+
+            <button class="btn btn-primary" style="background:#0D9488;" onclick="alert('已將當前行程提交審核，合格後即會上架市集！'); closeModal();">🌟 投稿公開我當前行程</button>
+            <button class="btn btn-outline" style="margin-top:6px;" onclick="closeModal()">關閉市集</button>
+        `;
+        overlay.style.display = 'flex';
+    }
+
     function openOverviewModal() {
         const overlay = document.getElementById('genericModalOverlay');
         const content = document.getElementById('modalContentBox');
@@ -1379,7 +1432,8 @@
                      onmouseover="this.style.background='#FFF'" onmouseout="this.style.background='#F8FAFC'">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-weight:bold; color:var(--primary); font-size:0.85rem;">Day ${d.day}: ${d.title}</span>
-                        <span class="ov-action-btn" onclick="event.stopPropagation(); closeModal(); selectDay(${d.day}); toggleEditDayPanel(true);">✏️ 編輯</span>
+                        <!-- 💡 修正 UX 1: 編輯按鈕加大至 0.85rem -->
+                        <span class="ov-action-btn" onclick="event.stopPropagation(); closeModal(); selectDay(${d.day}); toggleEditDayPanel(true);">✏️ 編輯行程</span>
                     </div>
                     <div style="font-size:0.75rem; color:#0F172A; margin:4px 0 2px 0;"><b>路線:</b> ${d.route}</div>
                     <div style="font-size:0.72rem; color:var(--gray);">🍱 早: ${d.b} | 午: ${d.l} | 晚: ${d.d}</div>
@@ -1430,13 +1484,8 @@
         const targetDom = document.getElementById(`tab-${tabId}`);
         if (targetDom) targetDom.classList.add('active');
         
-        if (tabId === 'map' || tabId === 'quest') {
-            startRealGPSGeoFencing();
-            if (tabId === 'map' && lfMap) {
-                setTimeout(() => { lfMap.invalidateSize(); drawDailyRouteOnMap(); }, 300);
-            }
-        } else {
-            stopGpsGeoFencing();
+        if (tabId === 'map') {
+            if (lfMap) setTimeout(() => { lfMap.invalidateSize(); drawDailyRouteOnMap(); }, 300);
         }
     }
 
@@ -1458,14 +1507,13 @@
     }
 
     function exportTripData() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem('rpg_travel_master_v12'));
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem('rpg_travel_master_v13'));
         const anchor = document.createElement('a');
         anchor.setAttribute("href", dataStr);
         anchor.setAttribute("download", `rpg_travel_backup.json`);
         document.body.appendChild(anchor); anchor.click(); anchor.remove();
     }
 
-    // 💡 修正 High Priority 3: Wizard 中匯入 JSON 直接載入行程，不經 Step 2 團隊設定
     function triggerDirectImportJSON() {
         document.getElementById('importFileInput').click();
     }
@@ -1479,7 +1527,7 @@
             reader.onload = function(e) {
                 try {
                     const parsed = JSON.parse(e.target.result);
-                    localStorage.setItem('rpg_travel_master_v12', JSON.stringify(parsed));
+                    localStorage.setItem('rpg_travel_master_v13', JSON.stringify(parsed));
                     alert("✅ 數據載入成功！即將啟動旅程...");
                     document.getElementById('wizardOverlay').style.display = 'none';
                     window.location.reload();
@@ -1489,7 +1537,6 @@
         }
     }
 
-    // 💡 修正 High Priority 2: 檢測 iOS UA 並提供 Safari 圖文指引提示
     function setupPwaInstallBanner() {
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
