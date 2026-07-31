@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 北海道冒險作戰中心 - RPG Travel Master 11.0 Ultimate</title>
+    <title>🎮 北海道冒險作戰中心 - RPG Travel Master 12.0 Ultimate Fix</title>
     
     <link rel="manifest" href='data:application/json,{"name":"RPG Travel Master","short_name":"冒險中心","start_url":".","display":"standalone","background_color":"#87CEEB","theme_color":"#4FC3F7","orientation":"portrait","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -93,11 +93,13 @@
         .member-input-row input { flex: 1; padding: 6px 8px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.8rem; }
         .member-avatar-select { width: 45px; padding: 6px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.9rem; text-align: center; }
 
+        /* PWA 安裝提示條 */
         .pwa-install-banner {
-            display: none; background: #0F172A; color: white; padding: 8px 12px;
+            display: none; background: #0F172A; color: white; padding: 10px 12px;
             font-size: 0.75rem; font-weight: bold; align-items: center; justify-content: space-between;
+            border-bottom: 2px solid #38BDF8;
         }
-        .pwa-install-btn { background: #38BDF8; color: #0F172A; border: none; padding: 4px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .pwa-install-btn { background: #38BDF8; color: #0F172A; border: none; padding: 5px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
         .rpg-header {
             background: linear-gradient(135deg, #38BDF8, #81D4FA); color: #0F172A;
@@ -138,7 +140,6 @@
             border-radius: 18px; padding: 12px 10px; text-align: center; cursor: pointer; position: relative; 
         }
         
-        /* 💡 放大至 32px 防誤觸刪除按鈕 (Bug 6 修正) */
         .player-card-del-btn {
             position: absolute; top: 6px; right: 6px; background: rgba(220,38,38,0.12); 
             color: #DC2626; border: none; border-radius: 50%; width: 32px; height: 32px;
@@ -227,7 +228,6 @@
 
         .edit-input-field { width: 100%; padding: 6px 8px; margin-bottom: 6px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.8rem; }
         
-        /* Modal 通用大圖與總覽彈窗 */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(15, 23, 42, 0.75); z-index: 2000; display: none;
@@ -245,15 +245,13 @@
 <div class="sky-cloud cloud2">☁️</div>
 <div class="sky-cloud cloud3">☁️</div>
 
-<!-- 全局通用 Modal（大圖檢視與總覽模式，Bug 8 & 9 修正） -->
 <div class="modal-overlay" id="genericModalOverlay" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()" id="modalContentBox"></div>
 </div>
 
 <div class="phone-container" role="main">
-    <!-- PWA 安裝提示條 -->
     <div class="pwa-install-banner" id="pwaInstallBanner">
-        <span>📲 將「冒險中心」加至手機主頁面</span>
+        <span id="pwaBannerText">📲 將「冒險中心」加至手機主頁面</span>
         <button class="pwa-install-btn" id="pwaInstallBtn">立即安裝</button>
     </div>
 
@@ -272,9 +270,10 @@
                 <div class="template-title"><span>⚡ 自建全新空白冒險</span><span>自訂</span></div>
                 <div class="template-desc">從 Day 1 開始自訂你的目的地、任務、美食與景點。</div>
             </div>
-            <div class="template-card" tabindex="0" role="button" aria-label="匯入 JSON 檔" onclick="triggerImportJSON()">
+            <!-- 💡 修正 High Priority 3: 獨立 JSON 匯入流程，避免空開局事故 -->
+            <div class="template-card" tabindex="0" role="button" aria-label="匯入 JSON 檔" onclick="triggerDirectImportJSON()">
                 <div class="template-title"><span>📥 匯入好友的冒險 JSON 檔</span><span>檔案</span></div>
-                <div class="template-desc">載入已匯出的 `.json` 行程備份。</div>
+                <div class="template-desc">載入已匯出的 `.json` 行程備份並直接開始旅程。</div>
             </div>
             <button class="btn btn-primary" style="margin-top: 15px;" aria-label="下一步設定隊伍" onclick="goToWizardStep(2)">下一步：設定隊伍成員 ➔</button>
         </div>
@@ -339,9 +338,7 @@
     <div id="tab-map" class="tab-content" role="tabpanel">
         <div class="map-timeline-wrapper">
             <div class="map-timeline" id="map-timeline-bar" role="tablist" aria-label="日期時間軸"></div>
-            <!-- 💡 修正 3：明確改為「回到 Day 1」標籤 -->
             <button class="btn-today-jump" onclick="jumpToFirstDay()">📍 回到 Day 1</button>
-            <!-- 💡 修正 8：新增「總覽模式」按鈕 -->
             <button class="btn-today-jump" style="background:#0369A1;" onclick="openOverviewModal()">📋 總覽</button>
         </div>
 
@@ -380,7 +377,6 @@
             </div>
         </div>
 
-        <!-- 💡 修正 4：編輯當天行程面板（新增 Waypoints Lat/Lng 座標輸入） -->
         <div class="info-card" id="editDayItineraryPanel" style="display:none; background:#F8FAFC; border:1px dashed #0284C7;">
             <h4 style="margin:0 0 8px 0;">✏️ 編輯 Day <span id="editDayNumLabel">1</span> 細節與地圖座標</h4>
             <input type="text" class="edit-input-field" id="editInputRoute" placeholder="路線描述">
@@ -399,7 +395,6 @@
             </div>
         </div>
 
-        <!-- 💡 修正 7：調換日序與刪除當日行程控制列 -->
         <div style="display:flex; gap:6px; margin-bottom:6px;">
             <button class="btn btn-outline" style="flex:1;" onclick="toggleEditDayPanel(true)">✏️ 編輯當日</button>
             <button class="btn btn-outline" style="flex:1;" onclick="moveDayOrder(-1)">⬆️ 上移</button>
@@ -514,11 +509,11 @@
 </div>
 
 <script>
-    // IndexedDB 相簿資料庫與單張刪除支援 (Bug 9 修正)
+    // IndexedDB 相簿資料庫與單張刪除支援
     function openImageDB() {
         return new Promise((resolve, reject) => {
             try {
-                const request = indexedDB.open("TravelAppPhotosDB_v11", 1);
+                const request = indexedDB.open("TravelAppPhotosDB_v12", 1);
                 request.onupgradeneeded = (e) => {
                     const db = e.target.result;
                     if (!db.objectStoreNames.contains("photos")) {
@@ -552,7 +547,6 @@
         } catch(e) { return []; }
     }
 
-    // 💡 單張照片刪除
     async function deleteSinglePhotoFromIndexedDB(id) {
         try {
             const db = await openImageDB();
@@ -565,7 +559,6 @@
         } catch(e) {}
     }
 
-    // 💡 靜默清空 IndexedDB（專供開局嚮導使用，不跳出的 Confirm、不崩潰，Bug 1 修正）
     async function silentClearPhotosIndexedDB() {
         try {
             const db = await openImageDB();
@@ -585,7 +578,7 @@
     function registerRealOfflineServiceWorker() {
         if ('serviceWorker' in navigator) {
             const swScript = `
-                const CACHE_NAME = 'travel-rpg-v11';
+                const CACHE_NAME = 'travel-rpg-v12';
                 const ASSETS = [
                     './',
                     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
@@ -604,7 +597,7 @@
                             return fetch(e.request).then(res => {
                                 if (e.request.url.includes('tile.openstreetmap.org')) {
                                     const resClone = res.clone();
-                                    caches.open('map-tiles-v11').then(c => c.put(e.request, resClone));
+                                    caches.open('map-tiles-v12').then(c => c.put(e.request, resClone));
                                 }
                                 return res;
                             });
@@ -652,7 +645,7 @@
     let activeDay = 1;
     let currentUploadedPhotoUrl = ""; 
     let completedDays = []; 
-    let manualCheckinDays = []; // 💡 修正 2: 手動打卡持久化數組
+    let manualCheckinDays = []; 
     let rpgPlayers = {};
     let isGpsPowerSaving = false;
 
@@ -713,7 +706,6 @@
         renderWizardMemberInputs();
     }
 
-    // 💡 修正 1: Wizard 完結後，靜默清空照片、不叫 Confirm、不 Reload，流暢啟動！
     async function finishWizardAndStart() {
         rpgPlayers = {};
         tempWizardMembers.forEach((_, idx) => {
@@ -732,7 +724,7 @@
         }
 
         activeDay = 1; completedDays = []; manualCheckinDays = [];
-        await silentClearPhotosIndexedDB(); // 靜默清空
+        await silentClearPhotosIndexedDB();
         saveGame();
         
         document.getElementById('wizardOverlay').style.display = 'none';
@@ -745,13 +737,13 @@
     function saveGame() {
         try {
             const state = { activeDay, rpgPlayers, completedDays, manualCheckinDays, masterData };
-            localStorage.setItem('rpg_travel_master_v11', JSON.stringify(state));
+            localStorage.setItem('rpg_travel_master_v12', JSON.stringify(state));
         } catch(e) { console.error("LocalStorage Save Fail:", e); }
     }
 
     function loadGame() {
         try {
-            const saved = localStorage.getItem('rpg_travel_master_v11');
+            const saved = localStorage.getItem('rpg_travel_master_v12');
             if (saved) {
                 const parsed = JSON.parse(saved);
                 activeDay = parsed.activeDay || 1;
@@ -793,7 +785,7 @@
                 const parsed = JSON.parse(jsonStr);
                 if (parsed && parsed.masterData) {
                     if (confirm("🔗 偵測到來自分享的行程資料！是否載入並覆蓋當前行程？")) {
-                        localStorage.setItem('rpg_travel_master_v11', JSON.stringify(parsed));
+                        localStorage.setItem('rpg_travel_master_v12', JSON.stringify(parsed));
                         window.location.hash = "";
                         return true;
                     }
@@ -861,7 +853,6 @@
         }
     }
 
-    // 💡 修正 4: 支援 Waypoints Lat/Lng 座標編輯
     function toggleEditDayPanel(show) {
         const panel = document.getElementById('editDayItineraryPanel');
         if (show) {
@@ -906,7 +897,6 @@
         alert("💾 已儲存此日行程細節與地圖座標！");
     }
 
-    // 💡 修正 7: 行程順序調換與刪除當天
     function moveDayOrder(direction) {
         const index = activeDay - 1;
         const targetIndex = index + direction;
@@ -945,32 +935,35 @@
         }
     }
 
-    // 💡 修正 5: 離線地圖多層級 (Zoom 10-14) 預下載
+    // 💡 修正 High Priority 1: 預下載時同時 Cache a/b/c 網絡 Tile，解決子網域快取不命中問題
     async function prefetchOfflineMapTiles() {
         if (!('caches' in window)) { alert("瀏覽器不支援 Cache API"); return; }
-        alert("📥 開始為全旅程預下載離線地圖切片 (Zoom 10-14)，請稍候...");
+        alert("📥 開始為全旅程預下載離線地圖切片 (a/b/c 三子網域)，請稍候...");
         try {
-            const cache = await caches.open('map-tiles-v11');
+            const cache = await caches.open('map-tiles-v12');
             let count = 0;
+            const subdomains = ['a', 'b', 'c'];
             for (let d of masterData) {
                 if (d.waypoints) {
                     for (let wp of d.waypoints) {
                         for (let z = 10; z <= 14; z++) {
                             const x = Math.floor((wp.lng + 180) / 360 * Math.pow(2, z));
                             const y = Math.floor((1 - Math.log(Math.tan(wp.lat * Math.PI / 180) + 1 / Math.cos(wp.lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, z));
-                            const tileUrl = `https://a.tile.openstreetmap.org/${z}/${x}/${y}.png`;
-                            try { await cache.add(tileUrl); count++; } catch(e){}
+                            for (let s of subdomains) {
+                                const tileUrl = `https://${s}.tile.openstreetmap.org/${z}/${x}/${y}.png`;
+                                try { await cache.add(tileUrl); count++; } catch(e){}
+                            }
                         }
                     }
                 }
             }
-            alert(`✅ 離線地圖預載完成！已快取 ${count} 個區域切片！\n提示：詳細街道請在有網路時開啟瀏覽過一次即可完整快取。`);
+            alert(`✅ 離線地圖預載完成！已覆蓋全子網域，成功快取 ${count} 個切片！`);
         } catch(e) { alert("❌ 預載過程受阻"); }
     }
 
     function resetLocalStorageData() {
         if (confirm("確定要清空存檔與所有 IndexedDB 相片嗎？")) {
-            localStorage.removeItem('rpg_travel_master_v11');
+            localStorage.removeItem('rpg_travel_master_v12');
             clearPhotosIndexedDBAndReload();
         }
     }
@@ -1002,22 +995,28 @@
         }
     }
 
+    // 💡 修正 Critical Bug 2: 強制驗證相片上傳，防止空相片寫入數據污染
     async function validateQuestCompletion() {
         if (completedDays.includes(activeDay)) {
             alert("⚠️ 此日任務已通關！"); switchTab('home'); return;
         }
+        if (!currentUploadedPhotoUrl) {
+            alert("📷 請先上傳現場打卡照片以完成任務！");
+            return;
+        }
+
         const data = masterData[activeDay - 1];
         for (let k in rpgPlayers) { rpgPlayers[k].exp += 200; }
         completedDays.push(activeDay);
         
         await savePhotoToIndexedDB(currentUploadedPhotoUrl, data.day, data.title);
+        currentUploadedPhotoUrl = ""; // 重置照片暫存
         saveGame();
         alert(`✅ Day ${data.day} 任務完成！全體 +200 EXP！`);
         updateAllInterfaces();
         switchTab('home');
     }
 
-    // 💡 修正 2: 手動打卡持久化寫入 manualCheckinDays
     function manualForceCheckin() {
         if (!manualCheckinDays.includes(activeDay)) {
             manualCheckinDays.push(activeDay);
@@ -1027,7 +1026,7 @@
         document.getElementById('gps-proximity-alert').style.background = '#16A34A';
         document.getElementById('gps-proximity-alert').innerHTML = `📍 已解鎖手動座標打卡！`;
         document.getElementById('btn-submit-quest').style.display = 'block';
-        alert("📍 已解鎖座標打卡！請點擊上方按鈕提交任務。");
+        alert("📍 已解鎖座標打卡！請上傳相片後點擊上方按鈕提交任務。");
     }
 
     function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
@@ -1044,6 +1043,7 @@
         startRealGPSGeoFencing();
     }
 
+    // 💡 修正 Critical Bug 1: 改用當日最後一個 Waypoint 做實體靶心，徹底移除台北幽靈座標
     function startRealGPSGeoFencing() {
         if (!navigator.geolocation) return;
         document.getElementById('gps-status-pill').style.display = 'block';
@@ -1061,18 +1061,22 @@
             const currentData = masterData[activeDay - 1];
             if (!currentData) return;
 
-            const targetHub = mapHubs[currentData.targetHub] || mapHubs['taipei'];
-            const dist = calculateDistanceMeters(userLat, userLng, targetHub.lat, targetHub.lng);
+            // 動態抓取最後一個實體 Waypoint
+            const targetWp = (currentData.waypoints && currentData.waypoints.length > 0) 
+                           ? currentData.waypoints[currentData.waypoints.length - 1] 
+                           : { lat: 25.064, lng: 121.526, name: "目的地" };
+
+            const dist = calculateDistanceMeters(userLat, userLng, targetWp.lat, targetWp.lng);
             const alertBanner = document.getElementById('gps-proximity-alert');
 
             alertBanner.style.display = 'block';
             if (dist <= 200) {
                 alertBanner.style.background = '#16A34A';
-                alertBanner.innerHTML = `🎉 已進入打卡範圍！（距離 ${targetHub.name} 僅 ${Math.round(dist)} 米）`;
+                alertBanner.innerHTML = `🎉 已進入打卡範圍！（距離 ${targetWp.name} 僅 ${Math.round(dist)} 米）`;
                 document.getElementById('btn-submit-quest').style.display = 'block';
             } else {
                 alertBanner.style.background = '#0284C7';
-                alertBanner.innerHTML = `📡 目的地：[${targetHub.name}] (距離 ${Math.round(dist/1000)} km / ${Math.round(dist)} 米)`;
+                alertBanner.innerHTML = `📡 目的地：[${targetWp.name}] (距離 ${Math.round(dist/1000)} km / ${Math.round(dist)} 米)`;
             }
         }, (err) => console.warn("GPS:", err.message), options);
     }
@@ -1174,7 +1178,6 @@
         });
     }
 
-    // 💡 修正 3: 明確定位為「回到 Day 1」
     function jumpToFirstDay() {
         activeDay = 1;
         selectDay(activeDay);
@@ -1317,7 +1320,6 @@
         document.getElementById('q-title').innerText = data.title;
         document.getElementById('q-desc').innerText = data.desc;
 
-        // 💡 修正 2: 檢查手動打卡記憶數組，若曾手動打卡，一律還原「完成任務」按鈕！
         if (manualCheckinDays.includes(activeDay)) {
             document.getElementById('btn-submit-quest').style.display = 'block';
         } else {
@@ -1329,7 +1331,6 @@
         await renderAlbumWallAndCarousel();
     }
 
-    // 💡 修正 9: 相簿大圖彈窗與單張刪除
     function openPhotoModal(url, id, name, day) {
         const overlay = document.getElementById('genericModalOverlay');
         const content = document.getElementById('modalContentBox');
@@ -1346,15 +1347,17 @@
         document.getElementById('genericModalOverlay').style.display = 'none';
     }
 
-    // 💡 修正 8: 14 天總覽模式 Modal
+    // 💡 修正 Critical Bug 3: 總覽卡片加入 onclick 直達該天行程！
     function openOverviewModal() {
         const overlay = document.getElementById('genericModalOverlay');
         const content = document.getElementById('modalContentBox');
-        let listHtml = `<h3 style="margin:0 0 10px 0;">📋 全行程 14 天總覽</h3><div style="max-height:60vh; overflow-y:auto;">`;
+        let listHtml = `<h3 style="margin:0 0 10px 0;">📋 全行程 14 天總覽 (點擊跳轉)</h3><div style="max-height:60vh; overflow-y:auto;">`;
         
         masterData.forEach(d => {
             listHtml += `
-                <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:8px; text-align:left;">
+                <div onclick="closeModal(); selectDay(${d.day});" 
+                     style="cursor:pointer; background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:8px; text-align:left; transition:background 0.2s;"
+                     onmouseover="this.style.background='#FFF'" onmouseout="this.style.background='#F8FAFC'">
                     <div style="font-weight:bold; color:var(--primary); font-size:0.85rem;">Day ${d.day}: ${d.title}</div>
                     <div style="font-size:0.75rem; color:#0F172A; margin:2px 0;"><b>路線:</b> ${d.route}</div>
                     <div style="font-size:0.72rem; color:var(--gray);">🍱 早: ${d.b} | 午: ${d.l} | 晚: ${d.d}</div>
@@ -1433,11 +1436,16 @@
     }
 
     function exportTripData() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem('rpg_travel_master_v11'));
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem('rpg_travel_master_v12'));
         const anchor = document.createElement('a');
         anchor.setAttribute("href", dataStr);
         anchor.setAttribute("download", `rpg_travel_backup.json`);
         document.body.appendChild(anchor); anchor.click(); anchor.remove();
+    }
+
+    // 💡 修正 High Priority 3: 獨立 JSON 匯入引導，不強迫進入 Step 2
+    function triggerDirectImportJSON() {
+        document.getElementById('importFileInput').click();
     }
 
     function triggerImportJSON() { document.getElementById('importFileInput').click(); }
@@ -1449,8 +1457,9 @@
             reader.onload = function(e) {
                 try {
                     const parsed = JSON.parse(e.target.result);
-                    localStorage.setItem('rpg_travel_master_v11', JSON.stringify(parsed));
-                    alert("✅ 數據載入成功！即將重新整理...");
+                    localStorage.setItem('rpg_travel_master_v12', JSON.stringify(parsed));
+                    alert("✅ 數據載入成功！即將啟動旅程...");
+                    document.getElementById('wizardOverlay').style.display = 'none';
                     window.location.reload();
                 } catch(err) { alert("❌ JSON 格式不正確。"); }
             };
@@ -1458,25 +1467,43 @@
         }
     }
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPwaPrompt = e;
-        const banner = document.getElementById('pwaInstallBanner');
-        if (banner) banner.style.display = 'flex';
-    });
+    // 💡 修正 High Priority 2: 判斷 iOS Safari UA，動態顯示 iOS PWA 安裝圖文指引
+    function setupPwaInstallBanner() {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
 
-    document.getElementById('pwaInstallBtn')?.addEventListener('click', () => {
-        if (deferredPwaPrompt) {
-            deferredPwaPrompt.prompt();
-            deferredPwaPrompt.userChoice.then(() => {
-                deferredPwaPrompt = null;
-                document.getElementById('pwaInstallBanner').style.display = 'none';
+        if (isStandalone) return; // 已安裝 PWA 則隱藏 Banner
+
+        const banner = document.getElementById('pwaInstallBanner');
+        const btn = document.getElementById('pwaInstallBtn');
+        const text = document.getElementById('pwaBannerText');
+
+        if (isIOS) {
+            banner.style.display = 'flex';
+            text.innerText = "📲 iOS Safari 點擊底欄 「分享 ➔ 加入主畫面」";
+            btn.style.display = 'none'; // iOS 無法由 API 觸發，提示步驟
+        } else {
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPwaPrompt = e;
+                banner.style.display = 'flex';
+            });
+
+            btn?.addEventListener('click', () => {
+                if (deferredPwaPrompt) {
+                    deferredPwaPrompt.prompt();
+                    deferredPwaPrompt.userChoice.then(() => {
+                        deferredPwaPrompt = null;
+                        banner.style.display = 'none';
+                    });
+                }
             });
         }
-    });
+    }
 
     window.onload = function() {
         registerRealOfflineServiceWorker();
+        setupPwaInstallBanner();
         
         const loadedFromURL = checkAndLoadURLHashData();
         const hasData = loadGame();
