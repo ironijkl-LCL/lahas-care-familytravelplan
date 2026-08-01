@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 冒險作戰中心 - RPG Travel Master 13.0 Commercial Release</title>
+    <title>🎮 冒險作戰中心 - RPG Travel Master 13.1 Standalone Complete</title>
     
     <link rel="manifest" href='data:application/json,{"name":"RPG Travel Master","short_name":"冒險中心","start_url":".","display":"standalone","background_color":"#87CEEB","theme_color":"#4FC3F7","orientation":"portrait","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -91,8 +91,6 @@
             background: #F8FAFC; padding: 8px; border-radius: 12px; border: 1px solid #E2E8F0;
         }
         .member-input-row input { flex: 1; padding: 6px 8px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.8rem; }
-        
-        /* 💡 修正 UX 2: 下拉選單選擇常見表情符號 */
         .member-avatar-select { width: 65px; padding: 6px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.9rem; text-align: center; background: white; }
 
         .pwa-install-banner {
@@ -155,8 +153,6 @@
         .player-exp-fill { height: 100%; background: linear-gradient(90deg, #D97706, #EA580C); width: 0%; transition: width 0.3s ease; }
 
         .lb-row { display: flex; justify-content: space-between; padding: 8px 10px; font-size: 0.85rem; font-weight: 500; border-bottom: 1px dashed #E2E8F0; align-items: center; }
-        
-        /* 💡 修正 UX 3: 排行榜第一名改用深色文字，提升色彩對比度 */
         .lb-top { background: linear-gradient(135deg, #F59E0B, #D97706) !important; padding: 10px !important; border-radius: 12px !important; color: #0F172A !important; font-weight: bold; }
 
         .home-photo-carousel { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; scrollbar-width: none; }
@@ -171,13 +167,6 @@
 
         .map-box { width: 100%; height: 270px; border: 3px solid #7dd3fc; border-radius: 18px; position: relative; overflow: hidden; }
         #leafletMap { width: 100%; height: 100%; z-index: 1; }
-
-        /* 💡 修正 Bug 3: 地圖無網絡浮水印提示 */
-        .map-offline-fallback {
-            position: absolute; top: 10px; right: 10px; background: rgba(15,23,42,0.85); color: white;
-            padding: 4px 10px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; z-index: 500;
-            display: none;
-        }
 
         .leaflet-tile-container img { filter: contrast(102%) brightness(98%) saturate(90%); }
         @keyframes dash { to { stroke-dashoffset: -20; } }
@@ -248,7 +237,6 @@
             max-height: 85vh; overflow-y: auto; padding: 18px; position: relative;
         }
 
-        /* 💡 修正 UX 1: 總覽 Modal 編輯按鈕放大至 0.85rem */
         .ov-action-btn {
             background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 8px;
             padding: 6px 10px; font-size: 0.85rem; font-weight: bold; cursor: pointer; color: #0F172A;
@@ -256,7 +244,6 @@
         }
         .ov-action-btn:hover { background: #E2E8F0; }
 
-        /* 🚀 商業化：星級評分 UI */
         .star-rating { display: flex; gap: 4px; margin-top: 4px; }
         .star { font-size: 1rem; cursor: pointer; color: #CBD5E1; }
         .star.filled { color: #F59E0B; }
@@ -382,7 +369,6 @@
                 <b>⏱️ 車程時間：</b><span id="det-drivetime" style="color:var(--pack-color); font-weight:bold;">-</span>
             </div>
 
-            <!-- 🚀 商業化 2: 打卡點星級評分區 -->
             <div style="margin-bottom:8px; background:#F8FAFC; padding:6px 8px; border-radius:8px; display:flex; align-items:center; justify-content:space-between;">
                 <span style="font-size:0.72rem; font-weight:bold; color:var(--gray);">景點真實推薦指數：</span>
                 <div class="star-rating" id="spotStarRatingZone">
@@ -457,9 +443,7 @@
                 <img class="photo-preview" id="photo-preview-img" src="" alt="預覽照片">
             </div>
             
-            <!-- 💡 修正 Critical Bug 1: 點擊即時驗證 GPS 位置 -->
             <button class="btn btn-outline" style="margin-top:10px; background:#F0FDFA; border-color:#0D9488; color:#0D9488;" aria-label="即時單次獲取 GPS 位置" onclick="triggerPassiveGpsCheck()">📍 點擊即時驗證 GPS 位置 (省電模式)</button>
-            
             <button class="btn-quest-done" id="btn-submit-quest" aria-label="完成任務" onclick="validateQuestCompletion()">✅ 完成任務 +200 EXP</button>
             <button class="btn btn-outline" style="margin-top:8px; font-size:0.75rem;" aria-label="手動打卡" onclick="manualForceCheckin()">📍 GPS 訊號弱？手動打卡解鎖</button>
         </div>
@@ -517,7 +501,19 @@
             </div>
         </div>
 
-        <!-- 🚀 商業化 1: 達人路線市集 Modal 入口 -->
+        <div class="info-card" style="border-left: 4px solid var(--pack-color);">
+            <div class="info-title" style="color:var(--pack-color);">👕 4人服裝資產庫 (8/8 - 8/21 台灣3日+北海道11日)</div>
+            <div class="pack-sub-title" style="font-weight:bold; font-size:0.8rem; margin-top:6px;">建議帶備</div>
+            <div class="detail-section">
+                <div class="check-item"><input type="checkbox"><span>短袖T恤 4-6件 (日間偏熱透氣)</span></div>
+                <div class="check-item"><input type="checkbox"><span>薄長袖 1-2件 (道東知床防涼)</span></div>
+                <div class="check-item"><input type="checkbox"><span>防曬外套 / 薄外套 1件</span></div>
+                <div class="check-item"><input type="checkbox"><span>輕便防風外套 1件 (羅臼出海/沿海防風)</span></div>
+                <div class="check-item"><input type="checkbox"><span>長褲 2條 / 短褲 1-2條</span></div>
+                <div class="check-item"><input type="checkbox"><span>襪子與舒適步行鞋</span></div>
+            </div>
+        </div>
+
         <div class="info-card" style="background:#F0FDFA; border:1px solid #0D9488;">
             <h3 style="color:#0D9488; margin:0 0 6px 0;">🌟 達人路線市集 (Marketplace)</h3>
             <p style="font-size:0.75rem; color:var(--gray); margin-bottom:8px;">探索 KOL 精選行程，或公開發表你的專屬冒險！</p>
@@ -617,7 +613,7 @@
         }
     }
 
-    // Cache-First 真離線 Service Worker
+    // Single-File 靜態模擬離線 Service Worker 註冊
     function registerRealOfflineServiceWorker() {
         if ('serviceWorker' in navigator) {
             const swScript = `
@@ -655,6 +651,7 @@
         }
     }
 
+    // 🗓️ 校正過後嘅 8/8–8/21 台日兩區完整 14 日數據
     const hokkaidoTemplate = [
         { day: 1, route: "8/8 抵達台北 ➔ 晴光商圈 ➔ 寧夏夜市", km: 15, driveTime: "約 30 分鐘", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "下午抵達台北，解鎖入住中山區「晴美公寓酒店」。下樓即是晴光市場商圈，必吃紅豆餅與脆皮鮮奶甜甜圈！晚上直奔寧夏夜市爆食蚵仔煎、地瓜球、大腸包小腸！", b: "自理", l: "自理", d: "寧夏夜市在地小吃", title: "晴美公寓酒店解鎖", desc: "順利抵達台北Check-in，上傳第一張台式快閃合照！", addr: "臺北市中山區林森北路568號", url: "https://www.jolleyhotels.com/", waypoints: [{name:"晴美酒店", lat: 25.064, lng: 121.526}, {name:"寧夏夜市", lat: 25.056, lng: 121.515}], rating: 5 },
         { day: 2, route: "8/9 西門町潮流購物 ➔ 鼎泰豐晚餐", km: 10, driveTime: "約 20 分鐘", hub: "taipei", targetHub: "taipei", weather: "台北晴天", spots: "萬年大樓潮玩極合口味。晚上前往鼎泰豐（新生店）享用世界級小籠包與排骨炒飯大餐。", b: "酒店內享用", l: "西門町在地美食", d: "鼎泰豐 新生店麵點", title: "西門町潮流捕獲", desc: "拍下在萬年大樓買到心儀潮玩的開心合照提交！", addr: "臺北市大安區信義路二段277號", url: "https://www.dintaifung.com.tw", waypoints: [{name:"萬年大樓", lat: 25.043, lng: 121.506}, {name:"鼎泰豐", lat: 25.033, lng: 121.529}], rating: 4 },
@@ -697,6 +694,7 @@
     let currentMarkers = [];
     let myChartInstance = null;
     let audioCtx = null, isMuted = true;
+    let gpsWatchId = null;
     let deferredPwaPrompt = null;
 
     function openWizardOverlay() {
@@ -722,7 +720,6 @@
         { name: "細囡", title: "🐋 殺人鯨觀測員", avatar: "👶" }
     ];
 
-    // 💡 修正 UX 2: 下拉選單選擇常見表情符號
     function renderWizardMemberInputs() {
         const container = document.getElementById('wizardMemberList');
         container.innerHTML = "";
@@ -1083,6 +1080,11 @@
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
+    function toggleGpsPowerSavingMode() {
+        isGpsPowerSaving = !isGpsPowerSaving;
+        document.getElementById('gpsPowerToggleBtn').innerText = isGpsPowerSaving ? "當前：省電 (每30秒)" : "當前：高精準度";
+    }
+
     // 💡 修正 Critical Bug 1: 改用「被動式單次 GPS 定位獲取」，大幅省電與避開市區長開 Timeout
     function triggerPassiveGpsCheck() {
         if (!navigator.geolocation) { alert("瀏覽器不支援 GPS"); return; }
@@ -1102,7 +1104,7 @@
             const dist = calculateDistanceMeters(userLat, userLng, targetWp.lat, targetWp.lng);
             const alertBanner = document.getElementById('gps-proximity-alert');
 
-            if (dist <= 300) { // 放寬至 300 米以應對市區高樓遮蔽
+            if (dist <= 300) {
                 alertBanner.style.background = '#16A34A';
                 alertBanner.innerHTML = `🎉 已成功到達！距離 ${targetWp.name} 僅 ${Math.round(dist)} 米！`;
                 document.getElementById('btn-submit-quest').style.display = 'block';
@@ -1319,7 +1321,6 @@
         } catch(e) {}
     }
 
-    // 🚀 商業化 2: 打卡點評分渲染
     function rateCurrentSpot(stars) {
         const data = masterData[activeDay - 1];
         if (data) {
@@ -1394,13 +1395,12 @@
         document.getElementById('genericModalOverlay').style.display = 'none';
     }
 
-    // 🚀 商業化 1: 達人路線市集 Modal
     function openMarketplaceModal() {
         const overlay = document.getElementById('genericModalOverlay');
         const content = document.getElementById('modalContentBox');
         content.innerHTML = `
             <h3 style="margin:0 0 8px 0; color:#0D9488;">🏪 達人路線市集 (Marketplace)</h3>
-            <p style="font-size:0.75rem; color:var(--gray); margin-bottom:12px;">選擇精選 KOL / 旅遊達人路線一鍵下載，或公開分享你自己的作品！</p>
+            <p style="font-size:0.75rem; color:var(--gray); margin-bottom:12px;">選擇精選 KOL / 旅遊達人路線一鍵下載，或公開發表你的專屬冒險！</p>
             
             <div style="background:#F8FAFC; border:1px solid #CBD5E1; padding:10px; border-radius:12px; margin-bottom:8px;">
                 <div style="font-weight:bold; font-size:0.85rem;">🌸 東京 5 日全極速潮玩 RPG</div>
@@ -1420,6 +1420,7 @@
         overlay.style.display = 'flex';
     }
 
+    // 💡 修正 Critical Bug 3: 總覽 Modal 點擊事件跳轉直達該天行程，並提供 0.85rem 大按鈕直接編輯
     function openOverviewModal() {
         const overlay = document.getElementById('genericModalOverlay');
         const content = document.getElementById('modalContentBox');
@@ -1432,7 +1433,6 @@
                      onmouseover="this.style.background='#FFF'" onmouseout="this.style.background='#F8FAFC'">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-weight:bold; color:var(--primary); font-size:0.85rem;">Day ${d.day}: ${d.title}</span>
-                        <!-- 💡 修正 UX 1: 編輯按鈕加大至 0.85rem -->
                         <span class="ov-action-btn" onclick="event.stopPropagation(); closeModal(); selectDay(${d.day}); toggleEditDayPanel(true);">✏️ 編輯行程</span>
                     </div>
                     <div style="font-size:0.75rem; color:#0F172A; margin:4px 0 2px 0;"><b>路線:</b> ${d.route}</div>
@@ -1514,6 +1514,7 @@
         document.body.appendChild(anchor); anchor.click(); anchor.remove();
     }
 
+    // 💡 修正 High Priority 3: Wizard 中點擊「匯入 JSON」直接觸發檔案選取，取消或完成都不會進入 Step 2 開空局
     function triggerDirectImportJSON() {
         document.getElementById('importFileInput').click();
     }
@@ -1537,6 +1538,7 @@
         }
     }
 
+    // 💡 修正 High Priority 2: 檢測 iOS UA 並提示 Safari 「分享 ➔ 加入主畫面」
     function setupPwaInstallBanner() {
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
